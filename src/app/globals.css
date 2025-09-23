@@ -1,26 +1,40 @@
 @import "tailwindcss";
 
+@theme {
+  /* Amethyst colors */
+  --color-amethyst-50: #F5F6FF;
+  --color-amethyst-100: #DFE3FF;
+  --color-amethyst-200: #C6CAFF;
+  --color-amethyst-300: #A3A8FE;
+  --color-amethyst-400: #817FFB;
+  --color-amethyst-500: #796BF5;
+  --color-amethyst-600: #6042E9;
+  --color-amethyst-700: #5438C5;
+  --color-amethyst-800: #442DA6;
+  --color-amethyst-900: #352684;
+  
+  /* Fern colors */
+  --color-fern-50: #E5FFF8;
+  --color-fern-100: #C3F6E8;
+  --color-fern-200: #8DEBD0;
+  --color-fern-300: #4AEAC3;
+  --color-fern-400: #31E4BD;
+  --color-fern-500: #04C8A0;
+  --color-fern-600: #008090;
+  --color-fern-700: #05806B;
+  --color-fern-800: #0A6557;
+  --color-fern-900: #0D5448;
+}
+
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: outfit;
+}
+
+a {
+  cursor: pointer;
 }
