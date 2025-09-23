@@ -1,32 +1,46 @@
+import { SearchbarWithFilters } from "@/components/global/searchbars/searchbarWithFilters";
 import Image from "next/image";
+import { FaStar } from "react-icons/fa";
 
 export function Hero() {
     return (
-        <section className="bg-amethyst-50 w-full min-h-[600px] flex items-center py-16">
-            <div className="container mx-auto max-w-[1280px] px-6 md:px-0 flex flex-col lg:flex-row items-center gap-12">
-                <div id="left-hero" className="flex-1 space-y-6">
-                    <p className="text-amethyst-700 text-sm font-medium">Hundreds of users share their experience.</p>
-                    <h1 className="font-bold text-5xl lg:text-6xl text-amethyst-900 leading-tight">Your trusted resource to find therapist reviews</h1>
-                    <p className="text-lg text-gray-600 leading-relaxed">Finding a good therapist gets easier with the help of real, honest unbiased reviews - including yours!</p>
-                    <div className="pt-4">
-                        <input 
-                            type="text" 
-                            placeholder="Search therapist reviews..." 
-                            className="w-full md:w-96 px-6 py-4 border-2 border-amethyst-200 rounded-full text-lg focus:outline-none focus:border-amethyst-500 transition-colors"
-                        />
+        <section className="relative bg-amethyst-50 w-full min-h-[500px] flex items-center pt-36 pb-10">
+            <div className="container mx-auto max-w-[1280px] px-6 md:px-0 flex flex-col lg:flex-row items-center ">
+                <div id="left-hero" className="flex-1 w-1/2">
+                    <div className="w-[90%] pl-2">
+                        <div className="flex items-center gap-2 mb-4" >
+                            <FaStar className="text-fern-500" size={22} />
+                            <p className="text-gray-800 text-base font-base">Hundreds of users share their experience.</p>
+                        </div>
+                        <h1 className="font-semibold text-5xl  text-gray-800 pb-6  ">Your trusted resource to find therapist reviews</h1>
+                        <p className="text-lg font-base text-gray-800 leading-relaxed">Finding a good therapist gets easier with the help of real, honest unbiased reviews - including yours!</p>
+                    </div>
+                    <div className="max-w-full mt-6">
+                        <SearchbarWithFilters />
                     </div>
                 </div>
-                <div className="flex-1">
-                    <div className="relative w-full h-[400px] lg:h-[500px]">
-                        <Image 
-                            className="object-contain" 
-                            src="/assets/home/hero_pic.png" 
-                            alt="Therapist consultation illustration" 
-                            fill 
+                <div id="right-hero" className="flex-1 w-1/2">
+                    <div className="relative w-full h-[400px]">
+                        <Image
+                            className="object-contain"
+                            src="/assets/home/hero_pic.png"
+                            alt="Therapist consultation illustration"
+                            fill
                             priority
                         />
+                        <div className="absolute -right-10 top-18 h-20 w-48">
+                            <Image
+                                className="object-contain"
+                                src="/assets/home/stars-hero.png"
+                                alt="Therapist consultation illustration"
+                                fill
+                                priority
+                            /></div>
                     </div>
                 </div>
+            </div>
+            <div className="w-full h-[80%] absolute top-0 left-0  ">
+                <Image src={"/assets/home/gradient-hero.png"} alt="Gradient" fill className="object-contain object-top-left" />
             </div>
         </section>
     );

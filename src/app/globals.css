@@ -20,7 +20,7 @@
   --color-fern-300: #4AEAC3;
   --color-fern-400: #31E4BD;
   --color-fern-500: #04C8A0;
-  --color-fern-600: #008090;
+  --color-fern-600: #00B090;
   --color-fern-700: #05806B;
   --color-fern-800: #0A6557;
   --color-fern-900: #0D5448;
@@ -37,4 +37,14 @@ body {
 
 a {
   cursor: pointer;
+}
+
+button {
+  cursor: pointer;
+}
+
+@layer utilities {
+  .filter-amethyst {
+    filter: brightness(0) saturate(100%) invert(33%) sepia(52%) saturate(1070%) hue-rotate(233deg) brightness(98%) contrast(88%);
+  }
 }

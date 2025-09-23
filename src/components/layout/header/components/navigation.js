@@ -10,7 +10,7 @@ function Navigation() {
     const navStructure = [
         { name: "About", href: "/about" },
         { name: "How it works", href: "/#how-it-works", isSection: true },
-        { name: "Therapists", href: "/app" },
+        { name: "Therapists", href: "#" },
         { name: "Feedback", href: "/feedback" },
     ];
 

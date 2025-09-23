@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 
 export function FeedbackSection() {
@@ -23,11 +24,25 @@ export function FeedbackSection() {
     };
 
     return (
-        <section className="py-20 bg-gray-50">
-            <div className="container mx-auto max-w-7xl px-6">
+        <section className="pb-6 pt-48 bg-amethyst-50 relative">
+
+            <div className='absolute w-[1000px] h-[1000px] -top-[500px] -left-[500px] opacity-30 z-10'>
+                <Image src={"/assets/feedback/ellipse.png"} alt="Feedback Illustration" fill className="object-cover" />
+            </div>
+
+
+            <div className='absolute w-[1000px] h-[1000px] top-0 -right-[500px] opacity-25 z-10'>
+                <Image src={"/assets/feedback/ellipse.png"} alt="Feedback Illustration" fill className="object-cover" />
+            </div>
+
+
+
+
+
+            <div className="container mx-auto max-w-[1280px] px-6 relative z-20">
                 {/* Header */}
-                <div className="text-center mb-12">
-                    <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+                <div className="text-center mb-12 flex flex-col items-center w-full ">
+                    <h1 className="text-5xl  font-bold text-gray-900 mb-10 w-[40%] " >
                         Uncover the power of your experience
                     </h1>
                     <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -37,7 +52,7 @@ export function FeedbackSection() {
                 </div>
 
                 {/* Main Content */}
-                <div className="grid lg:grid-cols-2 gap-8 items-start">
+                <div className="grid lg:grid-cols-2 gap-20 items-start pt-10 pb-32">
                     {/* Feedback Form */}
                     <div className="bg-white rounded-3xl border border-amethyst-200 p-10">
                         <h2 className="text-3xl font-medium text-black mb-8">
@@ -58,7 +73,7 @@ export function FeedbackSection() {
                                     value={formData.name}
                                     onChange={handleChange}
                                     placeholder="Your full name"
-                                    className="w-full pl-12 pr-4 py-3 bg-white border border-amethyst-100 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-amethyst-300 transition-colors"
+                                    className="w-full pl-12 pr-4 py-3 bg-white border border-amethyst-100 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-amethyst-300 transition-colors"
                                     required
                                 />
                             </div>
@@ -76,7 +91,7 @@ export function FeedbackSection() {
                                     value={formData.email}
                                     onChange={handleChange}
                                     placeholder="Enter your email"
-                                    className="w-full pl-12 pr-4 py-3 bg-white border border-amethyst-100 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-amethyst-300 transition-colors"
+                                    className="w-full pl-12 pr-4 py-3 bg-white border border-amethyst-100 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-amethyst-300 transition-colors"
                                     required
                                 />
                             </div>
@@ -94,7 +109,7 @@ export function FeedbackSection() {
                                     onChange={handleChange}
                                     placeholder="Your Feedback"
                                     rows={8}
-                                    className="w-full pl-12 pr-4 py-3 bg-white border border-amethyst-100 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-amethyst-300 transition-colors resize-none"
+                                    className="w-full pl-12 pr-4 py-3 bg-white border border-amethyst-100 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-amethyst-300 transition-colors resize-none"
                                     required
                                 />
                             </div>
@@ -110,22 +125,18 @@ export function FeedbackSection() {
                     </div>
 
                     {/* Right Side - Image or Illustration */}
-                    <div className="relative h-full min-h-[600px] rounded-3xl overflow-hidden border border-gray-200">
-                        <div className="absolute inset-0 bg-gradient-to-br from-amethyst-100 to-fern-100 opacity-50"></div>
-                        {/* Placeholder for image */}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="text-center p-8">
-                                <div className="w-64 h-64 mx-auto mb-6 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center">
-                                    <svg className="w-32 h-32 text-amethyst-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                    </svg>
-                                </div>
-                                <p className="text-2xl font-light text-gray-700">Thank you for helping us improve</p>
-                            </div>
-                        </div>
+                    <div className="relative h-[600px] rounded-3xl overflow-hidden border border-gray-200 ">
+                        <Image src={"/assets/feedback/feedback_pic.png"} alt="Feedback Illustration" fill className="object-cover object-center" />
                     </div>
                 </div>
             </div>
+
+
+
+            <div className='w-full h-[600px] bg-gradient-to-b from-amethyst-50 to-white absolute bottom-0 ' />
+
+
+
         </section>
     );
 }

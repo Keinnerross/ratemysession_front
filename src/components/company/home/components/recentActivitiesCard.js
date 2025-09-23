@@ -1,3 +1,5 @@
+import { ReactionBar } from './reactionBar';
+
 export function RecentActivityCard({ review }) {
     // Default values if review prop is not provided
     const defaultReview = {
@@ -19,7 +21,7 @@ export function RecentActivityCard({ review }) {
         return Array.from({ length: 5 }, (_, index) => {
             const filled = index < Math.floor(rating);
             const halfFilled = index < rating && index >= Math.floor(rating);
-            
+
             return (
                 <svg
                     key={index}
@@ -35,15 +37,15 @@ export function RecentActivityCard({ review }) {
     };
 
     return (
-        <div className="w-full bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-            <div className="p-4">
+        <div className="w-full bg-white rounded-xl border border-amethyst-100 max-w-[350px] transform hover:scale-[1.02] transition-transform shadow-sm hover:shadow-md cursor-pointer">
+            <div className="px-4 pt-4 pb-16 relative">
                 {/* Header */}
                 <div className="flex items-start gap-3 mb-3">
                     <div className="w-10 h-10 rounded-full bg-amethyst-200 flex items-center justify-center text-amethyst-700 font-semibold text-sm">
                         {data.authorImage ? (
-                            <img 
-                                src={data.authorImage} 
-                                alt={data.authorName} 
+                            <img
+                                src={data.authorImage}
+                                alt={data.authorName}
                                 className="w-full h-full rounded-full object-cover"
                             />
                         ) : (
@@ -63,7 +65,7 @@ export function RecentActivityCard({ review }) {
                 {/* Content */}
                 <div className="space-y-3">
                     <h3 className="text-lg font-medium text-gray-900">{data.therapistName}</h3>
-                    
+
                     <div className="flex items-center gap-2">
                         <div className="flex">{renderStars(data.rating)}</div>
                         <span className="text-gray-600 text-xs">{data.rating.toFixed(1)}</span>
@@ -80,28 +82,9 @@ export function RecentActivityCard({ review }) {
 
                 <hr className="border-gray-100 my-3" />
 
-                {/* Actions */}
-                <div className="flex items-center justify-between">
-                    <button className="flex items-center gap-2 text-gray-600 hover:text-amethyst-600 transition-colors">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                        <span className="text-sm">{data.likes}</span>
-                    </button>
-
-                    <button className="flex items-center gap-2 text-gray-600 hover:text-amethyst-600 transition-colors">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                        <span className="text-sm">{data.comments}</span>
-                    </button>
-
-                    <button className="flex items-center gap-2 text-gray-600 hover:text-amethyst-600 transition-colors">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m9.632 4.684C18.114 16.062 18 16.518 18 17c0 .482.114.938.316 1.342m0-2.684a3 3 0 110 2.684M9.316 16.658C9.114 16.062 9 15.518 9 15c0-.482.114-.938.316-1.342M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span className="text-sm">{data.shares}</span>
-                    </button>
+                {/* Reactions */}
+                <div className='w-full absolute bottom-5 left-0 px-4 '>
+                    <ReactionBar />
                 </div>
             </div>
         </div>

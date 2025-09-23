@@ -3,7 +3,7 @@ import { FAQSection } from "@/components/global/FAQ/FAQSection";
 
 export default function FeedbackPage() {
     return (
-        <div>
+        <div className="">
             <FeedbackSection />
             <FAQSection />
         </div>

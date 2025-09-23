@@ -33,7 +33,7 @@ export function FAQSection() {
                 <div className="grid lg:grid-cols-2 gap-12 items-start">
                     {/* Left side - Title */}
                     <div>
-                        <h2 className="text-4xl lg:text-5xl font-medium text-stone-700 leading-tight sticky top-8">
+                        <h2 className="text-3xl lg:text-4xl font-medium text-stone-800 leading-tight sticky top-8">
                             Learn how to get started with RateMySession
                         </h2>
                     </div>
@@ -49,9 +49,9 @@ export function FAQSection() {
                             >
                                 <button
                                     onClick={() => toggleAccordion(index)}
-                                    className="w-full py-6 flex justify-between items-center text-left hover:opacity-80 transition-opacity"
+                                    className="w-full py-6 flex justify-between items-center text-left "
                                 >
-                                    <h3 className="text-2xl font-light text-stone-800 pr-4">
+                                    <h3 className="text-xl font-base text-stone-800 pr-4">
                                         {faq.question}
                                     </h3>
                                     <span className="text-4xl font-extralight text-stone-800 flex-shrink-0">
@@ -65,7 +65,7 @@ export function FAQSection() {
                                         openIndex === index ? 'max-h-48 pb-6' : 'max-h-0'
                                     }`}
                                 >
-                                    <p className="text-base font-light text-black leading-relaxed pr-8">
+                                    <p className="text-base font-light text-gray-700 leading-relaxed pr-8">
                                         {faq.answer}
                                     </p>
                                 </div>

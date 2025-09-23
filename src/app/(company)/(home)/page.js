@@ -33,7 +33,6 @@ export default function Home() {
       <Hero />
       <HowItWorks />
       <CtaBanner />
-
       <InfoHomeSection1 />
       <InfoHomeSection2 />
       <RecentActivitiesSection />

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { FaFacebookF, FaTwitter, FaLinkedinIn, FaInstagram } from "react-icons/fa";
 
 export function Footer() {
     const footerLinks = {
@@ -21,10 +22,8 @@ export function Footer() {
     };
 
     const socialLinks = [
-        { icon: "facebook", href: "#" },
-        { icon: "twitter", href: "#" },
-        { icon: "linkedin", href: "#" },
-        { icon: "instagram", href: "#" }
+        { icon: "instagram", href: "#", component: FaInstagram },
+        { icon: "linkedin", href: "#", component: FaLinkedinIn }
     ];
 
     return (
@@ -49,16 +48,19 @@ export function Footer() {
                             </p>
                             {/* Social Links */}
                             <div className="flex gap-4">
-                                {socialLinks.map((social) => (
-                                    <Link 
-                                        key={social.icon}
-                                        href={social.href}
-                                        className="w-10 h-10 rounded-full bg-amethyst-50 flex items-center justify-center hover:bg-amethyst-100 transition-colors"
-                                    >
-                                        <span className="sr-only">{social.icon}</span>
-                                        <div className="w-5 h-5 bg-amethyst-600"></div>
-                                    </Link>
-                                ))}
+                                {socialLinks.map((social) => {
+                                    const Icon = social.component;
+                                    return (
+                                        <Link 
+                                            key={social.icon}
+                                            href={social.href}
+                                            className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors group"
+                                        >
+                                            <span className="sr-only">{social.icon}</span>
+                                            <Icon className="w-5 h-5 text-gray-500 group-hover:text-gray-700 transition-colors" />
+                                        </Link>
+                                    );
+                                })}
                             </div>
                         </div>
 
