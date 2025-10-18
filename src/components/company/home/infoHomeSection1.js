@@ -1,9 +1,31 @@
+'use client';
+
 import Image from "next/image";
+import { useRef, useState } from "react";
+import { useScrollAppear } from "@/utils/scrollAppear";
 
 export function InfoHomeSection1() {
+    const sectionRef = useRef(null);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useScrollAppear(
+        sectionRef,
+        () => setIsVisible(true),
+        () => setIsVisible(false),
+        0.3,
+        100
+    );
+
     return (
-        <section className=" pt-36 bg-white overflow-hidden">
-            <div className=" mx-auto max-w-[1280px] ">
+        <section 
+            ref={sectionRef} 
+            className="pt-36 bg-white overflow-hidden transition-all duration-700"
+            style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? 'translateY(0)' : 'translateY(50px)'
+            }}
+        >
+            <div className=" mx-auto max-w-[1440px] ">
                 <div className="flex flex-col lg:flex-row items-center gap-38">
                     {/* Left side - Image/Illustration */}
                     <div className="flex-1 relative w-1/4">

@@ -1,7 +1,21 @@
+'use client';
+
 import { ButtonCustom } from "@/components/global/buttons/buttons";
 import { RecentActivityCard } from "./components/recentActivitiesCard";
+import { useRef, useState } from "react";
+import { useScrollAppear } from "@/utils/scrollAppear";
 
 export function RecentActivitiesSection() {
+    const sectionRef = useRef(null);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useScrollAppear(
+        sectionRef,
+        () => setIsVisible(true),
+        () => setIsVisible(false),
+        0.3,
+        100
+    );
     const recentReviews = [
         {
             authorName: "Sherry W.",
@@ -66,8 +80,15 @@ export function RecentActivitiesSection() {
     ];
 
     return (
-        <section className="pb-10 pt-6">
-            <div className="container relative mx-auto max-w-[1280px] ">
+        <section 
+            ref={sectionRef}
+            className="pb-10 pt-6 transition-all duration-700"
+            style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? 'translateY(0)' : 'translateY(50px)'
+            }}
+        >
+            <div className="container relative mx-auto max-w-[1440px] ">
 
                 {/* Section Header */}
                 <div className="text-center mb-12">

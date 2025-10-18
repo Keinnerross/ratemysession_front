@@ -4,7 +4,7 @@ export function HeroAbout() {
     return (
         <section className="relative w-full min-h-[800px] pb-20 pt-36 flex justify-center items-center ">
             {/* Background gradient */}
-            <div className="max-w-[1280px] w-full relative z-10">
+            <div className="max-w-[1440px] w-full relative z-10">
                 {/* Title */}
                 <div className="text-center mb-16">
                     <h1 className="text-5xl lg:text-6xl font-medium text-gray-800 leading-tight">
@@ -16,7 +16,7 @@ export function HeroAbout() {
 
                 {/* Main Content Card */}
 
-                <div className="w-full h-[550px] relative  bg-red-200 rounded-3xl overflow-hidden">
+                <div className="w-full h-[550px] relative   rounded-3xl overflow-hidden">
                     <Image src="/assets/about/about-hero.png" alt="About Us Hero" fill className="object-cover object-center" />
                 </div>
 

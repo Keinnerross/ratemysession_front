@@ -32,7 +32,11 @@
 
 body {
   background: var(--background);
-  font-family: outfit;
+  font-family: var(--font-poppins), sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-outfit), sans-serif;
 }
 
 a {
@@ -46,5 +50,13 @@ button {
 @layer utilities {
   .filter-amethyst {
     filter: brightness(0) saturate(100%) invert(33%) sepia(52%) saturate(1070%) hue-rotate(233deg) brightness(98%) contrast(88%);
+  }
+  
+  .font-outfit {
+    font-family: var(--font-outfit), sans-serif;
+  }
+  
+  .font-poppins {
+    font-family: var(--font-poppins), sans-serif;
   }
 }

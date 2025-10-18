@@ -6,7 +6,7 @@ export function ButtonCustom({ children, onClick, variant = 1 }) {
                 return "bg-amethyst-500 text-white hover:bg-amethyst-600";
             case 2:
                 // Secondary - White with purple border
-                return "bg-white text-amethyst-500 border-2 border-amethyst-500 hover:bg-amethyst-50";
+                return "bg-white text-amethyst-950 font-medium border-2 border-amethyst-500 hover:bg-amethyst-50";
             case 3:
                 // Tertiary - Green filled
                 return "bg-fern-600 text-white hover:bg-fern-700";
@@ -23,7 +23,7 @@ export function ButtonCustom({ children, onClick, variant = 1 }) {
             className={`
                 flex items-center justify-center 
                 px-8 py-3 
-                rounded-full 
+                rounded-2xl 
                 font-normal text-base
                 transition-colors duration-200
                 ${getVariantStyles()}

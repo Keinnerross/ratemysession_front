@@ -39,7 +39,7 @@ export function FeedbackSection() {
 
 
 
-            <div className="container mx-auto max-w-[1280px] px-6 relative z-20">
+            <div className="container mx-auto max-w-[1440px] px-6 relative z-20">
                 {/* Header */}
                 <div className="text-center mb-12 flex flex-col items-center w-full ">
                     <h1 className="text-5xl  font-bold text-gray-900 mb-10 w-[40%] " >

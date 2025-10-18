@@ -12,7 +12,9 @@ export function Footer() {
         product: [
             { label: "Therapists", href: "/therapists" },
             { label: "Feedback", href: "/feedback" },
-            { label: "Support", href: "/support" }
+            { label: "Support", href: "/support" },
+            { label: "Login", href: "/login" },
+            { label: "Sign up", href: "/register" }
         ],
         about: [
             { label: "Company", href: "/about" },
