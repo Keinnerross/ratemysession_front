@@ -88,7 +88,7 @@ export function HowItWorks() {
       className="relative bg-white pt-10 pb-28 w-full"
     >
       {/*Gradient */}
-      <div className="absolute top-0 left-0 w-full  bg-gradient-to-b from-amethyst-50 to-white h-[300px]" />
+      {/* <div className="absolute top-0 left-0 w-full  bg-gradient-to-b from-amethyst-50 to-white h-[300px]" /> */}
 
       {/* Content */}
       <div

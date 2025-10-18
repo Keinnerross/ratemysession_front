@@ -6,7 +6,7 @@ import { IoIosArrowRoundForward } from "react-icons/io";
 
 export function Hero() {
   return (
-    <section className="relative bg-amethyst-50 w-full min-h-[500px] flex items-center pt-42 pb-16">
+    <section className="relative bg-white w-full min-h-[500px] flex items-center pt-42 pb-16">
       <div className="container mx-auto max-w-[1440px] px-6 md:px-0 flex flex-col lg:flex-row items-center z-10 relative ">
         <div id="left-hero" className="flex-1 w-1/2 gap-10">
           <div className="w-full pl-2">
@@ -22,7 +22,7 @@ export function Hero() {
                 <span> therapist reviews </span>
             </h1>
 
-            <p className="text-xl font-base text-gray-800 leading-relaxed w-[90%]">
+            <p className="text-lg font-base text-gray-800 leading-relaxed w-[90%]">
               Finding a good therapist gets easier with the help of real, honest
               unbiased reviews - including yours!
             </p>

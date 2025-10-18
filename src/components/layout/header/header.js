@@ -4,11 +4,13 @@ import { Logotype } from "@/components/global/brand/logo";
 import { SearchbarBasic } from "@/components/global/searchbars/searchBarBasic";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const { default: Navigation } = require("./components/navigation");
 
 export function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -27,8 +29,11 @@ export function Header() {
     }, []);
 
     const handleSearch = (value) => {
-        console.log('Search:', value);
-        // Aquí puedes agregar la lógica de búsqueda
+        if (value.trim()) {
+            router.push(`/search?q=${encodeURIComponent(value)}`);
+        } else {
+            router.push('/search');
+        }
     };
 
     return (
@@ -53,11 +58,11 @@ export function Header() {
 
                 {/* Auth Buttons */}
                 <div className="flex items-center gap-6">
-                    <Link href="/login" className="relative py-2 text-gray-700 hover:text-gray-900 transition-colors cursor-pointer whitespace-nowrap group">
+                    <Link href="/login" className="relative py-2 text-gray-900 hover:text-gray-900 transition-colors cursor-pointer whitespace-nowrap group text-[15px]">
                         Log in
                         <span className="absolute bottom-0 left-0 h-0.5 bg-amethyst-600 transition-all duration-300 w-0 group-hover:w-full" />
                     </Link>
-                    <Link href="/register" className="px-5 py-2.5 bg-amethyst-500 font-medium text-white rounded-xl hover:bg-amethyst-600 transition-all duration-200 hover:shadow-lg cursor-pointer whitespace-nowrap">Sign up</Link>
+                    <Link href="/register" className="px-5 py-2.5 bg-amethyst-500 font-medium text-white rounded-xl hover:bg-amethyst-600 transition-all duration-200 hover:shadow-lg cursor-pointer whitespace-nowrap text-[15px]">Sign up</Link>
                 </div>
             </div>
         </header>

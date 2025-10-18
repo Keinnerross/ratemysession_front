@@ -10,7 +10,7 @@ export function Footer() {
             { label: "Cookie Policy", href: "/cookie-policy" }
         ],
         product: [
-            { label: "Therapists", href: "/therapists" },
+            { label: "Therapists", href: "/search" },
             { label: "Feedback", href: "/feedback" },
             { label: "Support", href: "/support" },
             { label: "Login", href: "/login" },

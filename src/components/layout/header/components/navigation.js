@@ -37,10 +37,10 @@ function Navigation() {
     }, [pathname]);
 
     const navStructure = [
-        { name: "About", href: "/about" },
+        { name: "About us", href: "/about" },
         { name: "How it works", href: "/#how-it-works", isSection: true, hash: "#how-it-works" },
-        { name: "Therapists", href: "#" },
-        { name: "Feedback", href: "/feedback" },
+        { name: "Therapists", href: "/search" },
+        // { name: "Feedback", href: "/feedback" },
     ];
 
     const handleNavClick = (e, item) => {
@@ -89,8 +89,8 @@ function Navigation() {
                             <a 
                                 href={item.href}
                                 onClick={(e) => handleNavClick(e, item)}
-                                className={`relative py-2 text-base transition-all duration-300 group ${
-                                    isActive ? 'text-amethyst-600' : 'text-gray-800 hover:text-amethyst-600'
+                                className={`relative py-2 text-[15px] font-regular transition-all duration-300 group ${
+                                    isActive ? 'text-amethyst-600' : 'text-gray-900 hover:text-amethyst-600'
                                 }`}
                             >
                                 {item.name}
