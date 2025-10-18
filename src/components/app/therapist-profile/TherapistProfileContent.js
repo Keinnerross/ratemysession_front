@@ -28,7 +28,7 @@ export default function TherapistProfileContent({ data = {} }) {
 
   return (
     <div className="min-h-screen py-12 mt-23 border-t border-amethyst-100">
-      <div className="max-w-[1280px] mx-auto">
+      <div className="max-w-[1140px] mx-auto">
         <div className="flex gap-8 lg:gap-24 flex-wrap lg:flex-nowrap">
           {/* Left Column - Therapist Info */}
           <div className="w-full lg:w-72 flex flex-col">

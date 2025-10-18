@@ -65,7 +65,7 @@ export default function SearchLayout({ data, searchParams = {} }) {
     <div className="min-h-screen bg-white py-23">
       {/* Main Content Container */}
       <div className="w-full  border-t border-amethyst-100">
-        <div className="max-w-[1440px] mx-auto ">
+        <div className="max-w-[1280px] mx-auto ">
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Sidebar - Filters */}
             <aside className="w-full lg:w-81">

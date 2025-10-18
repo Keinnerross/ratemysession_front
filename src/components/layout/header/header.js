@@ -35,9 +35,9 @@ export function Header() {
             router.push('/search');
         }
     };
-
+// border-b border-amethyst-100
     return (
-        <header className={`fixed left-0 top-0 z-50 w-full transition-all duration-300 ${
+        <header className={`fixed left-0 top-0 z-50 w-full transition-all duration-300   ${
             isScrolled ? 'bg-white ' : 'bg-transparent'
         }`}>
             <div className="max-w-[1440px] w-full mx-auto flex items-center py-1">
