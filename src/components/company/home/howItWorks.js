@@ -3,19 +3,19 @@
 import { ButtonCustom } from "@/components/global/buttons/buttons";
 import { FaPlay } from "react-icons/fa";
 import { useRef, useState } from "react";
-import { useScrollAppear } from "@/utils/scrollAppear";
+// import { useScrollAppear } from "@/utils/scrollAppear";
 
 export function HowItWorks() {
   const sectionRef = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
+  // const [isVisible, setIsVisible] = useState(false);
 
-  useScrollAppear(
-    sectionRef,
-    () => setIsVisible(true),
-    () => setIsVisible(false),
-    0.5, // Cambiado de 0.3 a 0.5 para activar a la mitad
-    100
-  );
+  // useScrollAppear(
+  //   sectionRef,
+  //   () => setIsVisible(true),
+  //   () => setIsVisible(false),
+  //   0.5, // Cambiado de 0.3 a 0.5 para activar a la mitad
+  //   100
+  // );
 
   const steps = [
     {
@@ -85,34 +85,34 @@ export function HowItWorks() {
     <section
       ref={sectionRef}
       id="how-it-works"
-      className="relative bg-white pt-10 pb-28 w-full"
+      className="relative bg-transparent pt-10 pb-32 w-full"
     >
       {/*Gradient */}
       {/* <div className="absolute top-0 left-0 w-full  bg-gradient-to-b from-amethyst-50 to-white h-[300px]" /> */}
 
       {/* Content */}
       <div
-        className="z-10 relative transition-all duration-700"
-        style={{
-          opacity: isVisible ? 1 : 0,
-          transform: isVisible ? "translateY(0)" : "translateY(50px)",
-        }}
+        className="z-10 relative"
+        // style={{
+        //   opacity: isVisible ? 1 : 0,
+        //   transform: isVisible ? "translateY(0)" : "translateY(50px)",
+        // }}
       >
-        <div className="text-center pb-16">
-          <h2 className="text-[3rem] font-medium text-gray-800 ">
+        <div className="text-center pb-12">
+          <h2 className="text-[2.6rem] font-semibold text-gray-800 ">
             How it works
           </h2>
         </div>
 
         {/* Steps Grid */}
-        <div className="flex justify-between max-w-[1440px] mx-auto pb-10">
+        <div className="flex justify-between max-w-[1330px] mx-auto pb-10">
           {steps.map((step, index) => (
             <div
               key={index}
               className={`w-full max-w-[400px] cursor-pointer  ${
                 index === 1
-                  ? "transform scale-[1.1] mx-8 hover:scale-1.15"
-                  : "hover:scale-1.1"
+                  ? "mx-8"
+                  : ""
               }`}
             >
               <div className="bg-white rounded-3xl border border-amethyst-100 px-6  py-8 flex flex-col items-center text-center h-full">

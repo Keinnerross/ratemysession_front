@@ -7,6 +7,8 @@ export default function RatingStatisticsChart({
   distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 } 
 }) {
   const [animatedHeights, setAnimatedHeights] = useState({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+  const [hoveredStar, setHoveredStar] = useState(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   
   // Calculate the maximum height for normalization
   const maxCount = Math.max(...Object.values(distribution), 1);
@@ -28,8 +30,24 @@ export default function RatingStatisticsChart({
     return () => clearTimeout(timer);
   }, [distribution]);
 
+  // Handle mouse move for tooltip positioning
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+  };
+
   return (
-    <svg viewBox="0 0 473 312" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+    <div className="relative w-full h-full">
+      <svg 
+        viewBox="0 0 473 312" 
+        fill="none" 
+        xmlns="http://www.w3.org/2000/svg" 
+        className="w-full h-full"
+        onMouseMove={handleMouseMove}
+      >
       <g clipPath="url(#clip0_552_9354)">
         
         {/* Grid lines */}
@@ -60,21 +78,38 @@ export default function RatingStatisticsChart({
           const height = animatedHeights[star];
           const minHeight = 45; // Increased minimum height to maintain bar shape
           const displayHeight = height > 0 ? Math.max(height, minHeight) : 0;
+          const isHovered = hoveredStar === star;
           
           return (
-            <rect
-              key={star}
-              x={x}
-              y={276 - displayHeight}
-              width="41"
-              height={displayHeight}
-              rx="20.5"
-              fill="#796BF5"
-              style={{
-                transition: "height 0.64s ease-out, y 0.64s ease-out",
-                transitionDelay: `${star * 0.08}s`, // Staggered animation
-              }}
-            />
+            <g key={star}>
+              <rect
+                x={x}
+                y={276 - displayHeight}
+                width="41"
+                height={displayHeight}
+                rx="20.5"
+                fill="#796BF5"
+                fillOpacity={hoveredStar && hoveredStar !== star ? 0.5 : 1}
+                style={{
+                  transition: "all 0.64s ease-out",
+                  transitionDelay: `${star * 0.08}s`, // Staggered animation
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={() => setHoveredStar(star)}
+                onMouseLeave={() => setHoveredStar(null)}
+              />
+              {/* Hover area for better UX */}
+              <rect
+                x={x - 10}
+                y={0}
+                width="61"
+                height="276"
+                fill="transparent"
+                style={{ cursor: 'pointer' }}
+                onMouseEnter={() => setHoveredStar(star)}
+                onMouseLeave={() => setHoveredStar(null)}
+              />
+            </g>
           );
         })}
       </g>
@@ -84,5 +119,24 @@ export default function RatingStatisticsChart({
         </clipPath>
       </defs>
     </svg>
+    
+    {/* Tooltip */}
+    {hoveredStar && (
+      <div
+        className="absolute z-10 px-3 py-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg pointer-events-none"
+        style={{
+          left: `${mousePos.x}px`,
+          top: `${mousePos.y - 40}px`,
+          transform: 'translateX(-50%)'
+        }}
+      >
+        <div className="font-medium">{hoveredStar} {hoveredStar === 1 ? 'star' : 'stars'}</div>
+        <div className="text-gray-300">{distribution[hoveredStar]} reviews</div>
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full">
+          <div className="w-0 h-0 border-l-4 border-l-transparent border-r-4 border-r-transparent border-t-4 border-t-gray-900"></div>
+        </div>
+      </div>
+    )}
+    </div>
   );
 }

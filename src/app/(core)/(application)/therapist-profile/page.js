@@ -1,5 +1,5 @@
 import { therapists } from "@/data/therapists";
-import TherapistProfileContent from "@/components/app/therapist-profile/TherapistProfileContent";
+import TherapistProfileContent from "@/components/app/therapists/profile/TherapistProfileContent";
 
 export default async function TherapistProfilePage({ searchParams }) {
   const params = await searchParams;

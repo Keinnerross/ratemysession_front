@@ -30,10 +30,10 @@ export function Footer() {
 
     return (
         <footer className="relative bg-white border-t border-stone-300">
-            <div className="container mx-auto max-w-7xl px-6">
+            <div className="container mx-auto max-w-[1330px] px-6">
                 {/* Main Footer Content */}
                 <div className="py-12">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 text-sm">
                         {/* Company Info */}
                         <div className="lg:col-span-2">
                             <div className="mb-6">
@@ -140,7 +140,7 @@ export function Footer() {
             </div>
 
             {/* Decorative Background Element */}
-            <div className="absolute -left-80 -bottom-20 w-96 h-96 rounded-full bg-amethyst-100 opacity-20 blur-3xl pointer-events-none"></div>
+            {/* <div className="absolute -left-80 -bottom-20 w-96 h-96 rounded-full bg-amethyst-100 opacity-20 blur-3xl pointer-events-none"></div> */}
         </footer>
     );
 }

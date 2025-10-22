@@ -37,7 +37,7 @@ export function RecentActivityCard({ review }) {
     };
 
     return (
-        <div className="w-full bg-white rounded-xl border border-amethyst-100 max-w-[350px] transform hover:scale-[1.02] transition-transform shadow-sm hover:shadow-md cursor-pointer">
+        <div className="w-full bg-white rounded-xl border border-amethyst-100 max-w-[350px] transform hover:scale-[1.02] transition-transform cursor-pointer">
             <div className="px-4 pt-4 pb-16 relative">
                 {/* Header */}
                 <div className="flex items-start gap-3 mb-3">

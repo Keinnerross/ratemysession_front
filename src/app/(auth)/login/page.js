@@ -12,7 +12,7 @@ export default function LoginPage() {
   };
   return (
     <PageTransition>
-      <div className="min-h-screen flex justify-center bg-amethyst-50 pt-10">
+      <div className="min-h-screen flex justify-center bg-white pt-10">
         <div className="w-[774px] max-w-full px-4 py-8">
           <div className="flex flex-col gap-[72px]">
           {/* Header */}
@@ -65,9 +65,12 @@ export default function LoginPage() {
               </Link>
 
               {/* Login Button */}
-              <button className="relative w-[120px] h-[42px] bg-white rounded-[21px] border border-[#d8d4ff] font-semibold text-[#796bf5] text-base font-['Outfit'] hover:bg-[#796bf5] hover:text-white transition-colors flex items-center justify-center">
+              <Link 
+                href="/user-profile"
+                className="relative w-[120px] h-[42px] bg-white rounded-[21px] border border-[#d8d4ff] font-semibold text-[#796bf5] text-base font-['Outfit'] hover:bg-[#796bf5] hover:text-white transition-colors flex items-center justify-center"
+              >
                 Log In
-              </button>
+              </Link>
             </div>
 
             {/* Center Divider */}

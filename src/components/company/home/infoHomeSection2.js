@@ -20,13 +20,13 @@ export function InfoHomeSection2() {
     return (
         <section 
             ref={sectionRef} 
-            className="pb-20 pt-10 bg-white overflow-visible transition-all duration-700"
+            className="pb-20 pt-26 bg-white overflow-visible transition-all duration-700"
             style={{
                 opacity: isVisible ? 1 : 0,
                 transform: isVisible ? 'translateY(0)' : 'translateY(50px)'
             }}
         >
-            <div className=" mx-auto max-w-[1440px] ">
+            <div className=" mx-auto max-w-[1300px] ">
                 <div className="flex flex-col lg:flex-row items-center gap-38">
                     {/* Left side - Image/Illustration */}
 
@@ -36,7 +36,7 @@ export function InfoHomeSection2() {
                         <h2 className="text-4xl lg:text-5xl font-medium text-gray-900 leading-tight pb-4">
                             Your voice matters.
                         </h2>
-                        <p className="text-lg font-light text-stone-500 mb-8 leading-relaxed w-[85%]">
+                        <p className="text-base font-base text-stone-600 mb-8 leading-relaxed w-[85%]">
                           Help others by leaving a private review. We’ve built a safe space where you can speak freely without revealing your identity.
                         </p>
                        <ButtonCustom variant={1}>Write a review</ButtonCustom>

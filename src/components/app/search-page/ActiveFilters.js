@@ -63,7 +63,7 @@ const ActiveFilters = ({ filters, onFilterChange, onClearAll }) => {
       {activeFilterCount > 0 && (
         <button 
           onClick={onClearAll}
-          className="text-sm text-amethyst-600 hover:text-amethyst-700 font-poppins font-medium whitespace-nowrap"
+          className="text-sm text-amethyst-500 hover:text-amethyst-600 font-poppins font-medium whitespace-nowrap"
         >
           Clear all filters
         </button>

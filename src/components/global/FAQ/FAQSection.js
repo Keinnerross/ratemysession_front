@@ -29,7 +29,7 @@ export function FAQSection() {
 
     return (
         <section className="py-20 bg-white">
-            <div className="container mx-auto max-w-7xl px-6">
+            <div className="container mx-auto max-w-[1330px] px-6">
                 <div className="grid lg:grid-cols-2 gap-12 items-start">
                     {/* Left side - Title */}
                     <div>
@@ -65,7 +65,7 @@ export function FAQSection() {
                                         openIndex === index ? 'max-h-48 pb-6' : 'max-h-0'
                                     }`}
                                 >
-                                    <p className="text-base font-light text-gray-700 leading-relaxed pr-8">
+                                    <p className="text-sm font-base text-stone-600 leading-relaxed pr-8">
                                         {faq.answer}
                                     </p>
                                 </div>

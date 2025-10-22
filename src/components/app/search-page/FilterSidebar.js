@@ -85,7 +85,7 @@ const FilterSidebar = ({ filters = {}, onFilterChange }) => {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-[2px]">
                     {[...Array(5)].map((_, i) => (
                       <FaStar 
                         key={i} 
@@ -216,13 +216,7 @@ const FilterSidebar = ({ filters = {}, onFilterChange }) => {
       {/* My Favorites Section */}
       <div className="border-t border-gray-200 px-6 py-4">
         <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={filters.showFavorites || false}
-            onChange={(e) => onFilterChange?.({ ...filters, showFavorites: e.target.checked })}
-            className="w-4 h-4 text-amethyst-500 border-gray-300 rounded focus:ring-amethyst-500"
-          />
-          <FaHeart className="text-red-500 text-sm" />
+          <FaStar className="text-amethyst-500 text-base" />
           <span className="font-poppins font-semibold text-gray-900">My Favorites</span>
         </label>
       </div>

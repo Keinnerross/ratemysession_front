@@ -1,9 +1,12 @@
 import React from 'react';
-import TherapistCard from '@/components/app/cards/therapistCard';
+import { useRouter } from 'next/navigation';
+import TherapistCard from '@/components/app/therapists/cards/therapistCard';
 import { ButtonCustom } from '@/components/global/buttons/buttons';
+import AddTherapistBanner from './AddTherapistBanner';
 
 const TherapistList = ({ therapists, visibleCount, totalCount, onShowMore }) => {
   const hasMore = visibleCount < totalCount;
+  const router = useRouter();
 
   return (
     <>
@@ -35,6 +38,13 @@ const TherapistList = ({ therapists, visibleCount, totalCount, onShowMore }) => 
           </ButtonCustom>
         </div>
       )}
+
+      {/* Add Therapist Banner */}
+      <AddTherapistBanner 
+        callToAction="Know a great therapist? Help expand our community"
+        buttonText="Add Therapist"
+        showDelay={3000}
+      />
     </>
   );
 };

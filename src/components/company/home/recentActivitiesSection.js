@@ -82,13 +82,13 @@ export function RecentActivitiesSection() {
     return (
         <section 
             ref={sectionRef}
-            className="pb-10 pt-6 transition-all duration-700"
+            className="pb-26 pt-16 transition-all duration-700"
             style={{
                 opacity: isVisible ? 1 : 0,
                 transform: isVisible ? 'translateY(0)' : 'translateY(50px)'
             }}
         >
-            <div className="container relative mx-auto max-w-[1440px] ">
+            <div className="container relative mx-auto max-w-[1330px] ">
 
                 {/* Section Header */}
                 <div className="text-center mb-12">
@@ -99,7 +99,7 @@ export function RecentActivitiesSection() {
                 </div>
 
                 {/* Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-14 justify-items-center w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center w-full">
                     {recentReviews.map((review, index) => (
                         <RecentActivityCard key={index} review={review} />
                     ))}

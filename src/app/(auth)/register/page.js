@@ -12,7 +12,7 @@ export default function RegisterPage() {
   };
   return (
     <PageTransition>
-      <div className="min-h-screen flex justify-center bg-amethyst-50 pt-10">
+      <div className="min-h-screen flex justify-center bg-white pt-10">
         <div className="w-[800px] max-w-full px-4 py-8">
           {/* Main Container */}
           <div className="flex flex-col gap-[72px]">
