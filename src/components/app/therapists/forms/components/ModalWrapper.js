@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
 
 export default function ModalWrapper({ 
@@ -10,18 +10,32 @@ export default function ModalWrapper({
   children,
   footer
 }) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      // Small delay to ensure the DOM is ready before animating
+      const timer = setTimeout(() => {
+        setIsVisible(true);
+      }, 10);
+      return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
+    }
+  }, [isOpen]);
+
   if (!isOpen && !isAnimating) return null;
 
   return (
     <div 
       className={`fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center transition-opacity duration-300 ease-out ${
-        isOpen && !isAnimating ? 'opacity-100' : 'opacity-0'
+        isVisible && !isAnimating ? 'opacity-100' : 'opacity-0'
       }`}
       onClick={onClose}
     >
       <div 
         className={`bg-white rounded-[30px] w-[690px] min-h-[520px] max-h-[90vh] p-8 flex flex-col transition-all duration-300 ease-out transform ${
-          isOpen && !isAnimating ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+          isVisible && !isAnimating ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
