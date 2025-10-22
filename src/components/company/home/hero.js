@@ -29,7 +29,16 @@ export function Hero() {
           </div>
           <div className="w-full mt-8 flex items-center gap-8">
             <ButtonCustom variant={1}>Get started—rate!</ButtonCustom>
-            <a className="flex gap-1 items-center cursor-pointer group relative">
+            <a 
+              className="flex gap-1 items-center cursor-pointer group relative"
+              onClick={() => {
+                const element = document.getElementById('how-it-works');
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth' });
+                  window.location.hash = 'how-it-works';
+                }
+              }}
+            >
               <p className="text-stone-800 transition-colors group-hover:text-stone-900 relative">
                 Watch How It Works
               </p>

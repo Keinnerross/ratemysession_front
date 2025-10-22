@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
+import { MdKeyboardArrowLeft } from "react-icons/md";
 
 export default function ModalWrapper({ 
   isOpen, 
@@ -42,13 +43,13 @@ export default function ModalWrapper({
         <div className="flex justify-between items-center mb-4">
           <button
             onClick={currentStep === 1 ? onClose : onBack}
-            className="flex items-center gap-1 text-[#7f7f7f] hover:text-gray-900 transition-colors"
+            className="flex items-center gap-0 text-[#7f7f7f] hover:text-gray-900 transition-colors"
           >
             {currentStep === 1 ? (
               <>
-                <FaTimes className="w-3 h-3" />
+                <MdKeyboardArrowLeft className="w-6 h-6" />
                 <span className="text-xs font-['Outfit'] tracking-[0.16px] uppercase">
-                  Cancel
+                  RETURN PROFILE
                 </span>
               </>
             ) : (
@@ -73,12 +74,6 @@ export default function ModalWrapper({
             )}
           </button>
 
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <FaTimes className="w-5 h-5" />
-          </button>
         </div>
 
         <div className="w-full flex flex-col items-center flex-1 overflow-y-auto">

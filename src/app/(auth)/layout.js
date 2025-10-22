@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Logotype } from "@/components/global/brand/logo";
 
 export default function AuthLayout({ children }) {
@@ -8,9 +7,9 @@ export default function AuthLayout({ children }) {
       <header className=" bg-transparentborder-b bg-white py-4">
         <div className="max-w-[1330px] mx-auto">
           <div className="flex -center ">
-            <Link href="/" className="flex items-center">
+            <div className="flex items-center">
               <Logotype />
-            </Link>
+            </div>
           </div>
         </div>
       </header>

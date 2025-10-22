@@ -2,9 +2,9 @@ import Image from "next/image";
 
 export function HeroAbout() {
     return (
-        <section className="relative w-full min-h-[800px] pb-20 pt-36 flex justify-center items-center bg-amethyst-50">
+        <section className="relative w-full min-h-[800px] pb-20 pt-36 flex justify-center items-center bg-white">
             {/* Background gradient */}
-            <div className="max-w-[1440px] w-full relative z-10">
+            <div className="max-w-[1330px] w-full relative z-10">
                 {/* Title */}
                 <div className="text-center mb-16">
                     <h1 className="text-5xl lg:text-6xl font-medium text-gray-800 leading-tight">

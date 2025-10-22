@@ -12,7 +12,7 @@ export default function LoginPage() {
   };
   return (
     <PageTransition>
-      <div className="min-h-screen flex justify-center bg-white pt-10">
+      <div className="min-h-screen flex justify-center bg-white pt-6">
         <div className="w-[774px] max-w-full px-4 py-8">
           <div className="flex flex-col gap-[72px]">
           {/* Header */}

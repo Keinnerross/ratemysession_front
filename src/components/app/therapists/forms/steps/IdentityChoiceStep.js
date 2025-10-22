@@ -26,11 +26,10 @@ export default function IdentityChoiceStep({ identityOption, onIdentitySelect })
           <div className="flex flex-col items-center justify-center h-full p-4">
             <div className="w-12 h-12 flex items-center justify-center mb-3">
               <Image 
-                src="/assets/icons-svg/others/anonymous- light.svg"
+                src="/assets/icons-svg/others/anonymous.svg"
                 alt="Anonymous"
                 width={40}
                 height={40}
-                className="text-[#7466f2]"
               />
             </div>
             <h3 className="font-['Outfit'] font-medium text-[#424242] text-base tracking-[-0.16px] mb-1">

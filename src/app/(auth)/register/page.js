@@ -12,7 +12,7 @@ export default function RegisterPage() {
   };
   return (
     <PageTransition>
-      <div className="min-h-screen flex justify-center bg-white pt-10">
+      <div className="min-h-screen flex justify-center bg-white pt-6">
         <div className="w-[800px] max-w-full px-4 py-8">
           {/* Main Container */}
           <div className="flex flex-col gap-[72px]">
@@ -106,7 +106,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Footer */}
-          <div className="flex flex-col items-center gap-1.5 text-xs text-[#595d70] font-['Poppins'] pt-20">
+          <div className="flex flex-col items-center gap-1.5 text-xs text-[#595d70] font-['Poppins'] pt-8">
             <div className="text-center">
               <p className="text-[11.8px]">
                 * By signing up, you agree to our{" "}
