@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CtaBanner } from "@/components/company/home/ctaBanner";
 import { FAQSection } from "@/components/global/FAQ/FAQSection";
@@ -10,7 +10,7 @@ import { RecentActivitiesSection } from "@/components/company/home/recentActivit
 import { InfoHomeSection1 } from "@/components/company/home/infoHomeSection1";
 import { InfoHomeSection2 } from "@/components/company/home/infoHomeSection2";
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams();
   
   useEffect(() => {
@@ -29,7 +29,6 @@ export default function Home() {
 
   return (
     <div className="overflow-x-hidden">
-
       <Hero />
       <HowItWorks />
       <CtaBanner />
@@ -38,5 +37,13 @@ export default function Home() {
       <RecentActivitiesSection />
       <FAQSection />
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <HomeContent />
+    </Suspense>
   );
 }

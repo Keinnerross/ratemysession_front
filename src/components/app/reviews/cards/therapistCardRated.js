@@ -137,7 +137,11 @@ export default function TherapistCardRated({
               return (
                 <button
                   key={key}
-                  onClick={() => onReaction(id, key)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onReaction(id, key);
+                  }}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-full transition-all ${
                     isActive ? "bg-stone-100" : "hover:bg-stone-50"
                   }`}

@@ -151,9 +151,8 @@ export default function TherapistCard({ dataTherapist = {} }) {
           {/* Read Reviews Button */}
           <button
             onClick={(e) => {
-              e.preventDefault();
               e.stopPropagation();
-              onReadReviews && onReadReviews(id);
+              // Allow the Link to handle navigation
             }}
             className="flex items-center gap-1 text-amethyst-500 hover:text-amethyst-600 transition-colors font-outfit text-sm font-medium"
           >

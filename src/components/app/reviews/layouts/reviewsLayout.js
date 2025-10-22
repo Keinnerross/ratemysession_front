@@ -71,23 +71,27 @@ export default function ReviewsLayout({
         ).toFixed(1)
       : 0;
 
-  const handleReaction = (commentId, reactionType) => {
+  const handleReaction = React.useCallback((commentId, reactionType) => {
     setComments((prevComments) =>
       prevComments.map((comment) => {
         if (comment.id === commentId) {
-          const newComment = { ...comment };
+          // Create a deep copy to avoid mutations
+          const newComment = {
+            ...comment,
+            reactions: { ...comment.reactions }
+          };
           const currentReaction = comment.userReaction;
 
           if (currentReaction === reactionType) {
             // Remove reaction
-            newComment.reactions[reactionType]--;
+            newComment.reactions[reactionType] = Math.max(0, newComment.reactions[reactionType] - 1);
             newComment.userReaction = null;
           } else {
             // Add/change reaction
             if (currentReaction) {
-              newComment.reactions[currentReaction]--;
+              newComment.reactions[currentReaction] = Math.max(0, newComment.reactions[currentReaction] - 1);
             }
-            newComment.reactions[reactionType]++;
+            newComment.reactions[reactionType] = (newComment.reactions[reactionType] || 0) + 1;
             newComment.userReaction = reactionType;
           }
 
@@ -96,7 +100,7 @@ export default function ReviewsLayout({
         return comment;
       })
     );
-  };
+  }, []);
 
   const handleViewReview = (reviewId) => {
     console.log("View review:", reviewId);

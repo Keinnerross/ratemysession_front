@@ -19,7 +19,7 @@ const TherapistList = ({ therapists, visibleCount, totalCount, onShowMore }) => 
               dataTherapist={{
                 ...therapist,
                 onSaveToggle: (isSaved) => console.log(`Saved ${therapist.name}:`, isSaved),
-                onReadReviews: (id) => console.log(`Read reviews for therapist ID:`, id)
+                onReadReviews: (id) => router.push(`/therapist-profile?id=${id}`)
               }}
             />
           ))
