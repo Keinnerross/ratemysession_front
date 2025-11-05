@@ -6,18 +6,13 @@ import { PeopleBehindSection } from "@/components/company/about us/peopleBehindS
 import { FAQSection } from "@/components/global/FAQ/FAQSection";
 
 export default function About() {
-    return (
-        <div>
-
-
-            <HeroAbout />
-            <InfoAboutSection />
-            <OurObjectivesSection />
-            <PeopleBehindSection />
-            <FAQSection />
-        </div>
-
-
-
-    );
-}       
+  return (
+    <div className="flex flex-col items-center">
+        <HeroAbout />
+        <InfoAboutSection />
+        <OurObjectivesSection />
+        <PeopleBehindSection />
+        <FAQSection />
+    </div>
+  );
+}

@@ -82,24 +82,24 @@ export function RecentActivitiesSection() {
     return (
         <section 
             ref={sectionRef}
-            className="pb-26 pt-16 transition-all duration-700"
+            className="pb-16 md:pb-26 pt-8 md:pt-16 transition-all duration-700"
             style={{
                 opacity: isVisible ? 1 : 0,
                 transform: isVisible ? 'translateY(0)' : 'translateY(50px)'
             }}
         >
-            <div className="container relative mx-auto max-w-[1330px] ">
+            <div className="container relative mx-auto max-w-[1330px] px-6 md:px-8 lg:px-0">
 
                 {/* Section Header */}
-                <div className="text-center mb-12">
-                    <h2 className="text-4xl  font-medium text-gray-900 mb-4">
+                <div className="text-center mb-8 md:mb-12">
+                    <h2 className="text-3xl md:text-4xl font-medium text-gray-900 mb-4">
                         Recent Activities
                     </h2>
 
                 </div>
 
                 {/* Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10 justify-items-center w-full">
                     {recentReviews.map((review, index) => (
                         <RecentActivityCard key={index} review={review} />
                     ))}
@@ -111,7 +111,7 @@ export function RecentActivitiesSection() {
                 </div>
 
 
-                <div className="absolute bottom-0 w-full h-[600px] bg-gradient-to-t from-white from-18%  to-transparent" />
+                <div className="absolute bottom-0 w-full h-[300px] md:h-[450px] lg:h-[600px] bg-gradient-to-t from-white from-18% to-transparent" />
 
             </div>
         </section>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Header } from "@/components/layout/header/header";
+import { HeaderHome } from "@/components/layout/header/headerHome";
 import { Footer } from "@/components/layout/footer/footer";
 import { AddTherapistProvider, useAddTherapist } from "@/context/AddTherapistContext";
 import AddTherapistWizard from "@/components/app/therapists/forms/AddTherapistWizard";
@@ -10,7 +10,7 @@ function LayoutContent({ children }) {
   
   return (
     <>
-      <Header />
+      <HeaderHome />
       <main className="min-h-screen">
         {children}
       </main>
@@ -25,7 +25,7 @@ function LayoutContent({ children }) {
   );
 }
 
-export default function LayoutCore({ children }) {
+export default function LayoutHome({ children }) {
   return (
     <AddTherapistProvider>
       <LayoutContent>{children}</LayoutContent>

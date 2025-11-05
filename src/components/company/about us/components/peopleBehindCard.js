@@ -18,7 +18,7 @@ export function PeopleBehindCard({ person }) {
             {/* Image Section */}
             <div className="relative w-full aspect-square bg-gray-200">
                 {data.picture ? (
-                    <Image src={data.picture} alt={data.name} layout="fill" objectFit="cover" />
+                    <Image src={data.picture} alt={data.name} fill className="object-cover" />
                 ) : (
                     <div className="w-full h-full bg-gradient-to-br from-amethyst-100 to-amethyst-200 flex items-center justify-center">
                         <div className="w-32 h-32 rounded-full bg-white/20 backdrop-blur-sm"></div>

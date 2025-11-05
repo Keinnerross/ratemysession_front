@@ -64,10 +64,11 @@ export function CtaBanner() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const maxWidth = 1440 + (windowWidth - 1440) * expansionProgress;
+  const baseMaxWidth = Math.min(windowWidth, 1440);
+  const maxWidth = baseMaxWidth + (windowWidth - baseMaxWidth) * expansionProgress;
   const padding = 16 * (1 - expansionProgress); // 16px = 1rem
-  const borderRadius = 60 * (1 - expansionProgress);
-  const scale = 1 + (0.2 * expansionProgress); // Scale from 1 to 1.2
+  const borderRadius = windowWidth < 768 ? 30 * (1 - expansionProgress) : 60 * (1 - expansionProgress);
+  const scale = windowWidth < 768 ? 1 : 1 + (0.2 * expansionProgress); // No scale on mobile
 
   return (
     <section ref={sectionRef} className="pt-6 pb-10 overflow-hidden">
@@ -79,7 +80,7 @@ export function CtaBanner() {
         }}
       >
         <div 
-          className="relative overflow-hidden w-full h-[560px] flex justify-center items-center transition-opacity duration-300"
+          className="relative overflow-hidden w-full h-[400px] md:h-[480px] lg:h-[560px] flex justify-center items-center transition-opacity duration-300"
           style={{
             borderRadius: `${borderRadius}px`,
             transform: `scale(${scale})`,
@@ -98,21 +99,21 @@ export function CtaBanner() {
           </div>
           {/* Content */}
           <div 
-            className="relative z-10 text-center max-w-4xl mx-auto flex flex-col items-center gap-6 transition-opacity duration-700"
+            className="relative z-10 text-center max-w-4xl mx-auto flex flex-col items-center gap-4 md:gap-6 px-6 transition-opacity duration-700"
             style={{
               transform: `translateY(${30 * (1 - expansionProgress)}px)`,
               opacity: opacity,
             }}
           >
             {/* <h2 className="text-[3.7rem]/16 font-base text-white   w-[70%]"> */}
-              <h2 className="text-[3.5rem]/14 font- text-white flex flex-col ">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[3.5rem]/14 font-medium text-white flex flex-col">
                 <span> Make confident choices </span>
                 <span> for your well-being and find </span>
                 <span> your path through </span>
                 <span> real experiences.</span>
               </h2>
             {/* </h2> */}
-            <p className="text-lg font-base text-white max-w-2xl mx-auto leading-relaxed w-full">
+            <p className="text-sm md:text-base lg:text-lg font-base text-white max-w-2xl mx-auto leading-relaxed w-full">
               Real insights to better understand, improve, and care for your mental health.
             </p>
             <ButtonCustom variant={2}>View Recents Reviews</ButtonCustom>

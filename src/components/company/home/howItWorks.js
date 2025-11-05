@@ -85,7 +85,7 @@ export function HowItWorks() {
     <section
       ref={sectionRef}
       id="how-it-works"
-      className="relative bg-transparent pt-10 pb-32 w-full"
+      className="relative bg-transparent pt-10 pb-16 md:pb-24 lg:pb-32 w-full"
     >
       {/*Gradient */}
       {/* <div className="absolute top-0 left-0 w-full  bg-gradient-to-b from-amethyst-50 to-white h-[300px]" /> */}
@@ -98,24 +98,22 @@ export function HowItWorks() {
         //   transform: isVisible ? "translateY(0)" : "translateY(50px)",
         // }}
       >
-        <div className="text-center pb-12">
-          <h2 className="text-[2.6rem] font-semibold text-gray-800 ">
+        <div className="text-center pb-8 md:pb-12 px-6">
+          <h2 className="text-3xl md:text-4xl lg:text-[2.6rem] font-semibold text-gray-800">
             How it works
           </h2>
         </div>
 
         {/* Steps Grid */}
-        <div className="flex justify-between max-w-[1330px] mx-auto pb-10">
+        <div className="flex flex-col md:flex-row justify-between max-w-[1330px] mx-auto pb-10 gap-6 md:gap-4 px-6">
           {steps.map((step, index) => (
             <div
               key={index}
-              className={`w-full max-w-[400px] cursor-pointer  ${
-                index === 1
-                  ? "mx-8"
-                  : ""
+              className={`w-full md:max-w-[400px] cursor-pointer ${
+                index === 1 ? "md:mx-4 lg:mx-8" : ""
               }`}
             >
-              <div className="bg-white rounded-3xl border border-amethyst-100 px-6  py-8 flex flex-col items-center text-center h-full">
+              <div className="bg-white rounded-3xl border border-amethyst-100 px-6 py-6 md:py-8 flex flex-col items-center text-center h-full">
                 {/* Icon Circle */}
                 <div
                   className={`w-14 h-14 rounded-full ${step.bgColor} flex items-center justify-center mb-4`}
@@ -124,7 +122,7 @@ export function HowItWorks() {
                 </div>
 
                 {/* Title */}
-                <h3 className="text-lg font-bold text-gray-900 mb-3">
+                <h3 className="text-base md:text-lg font-bold text-gray-900 mb-3">
                   {step.title}
                 </h3>
 
@@ -137,7 +135,7 @@ export function HowItWorks() {
           ))}
         </div>
 
-        <div className=" flex justify-center items-center gap-4 pt-[50px] ">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-8 md:pt-[50px] px-6">
           <ButtonCustom variant={1}>Search therapist reviews</ButtonCustom>
           <a className="flex gap-2 items-center cursor-pointer group relative">
             <FaPlay

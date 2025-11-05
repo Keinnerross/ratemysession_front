@@ -3,56 +3,42 @@ import { ButtonCustom } from "@/components/global/buttons/buttons";
 import Image from "next/image";
 import { FaStar } from "react-icons/fa";
 import { IoIosArrowRoundForward } from "react-icons/io";
+import { SearchbarBasic } from "@/components/global/searchbars/searchBarBasic";
 
 export function Hero() {
   return (
-    <section className="relative bg-white w-full min-h-[500px] flex items-center pt-40 pb-16">
-      <div className="container mx-auto max-w-[1330px] px-6 md:px-0 flex flex-col lg:flex-row items-center z-10 relative ">
-        <div id="left-hero" className="flex-1 w-1/2 gap-10">
-          <div className="w-full">
-            <div className="flex items-center gap-2 mb-4 ">
+    <section className="relative bg-amethyst-50 w-full min-h-[500px] flex items-center pt-24 md:pt-32 lg:pt-40 pb-22 md:pb-40">
+      <div className="container mx-auto max-w-[1330px] px-6 md:px-8 lg:px-0 flex flex-col-reverse lg:flex-row items-center gap-6 lg:gap-0 z-10 relative">
+        <div id="left-hero" className="flex-1 w-full lg:w-1/2 gap-10">
+          <div className="w-full text-center md:text-left">
+            <div className="flex items-center gap-2 mb-4 justify-center md:justify-start">
               <FaStar className="text-fern-500" size={22} />
-              <p className="text-stone-800 text-base font-base font-['poppins']">
+              <p className="text-stone-800 text-sm md:text-base font-base font-['poppins']">
                 Hundreds of users share their experience.
               </p>
             </div>
-            <h1 className="font-medium text-[4.5rem]/18   text-stone-800 pb-8  flex flex-col">
-                <span> Your trusted </span>
-                <span> resource to find </span>
-                <span> therapist reviews </span>
+            <h1 className="font-medium text-[30px]/8 md:text-5xl lg:text-[4.5rem]/18 text-stone-800 pb-6 md:pb-8  md:hidden flex">
+              Your trusted resource to find therapist reviews
+            </h1>
+            <h1 className="font-medium text-4xl md:text-5xl lg:text-6xl text-stone-800 pb-6 md:pb-8 hidden md:flex flex-col">
+              <span> Your trusted resource to </span>
+              <span> find therapist reviews </span>
             </h1>
 
-            <p className="text-base font-base text-stone-700 leading-relaxed w-[90%] font-['poppins']">
+            <p className="text-sm md:text-base font-base text-stone-700 leading-relaxed w-full lg:w-[90%] font-['poppins']">
               Finding a good therapist gets easier with the help of real, honest
               unbiased reviews - including yours!
             </p>
           </div>
-          <div className="w-full mt-8 flex items-center gap-8">
-            <ButtonCustom variant={1}>Get started—rate!</ButtonCustom>
-            <a 
-              className="flex gap-1 items-center cursor-pointer group relative"
-              onClick={() => {
-                const element = document.getElementById('how-it-works');
-                if (element) {
-                  element.scrollIntoView({ behavior: 'smooth' });
-                  window.location.hash = 'how-it-works';
-                }
-              }}
-            >
-              <p className="text-stone-800 transition-colors group-hover:text-stone-900 relative">
-                Watch How It Works
-              </p>
-              <IoIosArrowRoundForward size={22} />
-                <span className="absolute -bottom-[3px] left-0 w-0 h-[1px] bg-stone-700 transition-all duration-500 ease-out group-hover:w-full" />
-            </a>
-
-
-
-
+          <div className="pt-8 md:pt-6">
+            <SearchbarBasic />
           </div>
         </div>
-        <div id="right-hero" className="flex-1 w-1/2">
-          <div className="relative w-full h-[520px]">
+        <div
+          id="right-hero"
+          className="flex-1 w-full lg:w-1/2 order-first lg:order-last"
+        >
+          <div className="relative w-full h-[350px] md:h-[400px] lg:h-[480px]">
             <Image
               className="object-contain"
               src="/assets/home/hero_pic.png"
@@ -60,7 +46,7 @@ export function Hero() {
               fill
               priority
             />
-            <div className="absolute -right-10 top-18 h-20 w-48">
+            <div className="absolute -right-5 md:-right-10 top-12 md:top-18 h-16 md:h-20 w-36 md:w-48">
               <Image
                 className="object-contain"
                 src="/assets/home/stars-hero.png"
@@ -72,13 +58,14 @@ export function Hero() {
           </div>
         </div>
       </div>
-      <div className="w-[800px] h-[800px] absolute -bottom-80 -right-80 pointer-events-none">
-        <div 
+      <div className="w-[400px] md:w-[600px] lg:w-[800px] h-[400px] md:h-[600px] lg:h-[800px] absolute -bottom-40 md:-bottom-60 lg:-bottom-80 -right-40 md:-right-60 lg:-right-80 pointer-events-none">
+        <div
           className="w-full h-full"
           style={{
-            background: 'radial-gradient(circle at center, #796BF520, transparent 70%)',
+            background:
+              "radial-gradient(circle at center, #796BF520, transparent 70%)",
             opacity: 0,
-            animation: 'fadeIn 1s ease-in-out 1s forwards'
+            animation: "fadeIn 1s ease-in-out 1s forwards",
           }}
         />
         <style jsx>{`
@@ -93,13 +80,14 @@ export function Hero() {
         `}</style>
       </div>
 
-      <div className="w-[800px] h-[800px] absolute -top-80 -left-80 pointer-events-none">
-        <div 
+      <div className="w-[400px] md:w-[600px] lg:w-[800px] h-[400px] md:h-[600px] lg:h-[800px] absolute -top-40 md:-top-60 lg:-top-80 -left-40 md:-left-60 lg:-left-80 pointer-events-none">
+        <div
           className="w-full h-full"
           style={{
-            background: 'radial-gradient(circle at center, #796BF530, transparent 70%)',
+            background:
+              "radial-gradient(circle at center, #796BF530, transparent 70%)",
             opacity: 0,
-            animation: 'fadeIn 1s ease-in-out 1s forwards'
+            animation: "fadeIn 1s ease-in-out 1s forwards",
           }}
         />
         <style jsx>{`

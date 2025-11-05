@@ -32,7 +32,7 @@ export function PeopleBehindSection() {
     ];
 
     return (
-        <section className="py-30 bg-white">
+        <section className="pt-26 pb-0 md:py-30 bg-white">
             <div className="container mx-auto max-w-7xl px-6">
                 {/* Section Title */}
                 <h2 className="text-4xl font-medium text-gray-800 mb-10">
