@@ -6,7 +6,7 @@ import SocialLoginButton from "./SocialLoginButton";
 
 export default function SocialAuthButtons({ isLogin = true, onSocialAuth }) {
   return (
-    <div className="w-80 flex flex-col gap-4">
+    <div className="w-full flex flex-col gap-4">
       <SocialLoginButton
         provider="google"
         icon={FaGoogle}

@@ -45,7 +45,7 @@ export default function RatingStatisticsChart({
         viewBox="0 0 473 312" 
         fill="none" 
         xmlns="http://www.w3.org/2000/svg" 
-        className="w-full h-full"
+        className=""
         onMouseMove={handleMouseMove}
       >
       <g clipPath="url(#clip0_552_9354)">
@@ -91,21 +91,10 @@ export default function RatingStatisticsChart({
                 fill="#796BF5"
                 fillOpacity={hoveredStar && hoveredStar !== star ? 0.5 : 1}
                 style={{
-                  transition: "all 0.64s ease-out",
-                  transitionDelay: `${star * 0.08}s`, // Staggered animation
+                  transition: "all 0.5s ease-out",
+                  transitionDelay: `${star * 0.02}s`, // Staggered animation
                   cursor: 'pointer'
                 }}
-                onMouseEnter={() => setHoveredStar(star)}
-                onMouseLeave={() => setHoveredStar(null)}
-              />
-              {/* Hover area for better UX */}
-              <rect
-                x={x - 10}
-                y={0}
-                width="61"
-                height="276"
-                fill="transparent"
-                style={{ cursor: 'pointer' }}
                 onMouseEnter={() => setHoveredStar(star)}
                 onMouseLeave={() => setHoveredStar(null)}
               />

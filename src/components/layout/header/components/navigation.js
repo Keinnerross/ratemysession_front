@@ -92,8 +92,8 @@ function Navigation() {
     };
 
     return (
-        <nav>
-            <ul className="flex gap-8 justify-between items-center">
+        <nav className='whitespace-nowrap'>
+            <ul className="flex gap-8 justify-between items-center flex-nowrap">
                 {navStructure.map((item, i) => {
                     const isActive = item.isSection 
                         ? pathname === '/' && activeHash === item.hash

@@ -7,8 +7,8 @@ import { SearchbarBasic } from "@/components/global/searchbars/searchBarBasic";
 
 export function Hero() {
   return (
-    <section className="relative bg-amethyst-50 w-full min-h-[500px] flex items-center pt-24 md:pt-32 lg:pt-40 pb-22 md:pb-40">
-      <div className="container mx-auto max-w-[1330px] px-6 md:px-8 lg:px-0 flex flex-col-reverse lg:flex-row items-center gap-6 lg:gap-0 z-10 relative">
+    <section className="relative bg-amethyst-50 w-full min-h-[500px] flex items-center pt-30 md:pt-32 lg:pt-40 pb-22 md:pb-40">
+      <div className="container mx-auto max-w-[1330px] px-6 md:px-8 lg:px-0 flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-0 z-10 relative">
         <div id="left-hero" className="flex-1 w-full lg:w-1/2 gap-10">
           <div className="w-full text-center md:text-left">
             <div className="flex items-center gap-2 mb-4 justify-center md:justify-start">

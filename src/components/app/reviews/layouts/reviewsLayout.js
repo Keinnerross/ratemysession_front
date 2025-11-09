@@ -1,73 +1,97 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useTransition, useEffect } from "react";
 import TherapistCardRated from "../cards/therapistCardRated";
 import TherapistCardRatedSummaryAI from "../cards/therapistCardRatedSumaryAI";
 import CustomSelect from "@/components/global/inputs/CustomSelect";
 import commentsData from "@/data/comments";
+import { loadMoreReviews } from "@/app/(core)/(application)/therapist-profile/actions";
 
 export default function ReviewsLayout({
   therapistId,
   therapistName,
   therapistImage,
+  initialComments = [],
+  initialHasMore = false,
+  totalReviewCount = 0
 }) {
+  const [isPending, startTransition] = useTransition();
   const [sortBy, setSortBy] = useState("recent");
   const [filterRating, setFilterRating] = useState("all");
-  const [comments, setComments] = useState(commentsData);
-  const [visibleCount, setVisibleCount] = useState(6);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isFilterLoading, setIsFilterLoading] = useState(false);
+  const [comments, setComments] = useState(initialComments.length > 0 ? initialComments : commentsData);
+  const [hasMore, setHasMore] = useState(initialHasMore);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isAISummaryHelpful, setIsAISummaryHelpful] = useState(false);
   const [aiHelpfulCount, setAiHelpfulCount] = useState(87);
+  const isFirstRender = React.useRef(true);
 
-  // Reset visible count and show loader when filters change
-  React.useEffect(() => {
-    setIsFilterLoading(true);
-    setVisibleCount(6);
+  // Handle filter changes - load new data from server
+  useEffect(() => {
+    if (!therapistId || initialComments.length === 0) return;
     
-    const timer = setTimeout(() => {
-      setIsFilterLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [sortBy, filterRating]);
-
-  // Filter comments by therapist if therapistId is provided
-  const therapistComments = therapistId
-    ? comments.filter((comment) => comment.therapistId === therapistId)
-    : comments;
-
-  // Apply sorting
-  const sortedComments = [...therapistComments].sort((a, b) => {
-    if (sortBy === "recent") {
-      return new Date(b.date) - new Date(a.date);
-    } else if (sortBy === "helpful") {
-      const totalReactionsA = Object.values(a.reactions).reduce(
-        (sum, count) => sum + count,
-        0
-      );
-      const totalReactionsB = Object.values(b.reactions).reduce(
-        (sum, count) => sum + count,
-        0
-      );
-      return totalReactionsB - totalReactionsA;
+    // Skip the first render since we already have initial data
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
     }
-    return 0;
-  });
+    
+    setCurrentPage(1);
+    
+    startTransition(async () => {
+      try {
+        const result = await loadMoreReviews(therapistId, 1, sortBy, filterRating);
+        if (result) {
+          setComments(result.reviews);
+          setHasMore(result.hasMore);
+        }
+      } catch (error) {
+        console.error('Failed to load filtered reviews:', error);
+      }
+    });
+  }, [sortBy, filterRating, therapistId]);
 
-  // Apply rating filter
-  const filteredComments = sortedComments.filter((comment) => {
-    if (filterRating === "all") return true;
-    return comment.rating === parseInt(filterRating);
-  });
+  // For API data, comments are already filtered and sorted by the server
+  // For mock data, apply local filtering
+  const therapistComments = initialComments.length > 0 
+    ? comments // Already filtered and sorted by API
+    : (therapistId
+        ? comments.filter((comment) => comment.therapistId === therapistId)
+        : comments);
 
-  // Calculate stats
-  const totalReviews = therapistComments.length;
+  // Only apply local sorting/filtering for mock data
+  const displayComments = initialComments.length > 0 
+    ? comments // Use server-sorted data
+    : (() => {
+        // Apply local sorting for mock data
+        const sorted = [...therapistComments].sort((a, b) => {
+          if (sortBy === "recent") {
+            return new Date(b.date) - new Date(a.date);
+          } else if (sortBy === "helpful") {
+            const totalReactionsA = Object.values(a.reactions).reduce(
+              (sum, count) => sum + count,
+              0
+            );
+            const totalReactionsB = Object.values(b.reactions).reduce(
+              (sum, count) => sum + count,
+              0
+            );
+            return totalReactionsB - totalReactionsA;
+          }
+          return 0;
+        });
+        
+        // Apply local rating filter for mock data
+        if (filterRating === "all") return sorted;
+        return sorted.filter(comment => comment.rating === parseInt(filterRating));
+      })();
+
+  // Calculate stats - use totalReviewCount from props for API data
+  const totalReviews = initialComments.length > 0 ? totalReviewCount : therapistComments.length;
   const averageRating =
-    totalReviews > 0
+    comments.length > 0
       ? (
-          therapistComments.reduce((sum, comment) => sum + comment.rating, 0) /
-          totalReviews
+          comments.reduce((sum, comment) => sum + comment.rating, 0) /
+          comments.length
         ).toFixed(1)
       : 0;
 
@@ -124,29 +148,7 @@ export default function ReviewsLayout({
         </div>
       </div>
 
-      {/* Stats */}
-      {therapistId && (
-        <div className="flex items-center gap-6 mb-6">
-          <div className="flex items-center gap-2">
-            <span className="text-3xl font-medium text-[#313131] font-['Outfit']">
-              {averageRating}
-            </span>
-            <div className="flex text-[#ffc107]">
-              {[...Array(5)].map((_, i) => (
-                <span
-                  key={i}
-                  className={i < Math.round(averageRating) ? "" : "opacity-30"}
-                >
-                  ★
-                </span>
-              ))}
-            </div>
-          </div>
-          <span className="text-lg text-gray-600 font-['Outfit']">
-            Based on {totalReviews} review{totalReviews !== 1 ? "s" : ""}
-          </span>
-        </div>
-      )}
+     
 
       {/* Filters */}
       <div className="flex gap-4 mb-8">
@@ -202,16 +204,14 @@ export default function ReviewsLayout({
       )}
 
       {/* Reviews List */}
-      <div className="flex flex-col gap-8 pt-8">
-        <div className="flex flex-col bg-white rounded-lg gap-16 relative min-h-[200px] ">
-          {isFilterLoading ? (
+      <div className="flex flex-col gap-8 pt-4">
+        <div className="flex flex-col bg-white rounded-lg gap-8 relative min-h-[200px] ">
+          {isPending && comments.length === 0 ? (
             <div className="flex justify-center items-center py-16">
               <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-[#7466f2]"></div>
             </div>
-          ) : filteredComments.length > 0 ? (
-            filteredComments
-              .slice(0, visibleCount)
-              .map((comment) => (
+          ) : displayComments.length > 0 ? (
+            displayComments.map((comment) => (
                 <TherapistCardRated
                   key={comment.id}
                   comment={comment}
@@ -230,30 +230,40 @@ export default function ReviewsLayout({
         </div>
 
         {/* Show More Button */}
-        {filteredComments.length > visibleCount && !isLoading && (
+        {hasMore && (
           <div className="flex justify-center pt-4">
             <button
               onClick={() => {
-                setIsLoading(true);
-                setTimeout(() => {
-                  setVisibleCount((prev) => prev + 6);
-                  setIsLoading(false);
-                }, 800);
+                const nextPage = currentPage + 1;
+                startTransition(async () => {
+                  try {
+                    const result = await loadMoreReviews(therapistId, nextPage, sortBy, filterRating);
+                    if (result && result.reviews) {
+                      setComments(prev => [...prev, ...result.reviews]);
+                      setHasMore(result.hasMore);
+                      setCurrentPage(nextPage);
+                    }
+                  } catch (error) {
+                    console.error('Failed to load more reviews:', error);
+                  }
+                });
               }}
-              className="px-8 py-2 bg-white rounded-[100px] border border-solid border-[#e8e8e8] hover:border-[#7466f2] transition-all"
+              disabled={isPending}
+              className="px-8 py-2 bg-white rounded-[100px] border border-solid border-[#e8e8e8] hover:border-[#7466f2] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="font-medium text-gray-800 text-sm font-['poppins'] tracking-[0] leading-4">
-                Show More Reviews ({filteredComments.length - visibleCount}{" "}
-                remaining)
-              </span>
+              {isPending && comments.length > 0 ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-[#7466f2]"></div>
+                  <span className="font-medium text-gray-800 text-sm font-['poppins'] tracking-[0] leading-4">
+                    Loading...
+                  </span>
+                </div>
+              ) : (
+                <span className="font-medium text-gray-800 text-sm font-['poppins'] tracking-[0] leading-4">
+                  Show More Reviews
+                </span>
+              )}
             </button>
-          </div>
-        )}
-        
-        {/* Loading Spinner */}
-        {isLoading && (
-          <div className="flex justify-center items-center py-8">
-            <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-[#7466f2]"></div>
           </div>
         )}
       </div>

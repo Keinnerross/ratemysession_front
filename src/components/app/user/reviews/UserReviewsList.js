@@ -56,13 +56,13 @@ export default function UserReviewsList({ reviews = [], savedTherapists = [] }) 
   const visibleReviews = filteredReviews.slice(0, visibleCount);
 
   return (
-    <div className="w-full max-w-[1050px] flex flex-col">
+    <div className="w-full flex flex-col">
       {/* Header with Tabs */}
-      <div className="relative mb-8">
-        <div className="flex items-center gap-8 mb-2">
+      <div className="relative mb-6 md:mb-8">
+        <div className="flex items-center gap-4 sm:gap-6 md:gap-8 mb-2">
           <button
             onClick={() => setActiveTab("reviews")}
-            className={`text-lg font-base font-['Outfit'] tracking-[-0.32px] transition-colors ${
+            className={`text-base sm:text-lg font-base font-['Outfit'] tracking-[-0.32px] transition-colors ${
               activeTab === "reviews" 
                 ? "text-gray-800" 
                 : "text-gray-400 hover:text-gray-500"
@@ -72,7 +72,7 @@ export default function UserReviewsList({ reviews = [], savedTherapists = [] }) 
           </button>
           <button
             onClick={() => setActiveTab("saved")}
-            className={`text-lg font-base font-['Outfit'] tracking-[-0.32px] transition-colors ${
+            className={`text-base sm:text-lg font-base font-['Outfit'] tracking-[-0.32px] transition-colors ${
               activeTab === "saved" 
                 ? "text-gray-800" 
                 : "text-gray-400 hover:text-gray-500"
@@ -87,8 +87,8 @@ export default function UserReviewsList({ reviews = [], savedTherapists = [] }) 
           <div 
             className={`absolute top-0 h-1 bg-[#7466f2] transition-all duration-300 ${
               activeTab === "reviews" 
-                ? "left-0 w-[100px]" 
-                : "left-[120px] w-[145px]"
+                ? "left-0 w-[80px] sm:w-[100px]" 
+                : "left-[100px] sm:left-[120px] w-[120px] sm:w-[145px]"
             }`} 
           />
         </div>
@@ -99,7 +99,7 @@ export default function UserReviewsList({ reviews = [], savedTherapists = [] }) 
         <>
           {/* Filters */}
           {reviews.length > 0 && (
-            <div className="flex gap-4 mb-8">
+            <div className="flex sm:flex-row gap-3 flex-wrap sm:gap-4 mb-6 md:mb-8">
               <CustomSelect
                 value={sortBy}
                 onChange={setSortBy}
@@ -108,7 +108,7 @@ export default function UserReviewsList({ reviews = [], savedTherapists = [] }) 
                   { value: "rating", label: "Highest Rating" },
                 ]}
                 rounded="rounded-full"
-                className="min-w-[160px]"
+                className="w-full sm:min-w-[160px] sm:w-auto"
                 defaultValue="recent"
               />
 
@@ -124,7 +124,7 @@ export default function UserReviewsList({ reviews = [], savedTherapists = [] }) 
                   { value: "2", label: "2 Stars" },
                   { value: "1", label: "1 Star" },
                 ]}
-                className="w-[200px]"
+                className="w-full sm:w-[200px]"
                 defaultValue="all"
               />
             </div>
@@ -132,24 +132,21 @@ export default function UserReviewsList({ reviews = [], savedTherapists = [] }) 
 
           {/* Reviews Tab Content */}
           {reviews.length === 0 ? (
-            <div className="w-full py-12 text-center">
-              <p className="text-lg text-gray-500 font-['Outfit']">
+            <div className="w-full py-8 md:py-12 text-center">
+              <p className="text-base sm:text-lg text-gray-500 font-['Outfit']">
                 You haven't written any reviews yet.
               </p>
-              <p className="text-sm text-gray-400 font-['Outfit'] mt-2">
+              <p className="text-xs sm:text-sm text-gray-400 font-['Outfit'] mt-2">
                 Share your experiences to help others find the right therapist.
               </p>
             </div>
           ) : (
             <>
-              {/* Reviews Count */}
-             
-
               {/* Reviews List */}
-              <div className="flex flex-col gap-6 relative min-h-[200px]">
+              <div className="flex flex-col gap-4 sm:gap-5 md:gap-6 relative min-h-[200px]">
                 {isFilterLoading ? (
-                  <div className="flex justify-center items-center py-16">
-                    <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-[#7466f2]"></div>
+                  <div className="flex justify-center items-center py-12 md:py-16">
+                    <div className="animate-spin rounded-full h-8 w-8 md:h-10 md:w-10 border-4 border-gray-200 border-t-[#7466f2]"></div>
                   </div>
                 ) : filteredReviews.length > 0 ? (
                   visibleReviews.map((review) => (
@@ -161,7 +158,7 @@ export default function UserReviewsList({ reviews = [], savedTherapists = [] }) 
                     />
                   ))
                 ) : (
-                  <div className="flex items-center justify-center h-[200px] text-gray-500 font-['Outfit']">
+                  <div className="flex items-center justify-center h-[200px] text-gray-500 font-['Outfit'] px-4 text-center">
                     No reviews found matching your criteria
                   </div>
                 )}
@@ -169,7 +166,7 @@ export default function UserReviewsList({ reviews = [], savedTherapists = [] }) 
 
               {/* Show More Button */}
               {filteredReviews.length > visibleCount && !isLoading && (
-                <div className="flex justify-center pt-8">
+                <div className="flex justify-center pt-6 md:pt-8">
                   <button
                     onClick={() => {
                       setIsLoading(true);
@@ -178,9 +175,9 @@ export default function UserReviewsList({ reviews = [], savedTherapists = [] }) 
                         setIsLoading(false);
                       }, 800);
                     }}
-                    className="px-8 py-2 bg-white rounded-[100px] border border-solid border-[#e8e8e8] hover:border-[#7466f2] transition-all"
+                    className="px-6 sm:px-8 py-2 bg-white rounded-[100px] border border-solid border-[#e8e8e8] hover:border-[#7466f2] transition-all"
                   >
-                    <span className="font-medium text-gray-800 text-sm font-['poppins'] tracking-[0] leading-4">
+                    <span className="font-medium text-gray-800 text-xs sm:text-sm font-['poppins'] tracking-[0] leading-4">
                       Show More Reviews ({filteredReviews.length - visibleCount} remaining)
                     </span>
                   </button>
@@ -189,8 +186,8 @@ export default function UserReviewsList({ reviews = [], savedTherapists = [] }) 
               
               {/* Loading Spinner */}
               {isLoading && (
-                <div className="flex justify-center items-center py-8">
-                  <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-[#7466f2]"></div>
+                <div className="flex justify-center items-center py-6 md:py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 md:h-10 md:w-10 border-4 border-gray-200 border-t-[#7466f2]"></div>
                 </div>
               )}
             </>

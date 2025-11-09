@@ -20,9 +20,9 @@ export function Logotype() {
 
   return (
     <Link href="/" onClick={handleLogoClick}>
-      <div className="relative w-32 h-20 flex items-center">
+      <div className="relative  h-20 flex items-center">
         {/* <Image className="object-contain" src="/assets/brand/logo.png" alt="Rate My Session Logo" fill /> */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 whitespace-nowrap">
           <div className="w-9 h-9 bg-amethyst-500 rounded-lg"></div>
           <div className="font-semibold leading-tight text-gray-800">
             <p>Rate My</p>

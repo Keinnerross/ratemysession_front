@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const { default: Navigation } = require("./components/navigation");
+import { MobileMenu } from "./components/mobileMenu";
 
 export function HeaderHome() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -42,20 +43,17 @@ export function HeaderHome() {
         isScrolled ? "bg-white shadow-xl/2" : "bg-transparent"
       }`}
     >
-      <div className="max-w-[1330px] w-full mx-auto flex items-center justify-between">
+      <div className="max-w-[1330px] w-full mx-auto px-4 md:px-6 lg:px-0 flex items-center justify-between">
         {/* Logo and Navigation */}
 
-        <div className="flex items-center gap-6 ">
+        <div className="flex items-center gap-4 md:gap-6">
           <Logotype />
-          {/* Search Bar - Takes remaining space */}
-      
         </div>
 
 
-        {/* Auth Buttons */}
-        <div className="flex items-center gap-6">
-        <Navigation />
-
+        {/* Desktop Navigation and Auth */}
+        <div className="hidden lg:flex items-center gap-6">
+          <Navigation />
           <Link
             href="/login"
             className="relative py-2 text-gray-900 hover:text-gray-900 transition-colors cursor-pointer whitespace-nowrap group text-[15px]"
@@ -70,6 +68,9 @@ export function HeaderHome() {
             Sign up
           </Link>
         </div>
+
+        {/* Mobile Menu */}
+        <MobileMenu />
       </div>
     </header>
   );

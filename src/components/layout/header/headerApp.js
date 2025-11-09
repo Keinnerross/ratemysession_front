@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 const { default: Navigation } = require("./components/navigation");
 import { MobileMenu } from "./components/mobileMenu";
 
-export function Header() {
+export function HeaderApp() {
   const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
 
@@ -39,11 +39,11 @@ export function Header() {
   // border-b border-amethyst-100
   return (
     <header
-      className={`fixed left-0 top-0 z-50 w-full transition-all duration-300   ${
-        isScrolled ? "bg-white shadow-xl/2" : "bg-transparent"
+      className={`fixed left-0 top-0 z-50 w-full transition-all duration-300    border-amethyst-100 ${
+        isScrolled ? "bg-white shadow-xl/3  " : "bg-transparent border-b"
       }`}
     >
-      <div className="max-w-[1330px] w-full mx-auto px-4 md:px-6 lg:px-0 flex items-center ">
+      <div className="max-w-[1220px] w-full mx-auto px-4 md:px-6 lg:px-0 flex items-center ">
         {/* Logo and Navigation */}
 
         <div className="w-full flex items-center gap-4 md:gap-6 justify-between">

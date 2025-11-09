@@ -24,14 +24,14 @@ export function FeedbackSection() {
     };
 
     return (
-        <section className="pb-6 pt-48 bg-amethyst-50 relative">
+        <section className="pb-6 pt-32 md:pt-40 lg:pt-48 bg-amethyst-50 relative overflow-hidden">
 
-            <div className='absolute w-[1000px] h-[1000px] -top-[500px] -left-[500px] opacity-30 z-10'>
+            <div className='absolute w-[500px] md:w-[750px] lg:w-[1000px] h-[500px] md:h-[750px] lg:h-[1000px] -top-[250px] md:-top-[375px] lg:-top-[500px] -left-[250px] md:-left-[375px] lg:-left-[500px] opacity-20 md:opacity-25 lg:opacity-30 z-10'>
                 <Image src={"/assets/feedback/ellipse.png"} alt="Feedback Illustration" fill className="object-cover" />
             </div>
 
 
-            <div className='absolute w-[1000px] h-[1000px] top-0 -right-[500px] opacity-25 z-10'>
+            <div className='absolute w-[500px] md:w-[750px] lg:w-[1000px] h-[500px] md:h-[750px] lg:h-[1000px] top-0 -right-[250px] md:-right-[375px] lg:-right-[500px] opacity-15 md:opacity-20 lg:opacity-25 z-10'>
                 <Image src={"/assets/feedback/ellipse.png"} alt="Feedback Illustration" fill className="object-cover" />
             </div>
 
@@ -39,23 +39,23 @@ export function FeedbackSection() {
 
 
 
-            <div className="container mx-auto max-w-[1440px] px-6 relative z-20">
+            <div className="container mx-auto max-w-[1440px] px-6 md:px-8 lg:px-6 relative z-20">
                 {/* Header */}
-                <div className="text-center mb-12 flex flex-col items-center w-full ">
-                    <h1 className="text-5xl  font-bold text-gray-900 mb-10 w-[40%] " >
+                <div className="text-center mb-8 md:mb-12 flex flex-col items-center w-full">
+                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 md:mb-8 lg:mb-10 w-full md:w-[70%] lg:w-[40%]">
                         Uncover the power of your experience
                     </h1>
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                    <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
                         We're always looking to improve. Your feedback helps us create better
                         experiences for everyone.
                     </p>
                 </div>
 
                 {/* Main Content */}
-                <div className="grid lg:grid-cols-2 gap-20 items-start pt-10 pb-32">
+                <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-20 items-start pt-6 md:pt-8 lg:pt-10 pb-0 md:pb-24 lg:pb-32">
                     {/* Feedback Form */}
-                    <div className="bg-white rounded-3xl border border-amethyst-200 p-10">
-                        <h2 className="text-3xl font-medium text-black mb-8">
+                    <div className="bg-white rounded-2xl md:rounded-3xl border border-amethyst-200 p-6 md:p-8 lg:p-10">
+                        <h2 className="text-2xl md:text-3xl font-medium text-black mb-6 md:mb-8">
                             Feedback Form
                         </h2>
 
@@ -73,7 +73,7 @@ export function FeedbackSection() {
                                     value={formData.name}
                                     onChange={handleChange}
                                     placeholder="Your full name"
-                                    className="w-full pl-12 pr-4 py-3 bg-white border border-amethyst-100 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-amethyst-300 transition-colors"
+                                    className="w-full pl-12 pr-4 py-3 bg-white border border-amethyst-100 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-amethyst-300 transition-colors text-sm md:text-base"
                                     required
                                 />
                             </div>
@@ -91,7 +91,7 @@ export function FeedbackSection() {
                                     value={formData.email}
                                     onChange={handleChange}
                                     placeholder="Enter your email"
-                                    className="w-full pl-12 pr-4 py-3 bg-white border border-amethyst-100 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-amethyst-300 transition-colors"
+                                    className="w-full pl-12 pr-4 py-3 bg-white border border-amethyst-100 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-amethyst-300 transition-colors text-sm md:text-base"
                                     required
                                 />
                             </div>
@@ -109,7 +109,7 @@ export function FeedbackSection() {
                                     onChange={handleChange}
                                     placeholder="Your Feedback"
                                     rows={8}
-                                    className="w-full pl-12 pr-4 py-3 bg-white border border-amethyst-100 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-amethyst-300 transition-colors resize-none"
+                                    className="w-full pl-12 pr-4 py-3 bg-white border border-amethyst-100 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:border-amethyst-300 transition-colors resize-none text-sm md:text-base"
                                     required
                                 />
                             </div>
@@ -117,7 +117,7 @@ export function FeedbackSection() {
                             {/* Submit Button */}
                             <button
                                 type="submit"
-                                className="w-full bg-amethyst-500 text-white font-bold py-3 px-6 rounded-full hover:bg-amethyst-600 transition-colors"
+                                className="w-full bg-amethyst-500 text-white font-bold py-3 px-6 rounded-full hover:bg-amethyst-600 transition-colors text-sm md:text-base"
                             >
                                 Submit Now
                             </button>
@@ -125,7 +125,7 @@ export function FeedbackSection() {
                     </div>
 
                     {/* Right Side - Image or Illustration */}
-                    <div className="relative h-[600px] rounded-3xl overflow-hidden border border-gray-200 ">
+                    <div className="hidden md:block relative h-[400px] md:h-[500px] lg:h-[600px] rounded-2xl md:rounded-3xl overflow-hidden border border-gray-200 order-first lg:order-last">
                         <Image src={"/assets/feedback/feedback_pic.png"} alt="Feedback Illustration" fill className="object-cover object-center" />
                     </div>
                 </div>
@@ -133,7 +133,7 @@ export function FeedbackSection() {
 
 
 
-            <div className='w-full h-[600px] bg-gradient-to-b from-amethyst-50 to-white absolute bottom-0 ' />
+            <div className='w-full h-[300px] md:h-[450px] lg:h-[600px] bg-gradient-to-b from-amethyst-50 to-white absolute bottom-0' />
 
 
 

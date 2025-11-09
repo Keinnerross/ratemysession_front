@@ -13,8 +13,8 @@ export function RecentActivitiesSection() {
         sectionRef,
         () => setIsVisible(true),
         () => setIsVisible(false),
-        0.3,
-        100
+        0.1,  // Reducido de 0.3 a 0.1 para móvil
+        50    // Reducido de 100 a 50
     );
     const recentReviews = [
         {
@@ -85,7 +85,7 @@ export function RecentActivitiesSection() {
             className="pb-16 md:pb-26 pt-8 md:pt-16 transition-all duration-700"
             style={{
                 opacity: isVisible ? 1 : 0,
-                transform: isVisible ? 'translateY(0)' : 'translateY(50px)'
+                transform: isVisible ? 'translateY(0)' : 'translateY(20px)'  // Reducido de 50px a 20px
             }}
         >
             <div className="container relative mx-auto max-w-[1330px] px-6 md:px-8 lg:px-0">
@@ -111,7 +111,7 @@ export function RecentActivitiesSection() {
                 </div>
 
 
-                <div className="absolute bottom-0 w-full h-[300px] md:h-[450px] lg:h-[600px] bg-gradient-to-t from-white from-18% to-transparent" />
+                <div className="absolute bottom-0 w-full h-[200px] sm:h-[300px] md:h-[450px] lg:h-[600px] bg-gradient-to-t from-white from-18% to-transparent pointer-events-none" />
 
             </div>
         </section>

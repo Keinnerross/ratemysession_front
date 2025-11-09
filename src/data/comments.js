@@ -3,7 +3,7 @@ const commentsData = [
     id: 1,
     therapistId: 101,
     userId: 201,
-    userName: "María García",
+    userName: "María García Auxiliadora del Carmen",
     userAvatar: "https://i.pravatar.cc/150?u=208",
     isAnonymous: false,
     rating: 5,

@@ -13,7 +13,7 @@ export default function SavedTherapistsList({ therapists = [] }) {
   // Reset loading when filters change
   React.useEffect(() => {
     setIsFilterLoading(true);
-    
+
     const timer = setTimeout(() => {
       setIsFilterLoading(false);
     }, 500);
@@ -22,8 +22,8 @@ export default function SavedTherapistsList({ therapists = [] }) {
   }, [sortBy, filterSpecialty, filterLocation]);
 
   // Get unique specialties and locations for filter options
-  const specialties = [...new Set(therapists.map(t => t.specialty))].sort();
-  const locations = [...new Set(therapists.map(t => t.location))].sort();
+  const specialties = [...new Set(therapists.map((t) => t.specialty))].sort();
+  const locations = [...new Set(therapists.map((t) => t.location))].sort();
 
   // Apply sorting
   const sortedTherapists = [...therapists].sort((a, b) => {
@@ -40,8 +40,10 @@ export default function SavedTherapistsList({ therapists = [] }) {
 
   // Apply filters
   const filteredTherapists = sortedTherapists.filter((therapist) => {
-    const matchesSpecialty = filterSpecialty === "all" || therapist.specialty === filterSpecialty;
-    const matchesLocation = filterLocation === "all" || therapist.location === filterLocation;
+    const matchesSpecialty =
+      filterSpecialty === "all" || therapist.specialty === filterSpecialty;
+    const matchesLocation =
+      filterLocation === "all" || therapist.location === filterLocation;
     return matchesSpecialty && matchesLocation;
   });
   if (therapists.length === 0) {
@@ -60,55 +62,49 @@ export default function SavedTherapistsList({ therapists = [] }) {
   return (
     <div className="w-full">
       {/* Filters */}
-      {therapists.length > 0 && (
-        <div className="flex gap-4 mb-8 flex-wrap">
-          <CustomSelect
-            value={sortBy}
-            onChange={setSortBy}
-            options={[
-              { value: "recent", label: "Recently Saved" },
-              { value: "rating", label: "Highest Rating" },
-              { value: "name", label: "Name (A-Z)" },
-            ]}
-            rounded="rounded-full"
-            className="min-w-[160px]"
-            defaultValue="recent"
-          />
 
-          <CustomSelect
-            value={filterSpecialty}
-            onChange={setFilterSpecialty}
-            rounded="rounded-full"
-            options={[
-              { value: "all", label: "All Specialties" },
-              ...specialties.map(s => ({ value: s, label: s }))
-            ]}
-            className="min-w-[180px]"
-            defaultValue="all"
-          />
+      <div className="flex items-center justify-between">
+        {therapists.length > 0 && (
+          <div className="flex gap-4 mb-4 md:mb-8 flex-wrap">
+            <CustomSelect
+              value={sortBy}
+              onChange={setSortBy}
+              options={[
+                { value: "recent", label: "Recently Saved" },
+                { value: "rating", label: "Highest Rating" },
+                { value: "name", label: "Name (A-Z)" },
+              ]}
+              rounded="rounded-full"
+              className="min-w-[160px]"
+              defaultValue="recent"
+            />
 
-          <CustomSelect
-            value={filterLocation}
-            onChange={setFilterLocation}
-            rounded="rounded-full"
-            options={[
-              { value: "all", label: "All Locations" },
-              ...locations.map(l => ({ value: l, label: l }))
-            ]}
-            className="min-w-[160px]"
-            defaultValue="all"
-          />
-        </div>
-      )}
+            {/* <CustomSelect
+              value={filterSpecialty}
+              onChange={setFilterSpecialty}
+              rounded="rounded-full"
+              options={[
+                { value: "all", label: "All Specialties" },
+                ...specialties.map((s) => ({ value: s, label: s })),
+              ]}
+              className="min-w-[180px]"
+              defaultValue="all"
+            />
 
-      {/* Saved Count */}
-      {filteredTherapists.length > 0 && (
-        <div className="mb-6">
-          <span className="text-lg text-gray-600 font-['Outfit']">
-            {filteredTherapists.length} therapist{filteredTherapists.length !== 1 ? "s" : ""}
-          </span>
-        </div>
-      )}
+            <CustomSelect
+              value={filterLocation}
+              onChange={setFilterLocation}
+              rounded="rounded-full"
+              options={[
+                { value: "all", label: "All Locations" },
+                ...locations.map((l) => ({ value: l, label: l })),
+              ]}
+              className="min-w-[160px]"
+              defaultValue="all"
+            /> */}
+          </div>
+        )}
+      </div>
 
       {/* Therapists List */}
       <div className="flex flex-col gap-4 relative min-h-[200px]">
@@ -123,8 +119,10 @@ export default function SavedTherapistsList({ therapists = [] }) {
               dataTherapist={{
                 ...therapist,
                 isSaved: true,
-                onSaveToggle: (isSaved) => console.log(`Saved ${therapist.name}:`, isSaved),
-                onReadReviews: (id) => console.log(`Read reviews for therapist ID:`, id)
+                onSaveToggle: (isSaved) =>
+                  console.log(`Saved ${therapist.name}:`, isSaved),
+                onReadReviews: (id) =>
+                  console.log(`Read reviews for therapist ID:`, id),
               }}
             />
           ))
