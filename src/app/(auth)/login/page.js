@@ -1,11 +1,49 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import SocialAuthButtons from "@/components/app/auth/SocialAuthButtons";
 import PageTransition from "@/components/app/auth/PageTransition";
 
 export default function LoginPage() {
+  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+  const router = useRouter();
+
+  const handleChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+    setError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    if (!formData.username || !formData.password) {
+      setError('Por favor completa todos los campos');
+      setLoading(false);
+      return;
+    }
+
+    const result = await login(formData.username, formData.password);
+    
+    if (result.success) {
+      router.push('/user-profile');
+    } else {
+      setError(result.message || 'Error al iniciar sesión');
+    }
+    
+    setLoading(false);
+  };
+
   const handleSocialAuth = (provider, isLogin) => {
     // TODO: Implement OAuth login logic
     console.log(`Login with ${provider}`);
@@ -35,13 +73,16 @@ export default function LoginPage() {
             <div className="flex flex-col-reverse lg:grid lg:grid-cols-[318px_100px_1fr] gap-6 sm:gap-8 lg:gap-0">
               {/* Left Side - Email/Password Form */}
               <div className="flex flex-col order-1 lg:order-none">
-                {/* Email Field */}
+                {/* Username Field */}
                 <div className="mb-6 sm:mb-8 lg:mb-[60px]">
                   <label className="block text-sm text-[#595d70] font-['Poppins'] mb-1 sm:mb-2">
-                    Email
+                    Usuario o Email
                   </label>
                   <input
-                    type="email"
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
                     className="w-full pb-1 sm:pb-2 border-b border-[#cacaca] outline-none focus:border-[#796bf5] transition-colors bg-transparent text-sm sm:text-base"
                   />
                 </div>
@@ -53,6 +94,9 @@ export default function LoginPage() {
                   </label>
                   <input
                     type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
                     className="w-full pb-1 sm:pb-2 border-b border-[#cacaca] outline-none focus:border-[#796bf5] transition-colors bg-transparent text-sm sm:text-base"
                   />
                 </div>
@@ -62,13 +106,21 @@ export default function LoginPage() {
                   Forgot Email?
                 </Link>
 
+                {/* Error Message */}
+                {error && (
+                  <div className="mb-4 text-red-500 text-sm text-center">
+                    {error}
+                  </div>
+                )}
+
                 {/* Login Button */}
-                <Link 
-                  href="/user-profile"
-                  className="relative w-[120px] h-[38px] sm:h-[42px] bg-white rounded-[21px] border border-[#d8d4ff] font-semibold text-[#796bf5] text-sm sm:text-base font-['Outfit'] hover:bg-[#796bf5] hover:text-white transition-colors flex items-center justify-center mx-auto lg:mx-0"
+                <button 
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="relative w-[120px] h-[38px] sm:h-[42px] bg-white rounded-[21px] border border-[#d8d4ff] font-semibold text-[#796bf5] text-sm sm:text-base font-['Outfit'] hover:bg-[#796bf5] hover:text-white transition-colors flex items-center justify-center mx-auto lg:mx-0 disabled:opacity-50"
                 >
-                  Log In
-                </Link>
+                  {loading ? 'Cargando...' : 'Log In'}
+                </button>
               </div>
 
               {/* Center Divider - Hidden on mobile, shown on desktop */}

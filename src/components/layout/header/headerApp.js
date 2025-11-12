@@ -30,6 +30,11 @@ export function HeaderApp() {
   }, []);
 
   const handleSearch = (value) => {
+    // Mark that we're applying a search
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('search-filter-applied', 'true');
+    }
+    
     if (value.trim()) {
       router.push(`/search?q=${encodeURIComponent(value)}`);
     } else {

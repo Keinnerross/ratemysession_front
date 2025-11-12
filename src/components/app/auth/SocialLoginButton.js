@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 
 export default function SocialLoginButton({ 
   provider, 
@@ -11,12 +12,23 @@ export default function SocialLoginButton({
   onClick,
   isLogin = true 
 }) {
+  const router = useRouter();
+
   const handleClick = () => {
-    // TODO: Implement OAuth logic here
-    console.log(`${isLogin ? 'Login' : 'Register'} with ${provider}`);
-    if (onClick) onClick(provider, isLogin);
+    if (provider === 'google') {
+      // Redirigir al flujo OAuth de Google
+      const mode = isLogin ? 'login' : 'register';
+      window.location.href = `/api/auth/google/authorize?mode=${mode}`;
+    } else {
+      // TODO: Implement Facebook OAuth
+      console.log(`${isLogin ? 'Login' : 'Register'} with ${provider}`);
+      if (onClick) onClick(provider, isLogin);
+    }
   };
 
+  // Botón personalizado para todos los proveedores
+
+  // Para otros proveedores, mantener el botón personalizado
   return (
     <button 
       onClick={handleClick}

@@ -15,21 +15,28 @@ const TherapistList = ({ initialTherapists, onLoadMore, initialHasMore, sortBy =
   const [therapists, setTherapists] = useState(initialTherapists);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loadedTherapists, setLoadedTherapists] = useState([]); // Terapeutas adicionales cargados
-  const [isFilterLoading, setIsFilterLoading] = useState(false);
   
-  // Detectar cambio de filtros (cuando cambian initialTherapists)
+  // Verificar inmediatamente si venimos de aplicar filtros
+  const filterApplied = typeof window !== 'undefined' && 
+                       sessionStorage.getItem('search-filter-applied') === 'true';
+  
+  const [isFilterLoading, setIsFilterLoading] = useState(filterApplied);
+  
+  // Limpiar el flag y manejar el skeleton
   useEffect(() => {
-    // Si los initialTherapists cambian, es porque se aplicó un filtro
-    setIsFilterLoading(true);
-    setLoadedTherapists([]); // Reset loaded therapists on filter change
-    
-    // Simular un pequeño delay para mostrar el loading
-    const timer = setTimeout(() => {
-      setIsFilterLoading(false);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, [initialTherapists.map(t => t.id).join(',')]); // Comparar por IDs
+    if (filterApplied) {
+      // Limpiar el flag
+      sessionStorage.removeItem('search-filter-applied');
+      setLoadedTherapists([]); // Reset loaded therapists on filter change
+      
+      // Ocultar skeleton después de un tiempo
+      const timer = setTimeout(() => {
+        setIsFilterLoading(false);
+      }, 800);
+      
+      return () => clearTimeout(timer);
+    }
+  }, []); // Solo ejecutar una vez al montar
   
   // Actualizar terapeutas cuando cambien las props o el ordenamiento
   useEffect(() => {
@@ -102,7 +109,6 @@ const TherapistList = ({ initialTherapists, onLoadMore, initialHasMore, sortBy =
       <AddTherapistBanner 
         callToAction="Know a great therapist? Help expand our community"
         buttonText="Add Therapist"
-        showDelay={3000}
       />
     </>
   );

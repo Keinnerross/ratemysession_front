@@ -1,19 +1,82 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import SocialAuthButtons from "@/components/app/auth/SocialAuthButtons";
 import PageTransition from "@/components/app/auth/PageTransition";
 
 export default function RegisterPage() {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [showPasswordHint, setShowPasswordHint] = useState(false);
+  const { register } = useAuth();
+  const router = useRouter();
+
+  const handleChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+    setErrors(prev => ({ ...prev, [e.target.name]: '' }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    // Validar email
+    if (!formData.email) {
+      newErrors.email = 'El email es requerido';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Email inválido';
+    }
+    
+    // Validar contraseña
+    if (!formData.password) {
+      newErrors.password = 'La contraseña es requerida';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'La contraseña debe tener al menos 8 caracteres';
+    }
+    
+    return newErrors;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = validateForm();
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
+    setLoading(true);
+    
+    const result = await register(formData.email, formData.password);
+    
+    if (result.success) {
+      router.push('/user-profile');
+    } else {
+      setErrors({ general: result.message || 'Error al registrar usuario' });
+    }
+    
+    setLoading(false);
+  };
+
   const handleSocialAuth = (provider, isLogin) => {
     // TODO: Implement OAuth registration logic
     console.log(`Register with ${provider}`);
   };
+  
   return (
     <PageTransition>
       <div className="lg:min-h-screen flex justify-center bg-white">
-        <div className="w-full max-w-[800px]  sm:py-8">
+        <div className="w-full max-w-[800px] sm:py-8">
           {/* Main Container */}
           <div className="flex flex-col gap-6 sm:gap-12 lg:gap-[72px]">
             {/* Header */}
@@ -37,52 +100,59 @@ export default function RegisterPage() {
               {/* Left Side - Registration Form */}
               <div className="flex flex-col order-1 lg:order-none">
                 {/* Email Field */}
-                <div className="mb-4 sm:mb-6 lg:mb-8">
+                <div className="mb-6 sm:mb-8">
                   <label className="block text-sm text-[#595d70] font-['Poppins'] mb-1 sm:mb-2">
                     Email
                   </label>
                   <input
                     type="email"
-                    className="w-full pb-1 sm:pb-2 border-b border-[#796bf5] outline-none focus:border-[#796bf5] transition-colors bg-transparent text-sm sm:text-base"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="your@email.com"
+                    className={`w-full pb-1 sm:pb-2 border-b ${errors.email ? 'border-red-500' : 'border-[#796bf5]'} outline-none focus:border-[#796bf5] transition-colors bg-transparent text-sm sm:text-base`}
                   />
-                </div>
-
-                {/* Confirm Email Field */}
-                <div className="mb-4 sm:mb-6 lg:mb-8">
-                  <label className="block text-sm text-[#595d70] font-['Poppins'] mb-1 sm:mb-2">
-                    Confirm email
-                  </label>
-                  <input
-                    type="email"
-                    className="w-full pb-1 sm:pb-2 border-b border-[#dfe5eb] outline-none focus:border-[#796bf5] transition-colors bg-transparent text-sm sm:text-base"
-                  />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
 
                 {/* Password Field */}
-                <div className="mb-4 sm:mb-6 lg:mb-8">
+                <div className="mb-8 sm:mb-10">
                   <label className="block text-sm text-[#595d70] font-['Poppins'] mb-1 sm:mb-2">
-                    Choose a password
+                    Password
                   </label>
                   <input
                     type="password"
-                    className="w-full pb-1 sm:pb-2 border-b border-[#dfe5eb] outline-none focus:border-[#796bf5] transition-colors bg-transparent text-sm sm:text-base"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    onFocus={() => setShowPasswordHint(true)}
+                    onBlur={() => setShowPasswordHint(false)}
+                    placeholder="Min. 8 characters"
+                    className={`w-full pb-1 sm:pb-2 border-b ${errors.password ? 'border-red-500' : 'border-[#dfe5eb]'} outline-none focus:border-[#796bf5] transition-colors bg-transparent text-sm sm:text-base`}
                   />
+                  {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                  
+                  {/* Password Requirements Hint */}
+                  {showPasswordHint && !errors.password && (
+                    <div className="mt-2 text-xs text-[#595d70]">
+                      <p>La contraseña debe tener al menos 8 caracteres</p>
+                    </div>
+                  )}
                 </div>
 
-                {/* Confirm Password Field */}
-                <div className="mb-5 sm:mb-6 lg:mb-8">
-                  <label className="block text-sm text-[#595d70] font-['Poppins'] mb-1 sm:mb-2">
-                    Confirm password
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full pb-1 sm:pb-2 border-b border-[#dfe5eb] outline-none focus:border-[#796bf5] transition-colors bg-transparent text-sm sm:text-base"
-                  />
-                </div>
+                {/* Error Message */}
+                {errors.general && (
+                  <div className="mb-4 text-red-500 text-sm text-center">
+                    {errors.general}
+                  </div>
+                )}
 
                 {/* Sign Up Button */}
-                <button className="w-[120px] h-[38px] sm:h-[42px] bg-white rounded-[21px] border border-[#d8d4ff] font-semibold text-[#7466f2] text-sm sm:text-base font-['Outfit'] hover:bg-[#7466f2] hover:text-white transition-colors flex items-center justify-center mx-auto lg:mx-0">
-                  Sign Up
+                <button 
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="w-[120px] h-[38px] sm:h-[42px] bg-white rounded-[21px] border border-[#d8d4ff] font-semibold text-[#7466f2] text-sm sm:text-base font-['Outfit'] hover:bg-[#7466f2] hover:text-white transition-colors flex items-center justify-center mx-auto lg:mx-0 disabled:opacity-50">
+                  {loading ? 'Cargando...' : 'Sign Up'}
                 </button>
               </div>
 

@@ -4,7 +4,8 @@ import { ENDPOINTS } from '../api/endpoints';
 export const therapistService = {
   async getTherapists(page = 1, perPage = 12) {
     try {
-      const data = await apiClient.get(ENDPOINTS.THERAPISTS.LIST(page, perPage));
+      const url = `${ENDPOINTS.THERAPISTS.LIST}?page=${page}&per_page=${perPage}`;
+      const data = await apiClient.get(url);
       return data;
     } catch (error) {
       console.error('Error fetching therapists:', error);
@@ -14,7 +15,7 @@ export const therapistService = {
   
   async getTherapistById(id) {
     try {
-      const data = await apiClient.get(ENDPOINTS.THERAPISTS.SINGLE(id));
+      const data = await apiClient.get(ENDPOINTS.THERAPISTS.DETAIL(id));
       return data;
     } catch (error) {
       console.error(`Error fetching therapist ${id}:`, error);
@@ -22,13 +23,38 @@ export const therapistService = {
     }
   },
   
-  // Get lightweight therapist data for filtering
-  async getTherapistsLight() {
+  // Search therapists with filters
+  async searchTherapists(params = {}) {
     try {
-      const data = await apiClient.get(ENDPOINTS.THERAPISTS.LIST_LIGHT);
+      const { page = 1, perPage = 12, q, rating, location, categories } = params;
+      const queryParams = new URLSearchParams();
+      
+      queryParams.append('page', page);
+      queryParams.append('per_page', perPage);
+      
+      if (q) queryParams.append('q', q);
+      if (rating) queryParams.append('rating', rating);
+      if (location) queryParams.append('location', location);
+      if (categories && categories.length > 0) {
+        queryParams.append('categories', categories.join(','));
+      }
+      
+      const url = `${ENDPOINTS.THERAPISTS.SEARCH}?${queryParams.toString()}`;
+      const data = await apiClient.get(url);
       return data;
     } catch (error) {
-      console.error('Error fetching light therapists:', error);
+      console.error('Error searching therapists:', error);
+      throw error;
+    }
+  },
+  
+  // Get available categories and locations
+  async getCategories() {
+    try {
+      const data = await apiClient.get('/api/therapists/categories');
+      return data;
+    } catch (error) {
+      console.error('Error fetching categories:', error);
       throw error;
     }
   },
@@ -37,7 +63,8 @@ export const therapistService = {
   async getTherapistsByIds(ids) {
     try {
       if (!ids || ids.length === 0) return [];
-      const data = await apiClient.get(ENDPOINTS.THERAPISTS.BY_IDS(ids));
+      const url = `${ENDPOINTS.THERAPISTS.LIST}?include=${ids.join(',')}`;
+      const data = await apiClient.get(url);
       return data;
     } catch (error) {
       console.error('Error fetching therapists by IDs:', error);

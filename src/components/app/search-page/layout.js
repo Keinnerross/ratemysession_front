@@ -10,7 +10,7 @@ import { FaFilter } from "react-icons/fa";
 import { loadMoreTherapists } from "@/app/(core)/(application)/search/actions";
 import { sortTherapists } from "@/utils/sortTherapists";
 
-export default function SearchLayout({ data, searchParams = {}, availableCategories = [], availableLocations = [], hasMore = true, filteredIds = [], totalResults = 0 }) {
+export default function SearchLayout({ data, searchParams = {}, availableCategories = [], availableLocations = [], hasMore = true, totalResults = 0 }) {
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [sortBy, setSortBy] = useState("recommended");
@@ -41,6 +41,12 @@ export default function SearchLayout({ data, searchParams = {}, availableCategor
     if (newFilters.showFavorites) params.set("favorites", "true");
 
     const queryString = params.toString();
+    
+    // Mark that we're applying filters in sessionStorage
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('search-filter-applied', 'true');
+    }
+    
     router.push(`/search${queryString ? `?${queryString}` : ""}`);
     setCurrentPage(1); // Reset pagination when filters change
   };
@@ -54,10 +60,15 @@ export default function SearchLayout({ data, searchParams = {}, availableCategor
   // Handler for loading more therapists
   const handleLoadMore = useCallback(async () => {
     const nextPage = currentPage + 1;
-    const result = await loadMoreTherapists(nextPage, filteredIds);
+    const result = await loadMoreTherapists(nextPage, {
+      q: filters.searchTerm,
+      rating: filters.rating,
+      location: filters.location,
+      categories: filters.categories
+    });
     setCurrentPage(nextPage);
     return result;
-  }, [currentPage, filteredIds]);
+  }, [currentPage, filters]);
 
   const clearAllFilters = () => {
     router.push("/search");

@@ -4,36 +4,30 @@ import { therapistService } from "@/services/therapists/therapistService";
 import { commentService } from "@/services/comments/commentService";
 import { transformTherapistData } from "@/utils/therapistTransformer";
 
-export async function loadMoreTherapists(page, filteredIds = []) {
+export async function loadMoreTherapists(page, searchParams = {}) {
   try {
-    // Calculate which IDs to fetch based on page
-    const startIndex = (page - 1) * 12;
-    const endIndex = startIndex + 12;
-    const pageIds = filteredIds.slice(startIndex, endIndex);
+    // Usar el nuevo servicio de búsqueda con paginación
+    const searchResults = await therapistService.searchTherapists({
+      page,
+      perPage: 12,
+      q: searchParams.q,
+      rating: searchParams.rating,
+      location: searchParams.location,
+      categories: searchParams.categories
+    });
     
-    if (pageIds.length === 0) {
-      return {
-        therapists: [],
-        hasMore: false
-      };
+    // Extraer IDs de los resultados
+    const therapistIds = searchResults.map(t => t.id);
+    
+    // Si hay resultados, obtener los conteos de comentarios
+    let therapistsData = [];
+    if (therapistIds.length > 0) {
+      const commentCounts = await commentService.getCommentCountsForPosts(therapistIds);
+      therapistsData = transformTherapistData(searchResults, commentCounts);
     }
     
-    // Fetch full data for these specific IDs
-    const fullData = await therapistService.getTherapistsByIds(pageIds);
-    
-    // Fetch comment counts for these therapists
-    const commentCounts = await commentService.getCommentCountsForPosts(pageIds);
-    
-    // Transform data with comment counts
-    const transformedData = transformTherapistData(fullData, commentCounts);
-    
-    // Reorder results to match the filtered order
-    const therapistsData = pageIds.map(id => 
-      transformedData.find(t => t.id === id)
-    ).filter(Boolean);
-    
-    // Check if there are more results
-    const hasMore = endIndex < filteredIds.length;
+    // Determinar si hay más resultados
+    const hasMore = searchResults.length === 12;
     
     return {
       therapists: therapistsData,

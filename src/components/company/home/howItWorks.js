@@ -85,7 +85,7 @@ export function HowItWorks() {
     <section
       ref={sectionRef}
       id="how-it-works"
-      className="relative bg-transparent pt-10 pb-16 md:pb-24 lg:pb-32 w-full"
+      className="relative bg-transparent pt-26 pb-16 md:pb-24 lg:pb-32 w-full"
     >
       {/*Gradient */}
       {/* <div className="absolute top-0 left-0 w-full  bg-gradient-to-b from-amethyst-50 to-white h-[300px]" /> */}

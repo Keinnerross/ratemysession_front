@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export function HeroAbout() {
   return (
-    <section className="relative max-w-[1330px] w-full pt-32 pb-16 md:pb-26 md:pt-36  md:min-h-[800px] flex justify-center items-center bg-white ">
+    <section className="relative max-w-[1330px] w-full pt-32 pb-16 md:pb-26 md:pt-36  md:min-h-[800px] flex justify-center items-center">
       <div className="w-full relative z-10 space-y-10 md:space-y-20">
         {/* Title */}
         <div className="text-center">

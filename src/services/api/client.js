@@ -1,18 +1,60 @@
-const API_TOKEN = process.env.API_ACCESS_TOKEN;
+// Helper function to get user auth token from localStorage
+const getUserToken = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('authToken');
+  }
+  return null;
+};
+
+// Helper function to get headers
+// authType: 'user' o 'none'
+// Ya no necesitamos 'system' porque las API routes manejan eso
+const getHeaders = (authType = 'none') => {
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (authType === 'user') {
+    const token = getUserToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+  
+  return headers;
+};
+
+// Helper function to build full URL
+const buildUrl = (url) => {
+  // Si estamos en el servidor y la URL es relativa, necesitamos construir la URL completa
+  if (typeof window === 'undefined' && url.startsWith('/')) {
+    // En el servidor, usar el host del request o un valor por defecto
+    const host = process.env.NEXTAUTH_URL || `http://localhost:${process.env.PORT || 3000}`;
+    return `${host}${url}`;
+  }
+  return url;
+};
 
 export const apiClient = {
-  async get(url) {
+  async get(url, authType = 'none') {
     try {
-      const response = await fetch(url, {
+      const fullUrl = buildUrl(url);
+      const response = await fetch(fullUrl, {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${API_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getHeaders(authType),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Intentar obtener el mensaje de error del response
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          console.error('Error response:', errorData);
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (e) {
+          // Si no se puede parsear el JSON, usar el mensaje por defecto
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -23,18 +65,27 @@ export const apiClient = {
     }
   },
 
-  async post(url, body) {
+  async post(url, body, authType = 'none') {
     try {
-      const response = await fetch(url, {
+      const fullUrl = buildUrl(url);
+      const response = await fetch(fullUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getHeaders(authType),
         body: JSON.stringify(body),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      // Aceptar tanto 200 como 201 como respuestas exitosas
+      if (!response.ok && response.status !== 201) {
+        // Intentar obtener el mensaje de error del response
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          console.error('Error response:', errorData);
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (e) {
+          // Si no se puede parsear el JSON, usar el mensaje por defecto
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -45,19 +96,26 @@ export const apiClient = {
     }
   },
 
-  async put(url, body) {
+  async put(url, body, authType = 'user') {
     try {
-      const response = await fetch(url, {
+      const fullUrl = buildUrl(url);
+      const response = await fetch(fullUrl, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${API_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getHeaders(authType),
         body: JSON.stringify(body),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Intentar obtener el mensaje de error del response
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          console.error('Error response:', errorData);
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (e) {
+          // Si no se puede parsear el JSON, usar el mensaje por defecto
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -68,18 +126,25 @@ export const apiClient = {
     }
   },
 
-  async delete(url) {
+  async delete(url, authType = 'user') {
     try {
-      const response = await fetch(url, {
+      const fullUrl = buildUrl(url);
+      const response = await fetch(fullUrl, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${API_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
+        headers: getHeaders(authType),
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Intentar obtener el mensaje de error del response
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          console.error('Error response:', errorData);
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch (e) {
+          // Si no se puede parsear el JSON, usar el mensaje por defecto
+        }
+        throw new Error(errorMessage);
       }
 
       return response.json();

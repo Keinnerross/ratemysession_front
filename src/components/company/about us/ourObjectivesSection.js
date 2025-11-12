@@ -4,7 +4,7 @@ export function OurObjectivesSection() {
     
 
     return (
-        <section className="relative w-full py-16 md:py-24 lg:py-32 bg-[#E6E9FF] overflow-hidden">
+        <section className="relative w-full py-16 md:py-24 lg:py-32 bg-amethyst-100 overflow-hidden">
             {/* Background decorative elements */}
             <div className="absolute -left-96 -top-96 w-[800px] h-[800px] rounded-full bg-amethyst-400/10 blur-3xl"></div>
             <div className="absolute -right-96 -bottom-96 w-[800px] h-[800px] rounded-full bg-amethyst-400/20 blur-3xl"></div>

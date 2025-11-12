@@ -43,7 +43,7 @@ export function HeaderHome() {
         isScrolled ? "bg-white shadow-xl/2" : "bg-transparent"
       }`}
     >
-      <div className="max-w-[1330px] w-full mx-auto px-4 md:px-6 lg:px-0 flex items-center justify-between">
+      <div className="max-w-[1650px] w-full mx-auto px-4 md:px-6 lg:px-0 flex items-center justify-between">
         {/* Logo and Navigation */}
 
         <div className="flex items-center gap-4 md:gap-6">
