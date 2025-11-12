@@ -2,6 +2,8 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import { useGoogleLogin } from "@react-oauth/google";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SocialLoginButton({ 
   provider, 
@@ -10,15 +12,51 @@ export default function SocialLoginButton({
   iconColor, 
   text,
   onClick,
-  isLogin = true 
+  isLogin = true,
+  onError 
 }) {
   const router = useRouter();
+  const { loginWithGoogle } = useAuth();
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        // Get user info from Google
+        const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        });
+        
+        const userInfo = await userInfoResponse.json();
+        
+        // Send to our backend
+        const result = await loginWithGoogle(userInfo);
+        
+        if (result.success) {
+          router.push('/user-profile');
+        } else {
+          // Show error to user
+          if (onError) {
+            onError(result.message || 'Google login failed. Please try again.');
+          }
+        }
+      } catch (error) {
+        console.error('Google login error:', error);
+        if (onError) {
+          onError('An error occurred. Please try again.');
+        }
+      }
+    },
+    onError: () => {
+      console.error('Google login cancelled or failed');
+      if (onError) {
+        onError('Google login was cancelled.');
+      }
+    }
+  });
 
   const handleClick = () => {
     if (provider === 'google') {
-      // Redirigir al flujo OAuth de Google
-      const mode = isLogin ? 'login' : 'register';
-      window.location.href = `/api/auth/google/authorize?mode=${mode}`;
+      googleLogin();
     } else {
       // TODO: Implement Facebook OAuth
       console.log(`${isLogin ? 'Login' : 'Register'} with ${provider}`);
@@ -26,9 +64,6 @@ export default function SocialLoginButton({
     }
   };
 
-  // Botón personalizado para todos los proveedores
-
-  // Para otros proveedores, mantener el botón personalizado
   return (
     <button 
       onClick={handleClick}

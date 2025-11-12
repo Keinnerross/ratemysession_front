@@ -179,6 +179,7 @@ export default function RegisterPage() {
                   <SocialAuthButtons 
                     isLogin={false}
                     onSocialAuth={handleSocialAuth}
+                    onError={(message) => setErrors({ general: message })}
                   />
                 </div>
               </div>

@@ -146,6 +146,7 @@ export default function LoginPage() {
                   <SocialAuthButtons 
                     isLogin={true}
                     onSocialAuth={handleSocialAuth}
+                    onError={setError}
                   />
                 </div>
               </div>

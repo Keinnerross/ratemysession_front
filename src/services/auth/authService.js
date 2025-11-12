@@ -94,28 +94,22 @@ class AuthService {
     }
   }
 
-  async loginWithGoogle(credential) {
+  async loginWithGoogle(googleUserInfo) {
     try {
-      const response = await apiClient.post('/api/auth/google', {
-        credential,
-        clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
-      });
+      const response = await apiClient.post('/api/auth/google', googleUserInfo);
       
-      if (response.success && response.token) {
-        // Guardar los datos de la sesión
-        localStorage.setItem('authToken', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user.displayName));
-        localStorage.setItem('userEmail', response.user.email);
+      if (response.success && response.data.token) {
+        localStorage.setItem('authToken', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user.displayName));
+        localStorage.setItem('userEmail', response.data.user.email);
         
-        // Si hay una foto de perfil de Google, guardarla también
-        if (response.user.picture) {
-          localStorage.setItem('userPicture', response.user.picture);
+        if (response.data.user.avatar) {
+          localStorage.setItem('userPicture', response.data.user.avatar);
         }
         
         return { 
           success: true, 
-          user: response.user,
-          isNewUser: response.user.isNewUser
+          user: response.data.user
         };
       }
       

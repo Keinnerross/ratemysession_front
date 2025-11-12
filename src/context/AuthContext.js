@@ -42,31 +42,12 @@ export function AuthProvider({ children }) {
     return result;
   };
 
-  const loginWithGoogle = async (token) => {
-    // Con el flujo OAuth, recibimos directamente el JWT de WordPress
-    // Solo necesitamos configurar el usuario
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      
-      const payload = JSON.parse(jsonPayload);
-      const userInfo = {
-        displayName: payload.name || payload.user_display_name || payload.email,
-        email: payload.email
-      };
-      
-      setUser(userInfo);
-      return { success: true, user: userInfo };
-    } catch (error) {
-      console.error('Error processing Google login:', error);
-      return { success: false, message: 'Invalid token' };
+  const loginWithGoogle = async (googleUserInfo) => {
+    const result = await authService.loginWithGoogle(googleUserInfo);
+    if (result.success) {
+      setUser(result.user);
     }
+    return result;
   };
 
   const logout = () => {

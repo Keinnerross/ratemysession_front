@@ -4,7 +4,7 @@ import React from "react";
 import { FaGoogle, FaFacebook } from "react-icons/fa";
 import SocialLoginButton from "./SocialLoginButton";
 
-export default function SocialAuthButtons({ isLogin = true, onSocialAuth }) {
+export default function SocialAuthButtons({ isLogin = true, onSocialAuth, onError }) {
   return (
     <div className="w-full flex flex-col gap-4">
       <SocialLoginButton
@@ -15,6 +15,7 @@ export default function SocialAuthButtons({ isLogin = true, onSocialAuth }) {
         text="Continue with Google"
         onClick={onSocialAuth}
         isLogin={isLogin}
+        onError={onError}
       />
       
       <SocialLoginButton
@@ -25,6 +26,7 @@ export default function SocialAuthButtons({ isLogin = true, onSocialAuth }) {
         text="Continue with Facebook"
         onClick={onSocialAuth}
         isLogin={isLogin}
+        onError={onError}
       />
     </div>
   );

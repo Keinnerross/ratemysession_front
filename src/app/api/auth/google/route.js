@@ -4,127 +4,115 @@ import { getServerConfig } from '@/config/api';
 export async function POST(request) {
   try {
     const config = getServerConfig();
-    const { credential, clientId } = await request.json();
+    const userInfo = await request.json();
+    const { email, name, sub: googleId, picture } = userInfo;
     
-    // Verificar que el clientId coincida
-    if (clientId !== process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) {
-      return NextResponse.json(
-        { error: 'Invalid client ID' },
-        { status: 401 }
-      );
+    if (!email || !googleId) {
+      return NextResponse.json({ 
+        error: 'Invalid Google account information' 
+      }, { status: 400 });
     }
-    
-    // Decodificar el JWT de Google para obtener info del usuario
-    const base64Url = credential.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    
-    const googleUser = JSON.parse(jsonPayload);
-    console.log('Google user info:', { email: googleUser.email, name: googleUser.name });
-    
+
     // Crear Basic Auth con credenciales del sistema
     const authString = `${config.SYSTEM_USER}:${config.SYSTEM_PASSWORD}`;
     const basicAuth = Buffer.from(authString).toString('base64');
-    
-    // Primero, intentar buscar si el usuario existe
-    const searchUrl = `${config.WP_API_BASE}/users?search=${encodeURIComponent(googleUser.email)}`;
-    const searchResponse = await fetch(searchUrl, {
-      headers: {
-        'Authorization': `Basic ${basicAuth}`
-      }
-    });
-    
-    const users = await searchResponse.json();
-    let userId = null;
-    
-    if (users && users.length > 0 && users[0].email === googleUser.email) {
-      // Usuario existe
-      userId = users[0].id;
-      console.log('User found:', userId);
-    } else {
-      // Crear nuevo usuario
-      console.log('Creating new user...');
-      const username = googleUser.email.split('@')[0].toLowerCase() + '_' + Date.now();
-      
-      const createUserResponse = await fetch(`${config.WP_API_BASE}/users`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Basic ${basicAuth}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          username: username,
-          email: googleUser.email,
-          name: googleUser.name,
-          first_name: googleUser.given_name || '',
-          last_name: googleUser.family_name || '',
-          password: Math.random().toString(36).slice(-16) + 'Aa1!',
-          roles: ['subscriber']
-        })
-      });
-      
-      if (!createUserResponse.ok) {
-        const errorData = await createUserResponse.json();
-        console.error('Error creating user:', errorData);
-        return NextResponse.json(
-          { error: 'Failed to create user', details: errorData },
-          { status: 500 }
-        );
-      }
-      
-      const newUser = await createUserResponse.json();
-      userId = newUser.id;
-      console.log('User created:', userId);
-    }
-    
-    // Ahora autenticar con Simple JWT Login usando email/password temporal o generar JWT directamente
-    // Opción: Generar JWT para el usuario
-    const authUrl = `${config.JWT_BASE}/auth`;
-    
-    // Intentar autenticar con el email (Simple JWT Login debe estar configurado para permitir esto)
-    const authResponse = await fetch(authUrl, {
+
+    // Generate simple username and password for Google users
+    const username = email.split('@')[0];
+    const password = googleId;
+
+    // Try to login first
+    let loginResponse = await fetch(`${config.JWT_BASE}/auth`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${basicAuth}`
       },
-      body: JSON.stringify({
-        email: googleUser.email,
-        password: 'google_oauth', // Simple JWT Login debería estar configurado para aceptar esto como bypass
-        google_id_token: credential // Enviar el token por si el plugin lo puede validar
-      })
+      body: JSON.stringify({ email, password })
     });
+
+    let token;
     
-    const authData = await authResponse.json();
-    
-    if (authResponse.ok && authData.success && authData.data?.jwt) {
-      return NextResponse.json({
-        success: true,
-        token: authData.data.jwt,
-        user: {
-          email: googleUser.email,
-          displayName: googleUser.name,
-          picture: googleUser.picture,
-          isNewUser: !users || users.length === 0
-        }
+    // If login fails, create user then login
+    if (!loginResponse.ok) {
+      // Register user
+      const registerResponse = await fetch(`${config.JWT_BASE}/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${basicAuth}`
+        },
+        body: JSON.stringify({
+          email,
+          user_login: username,
+          password,
+          AUTH_KEY: process.env.AUTH_CODE_REGISTER,
+          display_name: name || username
+        })
       });
+
+      if (!registerResponse.ok) {
+        const error = await registerResponse.json();
+        // Si el usuario ya existe, intentar login con el password original
+        if (error.message?.toLowerCase().includes('already') || 
+            error.message?.toLowerCase().includes('exists') ||
+            error.message?.toLowerCase().includes('registered')) {
+          throw new Error('This email is already registered. Please sign in with your email and password.');
+        }
+        throw new Error(error.message || 'Unable to create account. Please try again.');
+      }
+
+      // Try login again after registration
+      loginResponse = await fetch(`${config.JWT_BASE}/auth`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${basicAuth}`
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      if (!loginResponse.ok) {
+        throw new Error('Unable to sign in. Please try again.');
+      }
     }
-    
-    // Si la autenticación falla, devolver error
+
+    const loginData = await loginResponse.json();
+    token = loginData.data.jwt;
+
+    // Get user details
+    const userResponse = await fetch(`${config.JWT_BASE}/auth/validate`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    let userData = {};
+    if (userResponse.ok) {
+      const userValidation = await userResponse.json();
+      userData = userValidation.data?.user || {};
+    }
+
+    // Return in the same format as manual login
     return NextResponse.json({
-      success: false,
-      message: 'Authentication failed. Please configure Simple JWT Login to accept Google OAuth.'
-    }, { status: 401 });
-    
+      success: true,
+      data: {
+        token,
+        user: {
+          id: userData.ID,
+          email: email,
+          displayName: name || userData.display_name || username,
+          username: userData.user_login || username,
+          avatar: picture
+        }
+      }
+    });
+
   } catch (error) {
-    console.error('Google auth error:', error);
-    return NextResponse.json(
-      { error: 'Authentication failed', message: error.message },
-      { status: 500 }
-    );
+    console.error('Google login error:', error.message);
+    return NextResponse.json({ 
+      error: error.message || 'Authentication failed. Please try again.' 
+    }, { status: 500 });
   }
 }
