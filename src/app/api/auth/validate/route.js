@@ -14,11 +14,10 @@ export async function POST(request) {
       );
     }
     
-    // Simple JWT Login endpoint para validar
+    // Simple JWT Login endpoint para validar - usa GET no POST
     const response = await fetch(`${config.JWT_BASE}/auth/validate`, {
-      method: 'POST',
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': authHeader // Pasar el token del usuario
       }
     });

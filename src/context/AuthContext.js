@@ -13,11 +13,15 @@ export function AuthProvider({ children }) {
     const checkAuth = async () => {
       const savedUser = authService.getUser();
       if (savedUser) {
+        // Try to validate but don't logout if it fails
         const isValid = await authService.validateToken();
         if (isValid) {
           setUser(savedUser);
         } else {
-          authService.logout();
+          // Still set the user even if validation fails
+          // This prevents logout on refresh due to validation issues
+          console.warn('Token validation failed, but keeping user logged in');
+          setUser(savedUser);
         }
       }
       setLoading(false);

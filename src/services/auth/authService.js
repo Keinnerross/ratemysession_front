@@ -97,8 +97,10 @@ class AuthService {
   async loginWithGoogle(googleUserInfo) {
     try {
       const response = await apiClient.post('/api/auth/google', googleUserInfo);
+      console.log('Google login response:', response);
       
       if (response.success && response.data.token) {
+        // Save authentication data
         localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user.displayName));
         localStorage.setItem('userEmail', response.data.user.email);
@@ -106,6 +108,9 @@ class AuthService {
         if (response.data.user.avatar) {
           localStorage.setItem('userPicture', response.data.user.avatar);
         }
+        
+        console.log('Token saved:', response.data.token);
+        console.log('User data saved:', response.data.user);
         
         return { 
           success: true, 
@@ -126,12 +131,20 @@ class AuthService {
   async validateToken() {
     try {
       const token = this.getToken();
+      console.log('Validating token:', token ? `Token exists (length: ${token.length})` : 'No token found');
+      
       if (!token) return false;
       
+      // Log first 20 chars of token for debugging (don't log full token for security)
+      console.log('Token preview:', token.substring(0, 20) + '...');
+      
       const response = await apiClient.post(ENDPOINTS.AUTH.VALIDATE, {}, 'user');
+      console.log('Validation response:', response);
+      
       return response.data && response.data.status === 200;
     } catch (error) {
-      console.error('Token validation error:', error);
+      console.error('Token validation error:', error.message);
+      // Don't throw, just return false
       return false;
     }
   }
@@ -149,8 +162,22 @@ class AuthService {
   getUser() {
     const displayName = localStorage.getItem('user');
     const email = localStorage.getItem('userEmail');
+    const userPicture = localStorage.getItem('userPicture');
+    
     if (displayName) {
-      return { displayName, email };
+      // Parse displayName if it's JSON stringified
+      let parsedDisplayName = displayName;
+      try {
+        parsedDisplayName = JSON.parse(displayName);
+      } catch (e) {
+        // If it's not JSON, use as is
+      }
+      
+      return { 
+        displayName: parsedDisplayName,
+        email,
+        avatar: userPicture
+      };
     }
     return null;
   }

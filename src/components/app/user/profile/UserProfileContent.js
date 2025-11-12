@@ -38,11 +38,30 @@ export default function UserProfileContent({
             {/* Profile Picture */}
             <div className="w-[200px] md:w-[240px] lg:w-full lg:max-w-[280px] aspect-square rounded-full bg-gray-300 overflow-hidden">
               {image ? (
-                <img
-                  src={image}
-                  alt={name}
-                  className="w-full h-full object-cover"
-                />
+                <>
+                  <img
+                    src={image}
+                    alt={name}
+                    className="w-full h-full object-cover"
+                    crossOrigin="anonymous"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      console.error('Image failed to load:', image);
+                      e.target.style.display = 'none';
+                      if (e.target.nextElementSibling) {
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }
+                    }}
+                  />
+                  <div 
+                    className="w-full h-full bg-[#eae7ff] flex items-center justify-center"
+                    style={{ display: 'none' }}
+                  >
+                    <span className="text-[120px] md:text-[160px] lg:text-[220px] font-medium text-[#b6aeff] font-['Outfit'] tracking-[-2.20px]">
+                      {name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                </>
               ) : (
                 <div className="w-full h-full bg-[#eae7ff] flex items-center justify-center">
                   <span className="text-[120px] md:text-[160px] lg:text-[220px] font-medium text-[#b6aeff] font-['Outfit'] tracking-[-2.20px]">
