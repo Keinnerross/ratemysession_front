@@ -7,6 +7,7 @@ import { HiOutlineUser } from "react-icons/hi";
 import { FaUserSecret } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
 import reviewService from "@/services/reviews/reviewService";
+import reviewStateService from "@/services/reviews/reviewStateService";
 
 export default function LeaveReviewForm({ 
   isOpen, 
@@ -46,6 +47,15 @@ export default function LeaveReviewForm({
     setIsSubmitting(true);
     
     try {
+      // Check if user can review before submitting
+      const canReviewStatus = await reviewStateService.canUserReview(therapistId, user);
+      
+      if (!canReviewStatus.canReview) {
+        alert(canReviewStatus.message || 'You have already reviewed this therapist');
+        handleClose();
+        return;
+      }
+      
       const result = await reviewService.submitReview(
         therapistId,
         content,
@@ -55,10 +65,25 @@ export default function LeaveReviewForm({
       );
       
       if (result.success) {
-        onSubmit(result.data);
+        // Save anonymous review to localStorage only for non-logged users
+        if (identityChoice === "anonymous" && !user) {
+          reviewStateService.saveAnonymousReview(therapistId);
+        }
+        
+        // Pass the review data with identity choice to parent
+        onSubmit({
+          ...result.data,
+          isAnonymous: identityChoice === "anonymous"
+        });
         handleClose();
       } else {
-        alert('Error submitting review: ' + result.error);
+        // Handle duplicate review error
+        if (result.error && result.error.includes('already reviewed')) {
+          alert('You have already reviewed this therapist');
+          handleClose();
+        } else {
+          alert('Error submitting review: ' + result.error);
+        }
       }
     } catch (error) {
       console.error('Submit error:', error);

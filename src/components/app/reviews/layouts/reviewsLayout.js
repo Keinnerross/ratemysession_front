@@ -4,7 +4,6 @@ import React, { useState, useTransition, useEffect } from "react";
 import TherapistCardRated from "../cards/therapistCardRated";
 import TherapistCardRatedSummaryAI from "../cards/therapistCardRatedSumaryAI";
 import CustomSelect from "@/components/global/inputs/CustomSelect";
-import commentsData from "@/data/comments";
 import { loadMoreReviews } from "@/app/(core)/(application)/therapist-profile/actions";
 
 export default function ReviewsLayout({
@@ -18,7 +17,7 @@ export default function ReviewsLayout({
   const [isPending, startTransition] = useTransition();
   const [sortBy, setSortBy] = useState("recent");
   const [filterRating, setFilterRating] = useState("all");
-  const [comments, setComments] = useState(initialComments.length > 0 ? initialComments : commentsData);
+  const [comments, setComments] = useState(initialComments);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [currentPage, setCurrentPage] = useState(1);
   const [isAISummaryHelpful, setIsAISummaryHelpful] = useState(false);
@@ -27,7 +26,7 @@ export default function ReviewsLayout({
 
   // Handle filter changes - load new data from server
   useEffect(() => {
-    if (!therapistId || initialComments.length === 0) return;
+    if (!therapistId) return;
     
     // Skip the first render since we already have initial data
     if (isFirstRender.current) {
@@ -50,43 +49,11 @@ export default function ReviewsLayout({
     });
   }, [sortBy, filterRating, therapistId]);
 
-  // For API data, comments are already filtered and sorted by the server
-  // For mock data, apply local filtering
-  const therapistComments = initialComments.length > 0 
-    ? comments // Already filtered and sorted by API
-    : (therapistId
-        ? comments.filter((comment) => comment.therapistId === therapistId)
-        : comments);
-
-  // Only apply local sorting/filtering for mock data
-  const displayComments = initialComments.length > 0 
-    ? comments // Use server-sorted data
-    : (() => {
-        // Apply local sorting for mock data
-        const sorted = [...therapistComments].sort((a, b) => {
-          if (sortBy === "recent") {
-            return new Date(b.date) - new Date(a.date);
-          } else if (sortBy === "helpful") {
-            const totalReactionsA = Object.values(a.reactions).reduce(
-              (sum, count) => sum + count,
-              0
-            );
-            const totalReactionsB = Object.values(b.reactions).reduce(
-              (sum, count) => sum + count,
-              0
-            );
-            return totalReactionsB - totalReactionsA;
-          }
-          return 0;
-        });
-        
-        // Apply local rating filter for mock data
-        if (filterRating === "all") return sorted;
-        return sorted.filter(comment => comment.rating === parseInt(filterRating));
-      })();
+  // Use API data directly - no local filtering needed
+  const displayComments = comments;
 
   // Calculate stats - use totalReviewCount from props for API data
-  const totalReviews = initialComments.length > 0 ? totalReviewCount : therapistComments.length;
+  const totalReviews = totalReviewCount;
   const averageRating =
     comments.length > 0
       ? (
@@ -182,10 +149,10 @@ export default function ReviewsLayout({
       </div>
 
       {/* AI Summary Card - Always visible at top */}
-      {therapistComments.length > 0 && (
+      {totalReviews > 0 && (
         <div className="bg-white rounded-lg mb-8">
           <TherapistCardRatedSummaryAI 
-            totalReviews={therapistComments.length}
+            totalReviews={totalReviews}
             helpfulCount={aiHelpfulCount}
             isHelpful={isAISummaryHelpful}
             onReaction={(id, type) => {

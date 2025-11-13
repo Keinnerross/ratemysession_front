@@ -36,12 +36,14 @@ export const API_ROUTES = {
   THERAPISTS: {
     LIST: '/api/therapists',
     DETAIL: (id) => `/api/therapists/${id}`,
-    SEARCH: '/api/therapists/search'
+    SEARCH: '/api/therapists/search',
+    CREATE: '/api/therapists'
   },
   COMMENTS: {
     LIST: '/api/comments',
     BY_POST: (postId) => `/api/comments?post=${postId}`,
-    BY_POSTS: (postIds) => `/api/comments?include=${postIds.join(',')}`
+    BY_POSTS: (postIds) => `/api/comments?include=${postIds.join(',')}`,
+    PAGINATED: '/api/comments/paginated'
   },
   USERS: {
     PROFILE: '/api/users/profile',

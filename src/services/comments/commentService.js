@@ -74,5 +74,37 @@ export const commentService = {
       console.error(`Failed to fetch comments for post ${postId}:`, error);
       return [];
     }
+  },
+  
+  // Get paginated comments for a therapist
+  async getCommentsPaginated(therapistId, options = {}) {
+    try {
+      const params = new URLSearchParams();
+      params.append('therapistId', therapistId);
+      
+      // Add optional parameters
+      if (options.page) params.append('page', options.page);
+      if (options.perPage) params.append('per_page', options.perPage);
+      if (options.rating) params.append('rate', options.rating);
+      if (options.sortBy) params.append('sort_by', options.sortBy);
+      if (options.sortOrder) params.append('sort_order', options.sortOrder);
+      
+      const url = `${ENDPOINTS.COMMENTS.PAGINATED}?${params.toString()}`;
+      return await apiClient.get(url);
+    } catch (error) {
+      console.error(`Failed to fetch paginated comments for therapist ${therapistId}:`, error);
+      return {
+        comments: [],
+        pagination: {
+          total_comments: 0,
+          total_pages: 1,
+          current_page: 1,
+          per_page: 10,
+          has_next_page: false,
+          has_prev_page: false
+        },
+        rating_distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+      };
+    }
   }
 };

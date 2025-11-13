@@ -1,11 +1,12 @@
 export default function useFormValidation() {
   const validateStep2 = (selectedOption, formData) => {
     if (selectedOption === 'user') {
-      const { therapistName, city, specialization, relationship } = formData;
-      return therapistName && city && specialization && relationship;
+      const { therapistName, city, relationship } = formData;
+      return therapistName && city && relationship;
     } else if (selectedOption === 'therapist') {
       const { therapistName, credentials, address, city, state, zipcode } = formData;
-      return therapistName && credentials && address && city && state && zipcode;
+      const hasCredentials = Array.isArray(credentials) ? credentials.length > 0 : !!credentials;
+      return therapistName && hasCredentials && address && city && state && zipcode;
     }
     return false;
   };

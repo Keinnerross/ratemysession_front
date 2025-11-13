@@ -36,9 +36,18 @@ const buildUrl = (url) => {
 };
 
 export const apiClient = {
-  async get(url, authType = 'none') {
+  async get(url, options = {}) {
     try {
-      const fullUrl = buildUrl(url);
+      let finalUrl = url;
+      const authType = options.authType || 'none';
+      
+      // Handle query parameters if provided
+      if (options.params) {
+        const queryString = new URLSearchParams(options.params).toString();
+        finalUrl = `${url}${url.includes('?') ? '&' : '?'}${queryString}`;
+      }
+      
+      const fullUrl = buildUrl(finalUrl);
       const response = await fetch(fullUrl, {
         method: 'GET',
         headers: getHeaders(authType),
@@ -74,21 +83,23 @@ export const apiClient = {
         body: JSON.stringify(body),
       });
 
+      const data = await response.json();
+      
+      // For 409 Conflict (duplicate review), return the error data instead of throwing
+      if (response.status === 409) {
+        return data;
+      }
+      
       // Aceptar tanto 200 como 201 como respuestas exitosas
       if (!response.ok && response.status !== 201) {
         // Intentar obtener el mensaje de error del response
         let errorMessage = `HTTP error! status: ${response.status}`;
-        try {
-          const errorData = await response.json();
-          console.error('Error response:', errorData);
-          errorMessage = errorData.message || errorData.error || errorMessage;
-        } catch (e) {
-          // Si no se puede parsear el JSON, usar el mensaje por defecto
+        if (data.error) {
+          errorMessage = data.error;
         }
         throw new Error(errorMessage);
       }
 
-      const data = await response.json();
       return data;
     } catch (error) {
       console.error('Error in POST request:', error);

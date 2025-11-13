@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { FaUser } from "react-icons/fa";
 
-export default function IdentityChoiceStep({ identityOption, onIdentitySelect }) {
+export default function IdentityChoiceStep({ identityOption, onIdentitySelect, user }) {
   return (
     <>
       <div className="text-center mb-6">
@@ -10,7 +10,7 @@ export default function IdentityChoiceStep({ identityOption, onIdentitySelect })
           Your Identity
         </h2>
         <p className="font-['Poppins'] font-light text-[#767676] text-sm">
-          Choose how you'd like to submit this recommendation
+          Choose how you'd like to create your profile
         </p>
       </div>
 
@@ -36,7 +36,7 @@ export default function IdentityChoiceStep({ identityOption, onIdentitySelect })
               Stay Anonymous
             </h3>
             <p className="font-['Poppins'] font-light text-[#909090] text-xs text-center">
-              Submit without creating an account
+              Create profile without an account
             </p>
           </div>
         </button>
@@ -54,10 +54,10 @@ export default function IdentityChoiceStep({ identityOption, onIdentitySelect })
               <FaUser className="text-4xl text-[#7466f2]" />
             </div>
             <h3 className="font-['Outfit'] font-medium text-[#424242] text-base tracking-[-0.16px] mb-1">
-              Log In to Submit
+              {user ? `Submit as ${user.displayName || user.email?.split('@')[0]}` : "Create Account"}
             </h3>
             <p className="font-['Poppins'] font-light text-[#909090] text-xs text-center">
-              Track your recommendations
+              {user ? "Your profile will be linked to your account" : "Manage your profile later"}
             </p>
           </div>
         </button>

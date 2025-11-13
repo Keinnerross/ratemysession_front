@@ -4,7 +4,7 @@ import { getServerConfig } from '@/config/api';
 export async function GET(request, { params }) {
   try {
     const config = getServerConfig();
-    const { id } = params;
+    const { id } = await params;
     
     // Crear Basic Auth con credenciales del sistema
     const authString = `${config.SYSTEM_USER}:${config.SYSTEM_PASSWORD}`;

@@ -71,4 +71,48 @@ export const therapistService = {
       throw error;
     }
   },
+  
+  // Create a new therapist
+  async createTherapist(therapistData, isAnonymous = false) {
+    try {
+      const payload = {
+        ...therapistData,
+        isAnonymous
+      };
+      const data = await apiClient.post(ENDPOINTS.THERAPISTS.CREATE, payload);
+      return data;
+    } catch (error) {
+      console.error('Error creating therapist:', error);
+      throw error;
+    }
+  },
+  
+  // Save therapist draft for later submission
+  saveTherapistDraft(therapistData) {
+    try {
+      localStorage.setItem('therapistDraft', JSON.stringify(therapistData));
+    } catch (error) {
+      console.error('Error saving therapist draft:', error);
+    }
+  },
+  
+  // Get saved therapist draft
+  getTherapistDraft() {
+    try {
+      const draft = localStorage.getItem('therapistDraft');
+      return draft ? JSON.parse(draft) : null;
+    } catch (error) {
+      console.error('Error getting therapist draft:', error);
+      return null;
+    }
+  },
+  
+  // Clear therapist draft
+  clearTherapistDraft() {
+    try {
+      localStorage.removeItem('therapistDraft');
+    } catch (error) {
+      console.error('Error clearing therapist draft:', error);
+    }
+  },
 };

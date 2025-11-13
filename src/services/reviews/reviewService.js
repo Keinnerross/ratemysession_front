@@ -12,8 +12,8 @@ class ReviewService {
         rating,
         isAnonymous,
         author: !isAnonymous && userData?.id ? userData.id : null,
-        author_name: isAnonymous ? '' : userData?.displayName || userData?.email || '',
-        author_email: userData?.email || ''
+        author_name: isAnonymous ? 'Anonymous' : userData?.displayName || userData?.email?.split('@')[0] || 'User',
+        author_email: userData?.email || (isAnonymous ? 'anonymous@ratemysession.com' : '')
       };
 
       const response = await apiClient.post('/api/comments', reviewData);
@@ -24,7 +24,12 @@ class ReviewService {
         return { success: true, data: response };
       }
       
-      return { success: false, error: 'Failed to create review' };
+      // Check if it's a duplicate review error
+      if (response.code === 'DUPLICATE_REVIEW' || response.error?.includes('already reviewed')) {
+        return { success: false, error: 'You have already reviewed this therapist' };
+      }
+      
+      return { success: false, error: response.error || 'Failed to create review' };
     } catch (error) {
       console.error('Review submission error:', error);
       return { 

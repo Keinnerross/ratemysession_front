@@ -5,11 +5,22 @@ import { transformCommentData } from "@/utils/commentTransformer";
 
 export async function loadMoreReviews(therapistId, page, sortBy = 'recent', filterRating = 'all') {
   try {
-    // Por ahora usamos el endpoint existente que trae todos los comentarios
-    // En el futuro, esto debería usar paginación real del servidor
-    const allComments = await commentService.getCommentsByPost(therapistId);
+    // Map frontend sort values to API values
+    const sortMapping = {
+      'recent': 'date',
+      'helpful': 'helpful'
+    };
     
-    if (!allComments || !Array.isArray(allComments)) {
+    // Use the new paginated endpoint
+    const response = await commentService.getCommentsPaginated(therapistId, {
+      page: page,
+      perPage: 1,
+      rating: filterRating === 'all' ? null : filterRating,
+      sortBy: sortMapping[sortBy] || 'date',
+      sortOrder: 'desc' // Always descending for now
+    });
+    
+    if (!response || !response.comments) {
       return {
         reviews: [],
         hasMore: false,
@@ -18,57 +29,17 @@ export async function loadMoreReviews(therapistId, page, sortBy = 'recent', filt
       };
     }
     
-    // Transform all comments
-    const transformedComments = transformCommentData(allComments);
+    // Transform the comments from the API
+    const transformedComments = transformCommentData(response.comments);
     
-    // Calculate distribution from all comments (before filtering)
-    const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-    transformedComments.forEach(comment => {
-      if (comment.rating >= 1 && comment.rating <= 5) {
-        distribution[comment.rating]++;
-      }
-    });
-    
-    // Apply rating filter
-    let filteredComments = transformedComments;
-    if (filterRating !== 'all') {
-      filteredComments = transformedComments.filter(comment => 
-        comment.rating === parseInt(filterRating)
-      );
-    }
-    
-    // Apply sorting
-    const sortedComments = [...filteredComments].sort((a, b) => {
-      if (sortBy === 'recent') {
-        return new Date(b.date) - new Date(a.date);
-      } else if (sortBy === 'helpful') {
-        // Sort by total positive reactions (useful + helpful + insightful)
-        // Don't count 'inappropriate' (oh-no) as it's negative
-        const positiveReactionsA = (a.reactions.useful || 0) + 
-                                  (a.reactions.helpful || 0) + 
-                                  (a.reactions.insightful || 0);
-        const positiveReactionsB = (b.reactions.useful || 0) + 
-                                  (b.reactions.helpful || 0) + 
-                                  (b.reactions.insightful || 0);
-        return positiveReactionsB - positiveReactionsA;
-      }
-      return 0;
-    });
-    
-    // Paginate results
-    const perPage = 2;
-    const startIndex = (page - 1) * perPage;
-    const endIndex = startIndex + perPage;
-    const paginatedReviews = sortedComments.slice(startIndex, endIndex);
-    
-    // Check if there are more results
-    const hasMore = endIndex < sortedComments.length;
+    // Use the distribution from the API response
+    const distribution = response.rating_distribution || { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     
     return {
-      reviews: paginatedReviews,
-      hasMore,
-      totalCount: sortedComments.length,
-      distribution
+      reviews: transformedComments,
+      hasMore: response.pagination?.has_next_page || false,
+      totalCount: response.pagination?.total_comments || 0,
+      distribution: distribution
     };
   } catch (error) {
     console.error('Failed to load more reviews:', error);

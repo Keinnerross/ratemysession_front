@@ -8,6 +8,8 @@ import ReviewsLayout from "../../reviews/layouts/reviewsLayout";
 import LeaveReviewForm from "../../reviews/forms/leaveReviewForm";
 import NotificationToast from "../../../global/notifications/NotificationToast";
 import reviewService from "@/services/reviews/reviewService";
+import reviewStateService from "@/services/reviews/reviewStateService";
+import { useAuth } from "@/context/AuthContext";
 
 export default function TherapistProfileContent({ 
   data = {}, 
@@ -19,8 +21,13 @@ export default function TherapistProfileContent({
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [savedReview, setSavedReview] = useState(null);
+  const [reviewStatus, setReviewStatus] = useState('checking'); // 'checking', 'can-review', 'already-reviewed-logged', 'already-reviewed-anonymous'
+  const [buttonText, setButtonText] = useState('Rate Therapist');
+  const [buttonDisabled, setButtonDisabled] = useState(false);
+  
   const searchParams = useSearchParams();
   const openReview = searchParams.get('openReview');
+  const { user } = useAuth();
 
   // Destructure with fallback values
   const {
@@ -43,6 +50,32 @@ export default function TherapistProfileContent({
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 !== 0;
 
+  // Check review status for current user
+  useEffect(() => {
+    const checkReviewStatus = async () => {
+      if (!id) return;
+      
+      const status = await reviewStateService.canUserReview(id, user);
+      
+      if (!status.canReview) {
+        setReviewStatus(status.reason);
+        setButtonDisabled(true);
+        
+        if (status.reason === 'already-reviewed-logged') {
+          setButtonText('Already Reviewed');
+        } else if (status.reason === 'already-reviewed-anonymous') {
+          setButtonText('Already Reviewed (Anonymous)');
+        }
+      } else {
+        setReviewStatus('can-review');
+        setButtonDisabled(false);
+        setButtonText('Rate Therapist');
+      }
+    };
+    
+    checkReviewStatus();
+  }, [id, user]);
+
   // Check for saved review and open modal if coming from login
   useEffect(() => {
     if (openReview === 'true') {
@@ -58,9 +91,21 @@ export default function TherapistProfileContent({
     }
   }, [openReview, id]);
 
-  const handleReviewSubmit = (reviewData) => {
-    // Here you would normally send the review to your backend
-    console.log("New review submitted:", reviewData);
+  const handleReviewSubmit = async (reviewData) => {
+
+    // Update review status after successful submission
+    if (user && user.email) {
+      // For logged in users (anonymous or not), always show as logged review
+      setReviewStatus('already-reviewed-logged');
+      setButtonText('Already Reviewed');
+    } else if (reviewData.isAnonymous) {
+      // For non-logged anonymous reviews, save to localStorage
+      reviewStateService.saveAnonymousReview(id);
+      setReviewStatus('already-reviewed-anonymous');
+      setButtonText('Already Reviewed (Anonymous)');
+    }
+    
+    setButtonDisabled(true);
 
     // Show success notification
     setShowNotification(true);
@@ -127,10 +172,16 @@ export default function TherapistProfileContent({
               {/* Rate Therapist Button Mobile */}
               <div className="lg:hidden relative flex justify-center items-center mt-2">
                 <button
-                  onClick={() => setIsReviewFormOpen(true)}
-                  className="px-6 lg:px-8 py-2 bg-[#7466f2] rounded-full text-white text-sm md:text-base font-['Outfit'] hover:bg-[#6153e0] transition-colors"
+                  onClick={() => !buttonDisabled && setIsReviewFormOpen(true)}
+                  disabled={buttonDisabled}
+                  className={`px-6 lg:px-8 py-2 rounded-full text-white text-sm md:text-base font-['Outfit'] transition-colors ${
+                    buttonDisabled 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-[#7466f2] hover:bg-[#6153e0] cursor-pointer'
+                  }`}
+                  title={buttonDisabled ? 'You have already reviewed this therapist' : ''}
                 >
-                  Rate Therapist
+                  {buttonText}
                 </button>
               </div>
             </div>
@@ -243,10 +294,16 @@ export default function TherapistProfileContent({
                 <div className="hidden lg:block">
                   {/* Rate Therapist Button */}
                   <button
-                    onClick={() => setIsReviewFormOpen(true)}
-                    className="px-6 md:px-8 py-2 bg-[#7466f2] rounded-full text-white text-sm md:text-base font-['Outfit'] hover:bg-[#6153e0] transition-colors"
+                    onClick={() => !buttonDisabled && setIsReviewFormOpen(true)}
+                    disabled={buttonDisabled}
+                    className={`px-6 md:px-8 py-2 rounded-full text-white text-sm md:text-base font-['Outfit'] transition-colors ${
+                      buttonDisabled 
+                        ? 'bg-gray-400 cursor-not-allowed' 
+                        : 'bg-[#7466f2] hover:bg-[#6153e0] cursor-pointer'
+                    }`}
+                    title={buttonDisabled ? 'You have already reviewed this therapist' : ''}
                   >
-                    Rate Therapist
+                    {buttonText}
                   </button>
                 </div>
               </div>
