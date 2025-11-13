@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import SocialAuthButtons from "@/components/app/auth/SocialAuthButtons";
 import PageTransition from "@/components/app/auth/PageTransition";
@@ -13,12 +13,19 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const { login, user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('returnTo');
 
   useEffect(() => {
     if (user && !authLoading) {
-      router.push('/user-profile');
+      // If there's a returnTo URL, go there instead of user-profile
+      if (returnTo) {
+        router.push(returnTo);
+      } else {
+        router.push('/user-profile');
+      }
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, router, returnTo]);
 
   const handleChange = (e) => {
     setFormData(prev => ({
@@ -42,7 +49,12 @@ export default function LoginPage() {
     const result = await login(formData.username, formData.password);
     
     if (result.success) {
-      router.push('/user-profile');
+      // Use returnTo URL if available, otherwise go to user-profile
+      if (returnTo) {
+        router.push(returnTo);
+      } else {
+        router.push('/user-profile');
+      }
     } else {
       setError(result.message || 'Error al iniciar sesión');
     }
@@ -69,7 +81,10 @@ export default function LoginPage() {
                 <span className="text-sm sm:text-base lg:text-lg text-[#191919] font-['Poppins']">
                   Don't have an account?
                 </span>
-                <Link href="/register" className="text-sm sm:text-base lg:text-lg text-amethyst-500 font-['Poppins'] hover:underline">
+                <Link 
+                  href={returnTo ? `/register?returnTo=${encodeURIComponent(returnTo)}` : "/register"} 
+                  className="text-sm sm:text-base lg:text-lg text-amethyst-500 font-['Poppins'] hover:underline"
+                >
                   Sign up
                 </Link>
               </div>

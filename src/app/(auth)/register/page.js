@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import SocialAuthButtons from "@/components/app/auth/SocialAuthButtons";
 import PageTransition from "@/components/app/auth/PageTransition";
@@ -17,12 +17,19 @@ export default function RegisterPage() {
   const [showPasswordHint, setShowPasswordHint] = useState(false);
   const { register, user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('returnTo');
 
   useEffect(() => {
     if (user && !authLoading) {
-      router.push('/user-profile');
+      // If there's a returnTo URL, go there instead of user-profile
+      if (returnTo) {
+        router.push(returnTo);
+      } else {
+        router.push('/user-profile');
+      }
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, router, returnTo]);
 
   const handleChange = (e) => {
     setFormData(prev => ({
@@ -66,7 +73,12 @@ export default function RegisterPage() {
     const result = await register(formData.email, formData.password);
     
     if (result.success) {
-      router.push('/user-profile');
+      // Use returnTo URL if available, otherwise go to user-profile
+      if (returnTo) {
+        router.push(returnTo);
+      } else {
+        router.push('/user-profile');
+      }
     } else {
       setErrors({ general: result.message || 'Error al registrar usuario' });
     }
@@ -95,7 +107,10 @@ export default function RegisterPage() {
                 <span className="text-sm sm:text-base lg:text-lg text-[#191919] font-['Poppins']">
                   Already have an account?
                 </span>
-                <Link href="/login" className="text-sm sm:text-base lg:text-lg text-[#796bf5] font-['Poppins'] hover:underline">
+                <Link 
+                  href={returnTo ? `/login?returnTo=${encodeURIComponent(returnTo)}` : "/login"}
+                  className="text-sm sm:text-base lg:text-lg text-[#796bf5] font-['Poppins'] hover:underline"
+                >
                   Log In
                 </Link>
               </div>

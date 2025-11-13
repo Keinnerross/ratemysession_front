@@ -1,9 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { FaStar, FaRegStar, FaTimes, FaChevronLeft } from "react-icons/fa";
 import { HiOutlineUser } from "react-icons/hi";
 import { FaUserSecret } from "react-icons/fa";
+import { useAuth } from "@/context/AuthContext";
+import reviewService from "@/services/reviews/reviewService";
 
 export default function LeaveReviewForm({ 
   isOpen, 
@@ -11,27 +14,58 @@ export default function LeaveReviewForm({
   therapistName = "Therapist",
   therapistSpecialty = "Mental Health Counselor",
   therapistImage = null,
-  onSubmit 
+  therapistId,
+  therapistSlug,
+  onSubmit,
+  initialStep = 1,
+  savedReview = null
 }) {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [rating, setRating] = useState(0);
+  const [currentStep, setCurrentStep] = useState(initialStep);
+  const [rating, setRating] = useState(savedReview?.rating || 0);
   const [hoveredRating, setHoveredRating] = useState(0);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [title, setTitle] = useState(savedReview?.title || "");
+  const [content, setContent] = useState(savedReview?.content || "");
   const [identityChoice, setIdentityChoice] = useState("anonymous");
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
 
-  const handleSubmit = () => {
-    const reviewData = {
-      rating,
-      title,
-      content,
-      isAnonymous: identityChoice === "anonymous",
-      date: new Date().toISOString()
-    };
+  // Load saved review if coming back from login
+  useEffect(() => {
+    if (savedReview && isOpen) {
+      setRating(savedReview.rating || 0);
+      setContent(savedReview.content || "");
+      setTitle(savedReview.title || "");
+      setCurrentStep(2); // Go directly to step 2
+    }
+  }, [savedReview, isOpen]);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
     
-    onSubmit(reviewData);
-    handleClose();
+    try {
+      const result = await reviewService.submitReview(
+        therapistId,
+        content,
+        rating,
+        identityChoice === "anonymous",
+        user
+      );
+      
+      if (result.success) {
+        onSubmit(result.data);
+        handleClose();
+      } else {
+        alert('Error submitting review: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Submit error:', error);
+      alert('Failed to submit review. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
@@ -62,7 +96,21 @@ export default function LeaveReviewForm({
       }
       setCurrentStep(2);
     } else if (currentStep === 2) {
-      handleSubmit();
+      // Handle identity choice
+      if (identityChoice === "account" && !user) {
+        // Save review draft and redirect to login
+        reviewService.saveReviewDraft(therapistId, {
+          rating,
+          title,
+          content
+        });
+        
+        const returnUrl = `/therapist-profile?id=${therapistId}&openReview=true`;
+        router.push(`/register?returnTo=${encodeURIComponent(returnUrl)}`);
+      } else {
+        // Submit the review
+        handleSubmit();
+      }
     }
   };
 
@@ -272,10 +320,10 @@ export default function LeaveReviewForm({
                         identityChoice === "account" ? "text-[#7466f2]" : "text-gray-400"
                       }`} />
                       <h3 className="text-sm font-medium font-['Outfit'] text-[#424242] mb-1">
-                        Create Account
+                        {user ? `Comment as ${user.displayName || user.email?.split('@')[0]}` : "Create Account"}
                       </h3>
                       <p className="text-xs font-light font-['Outfit'] text-[#909090] px-3 text-center">
-                        Track your reviews and added therapists
+                        {user ? "Your name will be visible" : "Track your reviews and added therapists"}
                       </p>
                     </div>
                   </button>
@@ -298,14 +346,20 @@ export default function LeaveReviewForm({
             
             <button
               onClick={handleContinue}
-              disabled={currentStep === 1 && (rating === 0 || content.length < 10 || !termsAccepted)}
+              disabled={(
+                currentStep === 1 && (rating === 0 || content.length < 10 || !termsAccepted)
+              ) || isSubmitting}
               className={`flex-1 h-[45px] rounded-[15px] bg-[#7466f2] text-white font-['Outfit'] font-medium text-base transition-all ${
-                currentStep === 1 && (rating === 0 || content.length < 10 || !termsAccepted) 
+                (currentStep === 1 && (rating === 0 || content.length < 10 || !termsAccepted)) || isSubmitting
                   ? 'opacity-50 cursor-not-allowed' 
                   : 'hover:bg-[#6153e0]'
               }`}
             >
-              {currentStep === 1 ? "Continue" : "Submit Review"}
+              {currentStep === 1 ? "Continue" : (
+                isSubmitting ? "Submitting..." : (
+                  identityChoice === "account" && !user ? "Continue to Login" : "Submit Review"
+                )
+              )}
             </button>
           </div>
         </div>

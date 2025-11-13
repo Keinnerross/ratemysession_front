@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { FaMapMarkerAlt, FaGlobe, FaStar, FaRegStar } from "react-icons/fa";
 import RatingStatisticsChart from "../../reviews/charts/RatingStatisticsChart";
 import ReviewsLayout from "../../reviews/layouts/reviewsLayout";
 import LeaveReviewForm from "../../reviews/forms/leaveReviewForm";
 import NotificationToast from "../../../global/notifications/NotificationToast";
+import reviewService from "@/services/reviews/reviewService";
 
 export default function TherapistProfileContent({ 
   data = {}, 
@@ -16,6 +18,9 @@ export default function TherapistProfileContent({
 }) {
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
+  const [savedReview, setSavedReview] = useState(null);
+  const searchParams = useSearchParams();
+  const openReview = searchParams.get('openReview');
 
   // Destructure with fallback values
   const {
@@ -37,6 +42,21 @@ export default function TherapistProfileContent({
   // Calculate rating stars
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 !== 0;
+
+  // Check for saved review and open modal if coming from login
+  useEffect(() => {
+    if (openReview === 'true') {
+      const draft = reviewService.getReviewDraft();
+      if (draft && draft.therapistId === id) {
+        setSavedReview(draft);
+        setIsReviewFormOpen(true);
+        
+        // Clear the URL parameter
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
+      }
+    }
+  }, [openReview, id]);
 
   const handleReviewSubmit = (reviewData) => {
     // Here you would normally send the review to your backend
@@ -259,11 +279,18 @@ export default function TherapistProfileContent({
       {/* Leave Review Form Modal */}
       <LeaveReviewForm
         isOpen={isReviewFormOpen}
-        onClose={() => setIsReviewFormOpen(false)}
+        onClose={() => {
+          setIsReviewFormOpen(false);
+          setSavedReview(null);
+        }}
         therapistName={name}
         therapistSpecialty={specialty}
         therapistImage={image}
+        therapistId={id}
+        therapistSlug={slug}
         onSubmit={handleReviewSubmit}
+        savedReview={savedReview}
+        initialStep={savedReview ? 2 : 1}
       />
 
       {/* Success Notification */}
