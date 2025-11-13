@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { FaChevronDown } from 'react-icons/fa';
+import { FaChevronDown, FaUser, FaSignOutAlt } from 'react-icons/fa';
 import { HiMenu, HiX } from 'react-icons/hi';
 import { useAddTherapist } from '@/context/AddTherapistContext';
+import { useAuth } from '@/context/AuthContext';
 
 export function MobileMenu() {
     const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +15,7 @@ export function MobileMenu() {
     const pathname = usePathname();
     const [activeHash, setActiveHash] = useState('');
     const { openAddTherapist } = useAddTherapist();
+    const { user, loading, logout } = useAuth();
 
     useEffect(() => {
         // Get the initial hash
@@ -190,23 +192,58 @@ export function MobileMenu() {
                         </ul>
                     </nav>
 
-                    {/* Auth Buttons */}
-                    <div className="p-6 border-t border-gray-200 space-y-3">
-                        <Link
-                            href="/login"
-                            onClick={() => setIsOpen(false)}
-                            className="block w-full text-center py-3 text-gray-900 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
-                        >
-                            Log in
-                        </Link>
-                        <Link
-                            href="/register"
-                            onClick={() => setIsOpen(false)}
-                            className="block w-full text-center py-3 bg-amethyst-500 text-white rounded-xl hover:bg-amethyst-600 transition-colors"
-                        >
-                            Sign up
-                        </Link>
-                    </div>
+                    {/* Auth Section */}
+                    {!loading && (
+                        <div className="p-6 border-t border-gray-200">
+                            {user ? (
+                                <div className="space-y-3">
+                                    {/* User Info */}
+                                    <div className="bg-gray-50 rounded-lg p-4">
+                                        <p className="text-sm text-gray-500 mb-1">Signed in as</p>
+                                        <p className="text-sm font-medium text-gray-900 truncate">{user?.email}</p>
+                                    </div>
+                                    
+                                    {/* User Actions */}
+                                    <Link
+                                        href="/user-profile"
+                                        onClick={() => setIsOpen(false)}
+                                        className="flex items-center gap-3 w-full py-3 px-4 text-gray-700 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+                                    >
+                                        <FaUser className="text-gray-400" />
+                                        <span>My Profile</span>
+                                    </Link>
+                                    
+                                    <button
+                                        onClick={() => {
+                                            setIsOpen(false);
+                                            logout();
+                                        }}
+                                        className="flex items-center gap-3 w-full py-3 px-4 text-gray-700 border border-gray-200 rounded-xl hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+                                    >
+                                        <FaSignOutAlt className="text-gray-400" />
+                                        <span>Log out</span>
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    <Link
+                                        href="/login"
+                                        onClick={() => setIsOpen(false)}
+                                        className="block w-full text-center py-3 text-gray-900 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+                                    >
+                                        Log in
+                                    </Link>
+                                    <Link
+                                        href="/register"
+                                        onClick={() => setIsOpen(false)}
+                                        className="block w-full text-center py-3 bg-amethyst-500 text-white rounded-xl hover:bg-amethyst-600 transition-colors"
+                                    >
+                                        Sign up
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         </>

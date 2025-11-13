@@ -5,13 +5,16 @@ import { SearchbarBasic } from "@/components/global/searchbars/searchBarBasic";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 const { default: Navigation } = require("./components/navigation");
 import { MobileMenu } from "./components/mobileMenu";
+import { UserDropdown } from "./components/userDropdown";
 
 export function HeaderApp() {
   const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,19 +65,27 @@ export function HeaderApp() {
           {/* Desktop Navigation */}
           <div className="hidden w-fit lg:flex items-center justify-end gap-6">
             <Navigation />
-            <Link
-              href="/login"
-              className="relative py-2 text-gray-900 hover:text-gray-900 transition-colors cursor-pointer whitespace-nowrap group text-[15px]"
-            >
-              Log in
-              <span className="absolute bottom-0 left-0 h-0.5 bg-amethyst-600 transition-all duration-300 w-0 group-hover:w-full" />
-            </Link>
-            <Link
-              href="/register"
-              className="px-5 py-2.5 bg-amethyst-500 font-medium text-white rounded-xl hover:bg-amethyst-600 transition-all duration-200 hover:shadow-lg cursor-pointer whitespace-nowrap text-[15px]"
-            >
-              Sign up
-            </Link>
+            {!loading && (
+              user ? (
+                <UserDropdown />
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="relative py-2 text-gray-900 hover:text-gray-900 transition-colors cursor-pointer whitespace-nowrap group text-[15px]"
+                  >
+                    Log in
+                    <span className="absolute bottom-0 left-0 h-0.5 bg-amethyst-600 transition-all duration-300 w-0 group-hover:w-full" />
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="px-5 py-2.5 bg-amethyst-500 font-medium text-white rounded-xl hover:bg-amethyst-600 transition-all duration-200 hover:shadow-lg cursor-pointer whitespace-nowrap text-[15px]"
+                  >
+                    Sign up
+                  </Link>
+                </>
+              )
+            )}
           </div>
 
           {/* Mobile Menu */}

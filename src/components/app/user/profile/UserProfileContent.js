@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import {
   FaEdit,
   FaMapMarkerAlt,
@@ -16,6 +18,13 @@ export default function UserProfileContent({
   savedTherapists = [],
 }) {
   const [isEditMode, setIsEditMode] = useState(false);
+  const { logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
 
   // Destructure with fallback values
   const {
@@ -109,12 +118,12 @@ export default function UserProfileContent({
 
                 {/* Log Out Button - Desktop Position */}
                 <div className=":block mt-3">
-                  <Link
-                    href="/login"
+                  <button
+                    onClick={handleLogout}
                     className="inline-block px-6 py-1 bg-amethyst-500 rounded-full text-white text-base font-['Outfit'] hover:bg-[#6153e0] transition-colors"
                   >
                     Log Out
-                  </Link>
+                  </button>
                 </div>
               </div>
             </div>
@@ -159,12 +168,12 @@ export default function UserProfileContent({
 
                       {/* Log Out Button - Mobile Position */}
                       <div className="sm:hidden">
-                        <Link
-                          href="/login"
+                        <button
+                          onClick={handleLogout}
                           className="inline-block px-4 py-1 bg-amethyst-500 rounded-full text-white text-sm font-['Outfit'] hover:bg-[#6153e0] transition-colors"
                         >
                           Log Out
-                        </Link>
+                        </button>
                       </div>
                     </div>
 
@@ -191,12 +200,12 @@ export default function UserProfileContent({
 
                   {/* Log Out Button - Desktop Position */}
                   <div className="hidden sm:block">
-                    <Link
-                      href="/login"
+                    <button
+                      onClick={handleLogout}
                       className="inline-block px-6 py-1 bg-amethyst-500 rounded-full text-white text-base font-['Outfit'] hover:bg-[#6153e0] transition-colors"
                     >
                       Log Out
-                    </Link>
+                    </button>
                   </div>
                 </div>
 

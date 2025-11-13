@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import authService from '@/services/auth/authService';
 
 const AuthContext = createContext({});
@@ -8,6 +9,7 @@ const AuthContext = createContext({});
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -57,6 +59,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     authService.logout();
     setUser(null);
+    router.push('/login');
   };
 
   return (
