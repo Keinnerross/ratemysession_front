@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import { FaMapMarkerAlt, FaGlobe, FaStar, FaRegStar } from "react-icons/fa";
+import { useSearchParams, useRouter } from "next/navigation";
+import { FaMapMarkerAlt, FaGlobe, FaStar, FaRegStar, FaHeart } from "react-icons/fa";
 import RatingStatisticsChart from "../../reviews/charts/RatingStatisticsChart";
 import ReviewsLayout from "../../reviews/layouts/reviewsLayout";
 import LeaveReviewForm from "../../reviews/forms/leaveReviewForm";
@@ -10,13 +10,15 @@ import NotificationToast from "../../../global/notifications/NotificationToast";
 import reviewService from "@/services/reviews/reviewService";
 import reviewStateService from "@/services/reviews/reviewStateService";
 import { useAuth } from "@/context/AuthContext";
+import favoritesService from "@/services/users/favoritesService";
 
 export default function TherapistProfileContent({ 
   data = {}, 
   initialReviews = [], 
   hasMoreReviews = false,
   totalReviewCount = 0,
-  initialDistribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+  initialDistribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
+  isSaved: initialIsSaved = false
 }) {
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
@@ -24,10 +26,15 @@ export default function TherapistProfileContent({
   const [reviewStatus, setReviewStatus] = useState('checking'); // 'checking', 'can-review', 'already-reviewed-logged', 'already-reviewed-anonymous'
   const [buttonText, setButtonText] = useState('Rate Therapist');
   const [buttonDisabled, setButtonDisabled] = useState(false);
+  const [isSaved, setIsSaved] = useState(initialIsSaved);
+  const [isLoadingFavorite, setIsLoadingFavorite] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
   
   const searchParams = useSearchParams();
   const openReview = searchParams.get('openReview');
   const { user } = useAuth();
+  const router = useRouter();
 
   // Destructure with fallback values
   const {
@@ -49,6 +56,44 @@ export default function TherapistProfileContent({
   // Calculate rating stars
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 !== 0;
+
+  const handleFavoriteToggle = async () => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    
+    if (isSaved) {
+      setShowConfirmDialog(true);
+      return;
+    }
+    
+    await performFavoriteToggle();
+  };
+
+  const performFavoriteToggle = async () => {
+    setIsLoadingFavorite(true);
+    try {
+      const success = await favoritesService.toggleFavorite(id, isSaved);
+      if (success) {
+        const newSavedState = !isSaved;
+        setIsSaved(newSavedState);
+        setNotificationMessage(
+          newSavedState
+            ? `${name} has been saved to your profile`
+            : `${name} has been removed from your saved therapists`
+        );
+        setShowNotification(true);
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      setNotificationMessage('Error updating favorites. Please try again.');
+      setShowNotification(true);
+    } finally {
+      setIsLoadingFavorite(false);
+      setShowConfirmDialog(false);
+    }
+  };
 
   // Check review status for current user
   useEffect(() => {
@@ -149,7 +194,7 @@ export default function TherapistProfileContent({
 
               {/* Rating Section */}
               <div className="">
-                <div className="flex items-center gap-3 ">
+                <div className="flex items-center gap-3 justify-center">
                   <span className="text-lg md:text-xl font-semibold text-stone-800 font-['Outfit']">
                     {rating.toFixed(1)} / 5
                   </span>
@@ -166,6 +211,21 @@ export default function TherapistProfileContent({
                       </div>
                     ))}
                   </div>
+                  
+                  {/* Save Button */}
+                  <button
+                    onClick={handleFavoriteToggle}
+                    disabled={isLoadingFavorite}
+                    className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50 ml-2"
+                  >
+                    <FaHeart 
+                      className={`w-5 h-5 transition-all ${
+                        isSaved
+                          ? "text-amethyst-500 fill-current"
+                          : "text-gray-400"
+                      }`}
+                    />
+                  </button>
                 </div>
               </div>
 
@@ -287,6 +347,21 @@ export default function TherapistProfileContent({
                           </div>
                         ))}
                       </div>
+                      
+                      {/* Save Button */}
+                      <button
+                        onClick={handleFavoriteToggle}
+                        disabled={isLoadingFavorite}
+                        className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50 ml-2"
+                      >
+                        <FaHeart 
+                          className={`w-5 h-5 transition-all ${
+                            isSaved
+                              ? "text-amethyst-500 fill-current"
+                              : "text-gray-400"
+                          }`}
+                        />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -352,10 +427,38 @@ export default function TherapistProfileContent({
 
       {/* Success Notification */}
       <NotificationToast
-        message="Thanks for your review!"
+        message={notificationMessage || "Thanks for your review!"}
         isVisible={showNotification}
         onClose={() => setShowNotification(false)}
       />
+      
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-lg font-semibold font-outfit mb-4">
+              Remove from favorites?
+            </h3>
+            <p className="text-gray-600 font-poppins mb-6">
+              Are you sure you want to remove {name} from your favorites list?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowConfirmDialog(false)}
+                className="px-4 py-2 text-gray-600 font-poppins hover:text-gray-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={performFavoriteToggle}
+                className="px-4 py-2 bg-amethyst-500 text-white rounded-lg hover:bg-amethyst-600 transition-colors font-poppins"
+              >
+                Yes, remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

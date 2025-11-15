@@ -24,8 +24,8 @@ export function Hero() {
     }
   };
   return (
-    <section className="relative bg-gradient-to-t from-amethyst-50 to-white  w-full md:min-h-[570px] lg:min-h-[670px] flex items-center pt-30 md:pt-32 lg:pt-40 pb-22 md:pb-40 overflow-hidden">
-      <div className="container mx-auto max-w-[1650px] px-6 md:px-8 lg:px-0 flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-0 z-10 relative">
+    <section className="relative bg-gradient-to-t from-amethyst-50 to-white  w-full md:min-h-[570px] lg:min-h-screen flex items-center pt-30 md:pt-32 lg:pt-40 pb-22 md:pb-48 overflow-hidden">
+      <div className="container mx-auto max-w-[1330px] px-6 md:px-8 lg:px-0 flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-0 z-10 relative">
         <div id="left-hero" className="flex-1 w-full lg:w-1/2 gap-10">
           <div className="w-full text-center md:text-left">
             <div className="flex items-center gap-2 mb-4 justify-center md:justify-start">
@@ -37,7 +37,7 @@ export function Hero() {
             <h1 className="font-medium text-[30px]/8 md:text-5xl lg:text-[4.5rem]/18 text-stone-800 pb-6 md:pb-8  md:hidden flex">
               Your trusted resource to find therapist reviews
             </h1>
-            <h1 className="font-medium text-4xl md:text-5xl lg:text-[4.4rem] text-stone-800 pb-6 md:pb-8 hidden md:flex flex-col">
+            <h1 className="font-medium text-4xl md:text-5xl lg:text-[3.9rem] text-stone-800 pb-6 md:pb-8 hidden md:flex flex-col">
               <span> Your trusted resource to </span>
               <span> find therapist reviews </span>
             </h1>
@@ -47,15 +47,15 @@ export function Hero() {
               unbiased reviews - including yours!
             </p>
           </div>
-          <div className="pt-8 md:pt-6">
-            <SearchbarBasic onSearch={handleSearch} />
+          <div className="pt-8 md:pt-8">
+            <SearchbarBasic onSearch={handleSearch} className="py-3 border-amethyst-300"/>
           </div>
         </div>
         <div
           id="right-hero"
           className="flex-1 w-full lg:w-1/2 order-first lg:order-last"
         >
-          <div className="relative w-full h-[350px] md:h-[400px] lg:h-[580px]">
+          <div className="relative w-full h-[350px] md:h-[400px] lg:h-[510px]">
             <Image
               className="object-contain"
               src="/assets/home/hero_pic.png"
@@ -75,12 +75,12 @@ export function Hero() {
           </div>
         </div>
       </div>
-      <div className="w-[400px] md:w-[600px] lg:w-[800px] h-[400px] md:h-[600px] lg:h-[800px] absolute -bottom-40 md:-bottom-60 lg:-bottom-80 -right-40 md:-right-60 lg:-right-80 pointer-events-none">
+      <div className="w-[400px] md:w-[600px] lg:w-[1000px] h-[400px] md:h-[600px] lg:h-[1000px] absolute -bottom-40 md:-bottom-60 lg:-bottom-80 -right-40 md:-right-60 lg:-right-80 pointer-events-none">
         <div
           className="w-full h-full"
           style={{
             background:
-              "radial-gradient(circle at center, #796BF520, transparent 70%)",
+              "radial-gradient(circle at center, #796BF530, transparent 70%)",
             opacity: 0,
             animation: "fadeIn 1s ease-in-out 1s forwards",
           }}
@@ -97,7 +97,7 @@ export function Hero() {
         `}</style>
       </div>
 
-      <div className="w-[400px] md:w-[600px] lg:w-[800px] h-[400px] md:h-[600px] lg:h-[800px] absolute -top-40 md:-top-60 lg:-top-80 -left-40 md:-left-60 lg:-left-80 pointer-events-none">
+      <div className="w-[400px] md:w-[600px] lg:w-[1000px] h-[400px] md:h-[600px] lg:h-[1000px] absolute -top-40 md:-top-60 lg:-top-100 -left-40 md:-left-60 lg:-left-100 pointer-events-none">
         <div
           className="w-full h-full"
           style={{

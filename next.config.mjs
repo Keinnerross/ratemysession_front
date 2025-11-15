@@ -14,6 +14,12 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'http',
+        hostname: 'rms-backend.local',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };

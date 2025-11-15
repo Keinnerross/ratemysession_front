@@ -39,7 +39,7 @@ export function InfoHomeSection2() {
                         <p className="text-sm md:text-base font-base text-stone-600 mb-6 md:mb-8 leading-relaxed w-full lg:w-[85%]">
                           Help others by leaving a private review. We’ve built a safe space where you can speak freely without revealing your identity.
                         </p>
-                       <ButtonCustom variant={1}>Write a review</ButtonCustom>
+                       <ButtonCustom variant={1} href="/search">Write a review</ButtonCustom>
                     </div>
 
                     {/* Right side - Content */}

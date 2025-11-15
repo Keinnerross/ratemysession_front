@@ -214,9 +214,9 @@ export function MobileMenu() {
                                     </Link>
                                     
                                     <button
-                                        onClick={() => {
+                                        onClick={async () => {
                                             setIsOpen(false);
-                                            logout();
+                                            await logout();
                                         }}
                                         className="flex items-center gap-3 w-full py-3 px-4 text-gray-700 border border-gray-200 rounded-xl hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
                                     >

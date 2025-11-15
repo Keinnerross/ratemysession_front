@@ -8,16 +8,15 @@ class ReviewStateService {
     if (!userEmail || !therapistId) return false;
     
     try {
-      const response = await apiClient.get('/api/comments', {
+      const response = await apiClient.get('/api/comments/user-comments', {
         params: {
-          post: therapistId,
-          authorEmail: userEmail,
-          checkUserReview: true
+          email: userEmail,
+          therapist_id: therapistId
         }
       });
       
-      // If we get any comments back for this user/therapist combo, they've already reviewed
-      const hasReviewed = response && response.length > 0;
+      // Check the therapist.has_commented field from the new endpoint
+      const hasReviewed = response?.therapist?.has_commented || false;
       
       return hasReviewed;
     } catch (error) {

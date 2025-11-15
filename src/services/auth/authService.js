@@ -138,17 +138,31 @@ class AuthService {
       // Log first 20 chars of token for debugging (don't log full token for security)
       console.log('Token preview:', token.substring(0, 20) + '...');
       
-      const response = await apiClient.post(ENDPOINTS.AUTH.VALIDATE, {}, 'user');
+      // Send JWT in the body as expected by Simple JWT Login
+      const response = await apiClient.post(ENDPOINTS.AUTH.VALIDATE, {
+        JWT: token
+      }, 'none'); // Use 'none' to avoid sending Authorization header
+      
       console.log('Validation response:', response);
       
-      return response.data && response.data.status === 200;
+      // Check for successful validation based on Simple JWT Login response format
+      return response.success === true && response.data?.user;
     } catch (error) {
       console.error('Token validation error:', error.message);
       // Don't throw, just return false
       return false;
     }
   }
-  logout() {
+  async logout() {
+    try {
+      // Call logout endpoint to clear cookies
+      await apiClient.post('/api/auth/logout');
+    } catch (error) {
+      console.error('Error calling logout endpoint:', error);
+      // Continue with logout even if the endpoint fails
+    }
+    
+    // Clear localStorage as well for backward compatibility
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     localStorage.removeItem('userEmail');

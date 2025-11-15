@@ -32,19 +32,49 @@ export async function POST(request) {
       const userResponse = await fetch(`${config.JWT_BASE}/auth/validate`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${data.data.jwt}`
-        }
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${basicAuth}`
+        },
+        body: JSON.stringify({
+          JWT: data.data.jwt
+        })
       });
       
       const userData = await userResponse.json();
       
       // Formato compatible con el plugin anterior
-      return NextResponse.json({
+      const responseData = {
         token: data.data.jwt,
         user_email: userData.data?.user?.user_email || body.username,
         user_nicename: userData.data?.user?.user_nicename || '',
         user_display_name: userData.data?.user?.display_name || ''
-      }, { status: 200 });
+      };
+      
+      const response = NextResponse.json(responseData, { status: 200 });
+      
+      // Set httpOnly cookie with the token
+      response.cookies.set('authToken', data.data.jwt, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+        path: '/'
+      });
+      
+      // Also set user data in cookies
+      response.cookies.set('userData', JSON.stringify({
+        email: responseData.user_email,
+        displayName: responseData.user_display_name,
+        nicename: responseData.user_nicename
+      }), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+        path: '/'
+      });
+      
+      return response;
     }
     
     // Si hay error, devolver el mensaje

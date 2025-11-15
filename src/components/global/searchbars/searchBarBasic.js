@@ -24,8 +24,10 @@ export const SearchbarBasic = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className={`${className}`}>
-      <div className="flex items-center w-full px-1.5 py-1.5 bg-white rounded-full border border-amethyst-100">
+    <form onSubmit={handleSubmit} className="w-full">
+      <div
+        className={`${className} flex items-center w-full px-1.5 bg-white rounded-full border `}
+      >
         {/* Search Input */}
         <input
           type="text"
@@ -33,7 +35,7 @@ export const SearchbarBasic = ({
           onChange={(e) => setSearchValue(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder={placeholder}
-          className="flex-1 min-w-0 w-0 px-4 py-1.5 text-gray-800 placeholder:text-gray-400 outline-none bg-transparent text-sm "
+          className="flex-1 min-w-0 w-0 px-4 py-1.5 text-gray-800 placeholder:text-gray-400 outline-none bg-transparent text-base "
           // ↑↑↑ clave: flex-1 + min-w-0 + w-0 ↑↑↑
         />
 

@@ -3,8 +3,16 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FaStar, FaMapMarkerAlt, FaChevronRight } from "react-icons/fa";
+import {
+  FaStar,
+  FaMapMarkerAlt,
+  FaChevronRight,
+  FaHeart,
+} from "react-icons/fa";
 import NotificationToast from "@/components/global/notifications/NotificationToast";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import favoritesService from "@/services/users/favoritesService";
 
 export default function TherapistCard({ dataTherapist = {} }) {
   const [isLocalSaved, setIsLocalSaved] = useState(
@@ -12,6 +20,10 @@ export default function TherapistCard({ dataTherapist = {} }) {
   );
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+  const router = useRouter();
   // Destructure with fallbacks
   const {
     id,
@@ -35,6 +47,52 @@ export default function TherapistCard({ dataTherapist = {} }) {
 
   const ratingPercentage = (rating / 5) * 100;
 
+
+  const handleSaveToggle = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Si no está autenticado, redirigir al login
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    // Si está guardado y se quiere quitar, mostrar confirmación
+    if (isLocalSaved) {
+      setShowConfirmDialog(true);
+      return;
+    }
+
+    // Si no está guardado, agregarlo directamente
+    await performSaveToggle();
+  };
+
+  const performSaveToggle = async () => {
+    setIsLoading(true);
+    try {
+      const success = await favoritesService.toggleFavorite(id, isLocalSaved);
+      if (success) {
+        const newSavedState = !isLocalSaved;
+        setIsLocalSaved(newSavedState);
+        setNotificationMessage(
+          newSavedState
+            ? `${name} has been saved to your profile`
+            : `${name} has been removed from your saved therapists`
+        );
+        setShowNotification(true);
+        onSaveToggle && onSaveToggle(newSavedState);
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      setNotificationMessage("Error updating favorites. Please try again.");
+      setShowNotification(true);
+    } finally {
+      setIsLoading(false);
+      setShowConfirmDialog(false);
+    }
+  };
+
   return (
     <>
       <Link href={`/therapist-profile?id=${id}`} className="block">
@@ -43,7 +101,10 @@ export default function TherapistCard({ dataTherapist = {} }) {
             {/* Profile Image */}
             <div className="flex-shrink-0">
               <div className="w-16 md:w-20 h-16 md:h-20 bg-amethyst-200 rounded-full overflow-hidden flex items-center justify-center">
-                {(thumbnail || image) && !((thumbnail || image).includes('/assets/default-therapist.jpg')) ? (
+                {(thumbnail || image) &&
+                !(thumbnail || image).includes(
+                  "/assets/default-therapist.jpg"
+                ) ? (
                   <img
                     src={thumbnail || image}
                     alt={name}
@@ -95,33 +156,17 @@ export default function TherapistCard({ dataTherapist = {} }) {
                 <div className="flex items-center gap-4">
                   {/* Save Button */}
                   <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      const newSavedState = !isLocalSaved;
-                      setIsLocalSaved(newSavedState);
-                      setNotificationMessage(
-                        newSavedState
-                          ? `${name} has been saved to your profile`
-                          : `${name} has been removed from your saved therapists`
-                      );
-                      setShowNotification(true);
-                      onSaveToggle && onSaveToggle(newSavedState);
-                    }}
-                    className="p-1 md:p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors flex-shrink-0"
+                    onClick={handleSaveToggle}
+                    disabled={isLoading}
+                    className="p-1 md:p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors flex-shrink-0 disabled:opacity-50"
                   >
-                    <div className="relative w-3 h-3 md:w-4 md:h-4">
-                      <Image
-                        src="/assets/icons-svg/others/saved.svg"
-                        alt="Save"
-                        layout="fill"
-                        className={`transition-all ${
-                          isLocalSaved
-                            ? "filter-none"
-                            : "filter grayscale opacity-50"
-                        } object-contain`}
-                      />
-                    </div>
+                    <FaHeart
+                      className={`w-3 h-3 md:w-4 md:h-4 transition-all ${
+                        isLocalSaved
+                          ? "text-amethyst-500 fill-current"
+                          : "text-gray-400"
+                      }`}
+                    />
                   </button>
                 </div>
               </div>
@@ -172,6 +217,42 @@ export default function TherapistCard({ dataTherapist = {} }) {
         onClose={() => setShowNotification(false)}
         type="success"
       />
+
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-lg font-semibold font-outfit mb-4">
+              Remove from favorites?
+            </h3>
+            <p className="text-gray-600 font-poppins mb-6">
+              Are you sure you want to remove {name} from your favorites list?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowConfirmDialog(false);
+                }}
+                className="px-4 py-2 text-gray-600 font-poppins hover:text-gray-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  await performSaveToggle();
+                }}
+                className="px-4 py-2 bg-amethyst-500 text-white rounded-lg hover:bg-amethyst-600 transition-colors font-poppins"
+              >
+                Yes, remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

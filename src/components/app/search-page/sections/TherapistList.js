@@ -8,19 +8,38 @@ import { ButtonCustom } from '@/components/global/buttons/buttons';
 import AddTherapistBanner from './AddTherapistBanner';
 import { FaSpinner } from 'react-icons/fa';
 import { sortTherapists } from '@/utils/sortTherapists';
+import favoritesService from '@/services/users/favoritesService';
+import { useAuth } from '@/context/AuthContext';
 
-const TherapistList = ({ initialTherapists, onLoadMore, initialHasMore, sortBy = 'recommended' }) => {
+const TherapistList = ({ initialTherapists, onLoadMore, initialHasMore, sortBy = 'recommended', initialFavoriteIds = [] }) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [therapists, setTherapists] = useState(initialTherapists);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loadedTherapists, setLoadedTherapists] = useState([]); // Terapeutas adicionales cargados
+  const [favoriteIds, setFavoriteIds] = useState(initialFavoriteIds);
+  const { user } = useAuth();
   
   // Verificar inmediatamente si venimos de aplicar filtros
   const filterApplied = typeof window !== 'undefined' && 
                        sessionStorage.getItem('search-filter-applied') === 'true';
   
   const [isFilterLoading, setIsFilterLoading] = useState(filterApplied);
+  
+  // Cargar favoritos del usuario si está autenticado
+  useEffect(() => {
+    const loadFavorites = async () => {
+      if (user) {
+        try {
+          const favorites = await favoritesService.getFavorites();
+          setFavoriteIds(favorites);
+        } catch (error) {
+          console.error('Error loading favorites:', error);
+        }
+      }
+    };
+    loadFavorites();
+  }, [user]);
   
   // Limpiar el flag y manejar el skeleton
   useEffect(() => {
@@ -72,7 +91,15 @@ const TherapistList = ({ initialTherapists, onLoadMore, initialHasMore, sortBy =
               key={therapist.id}
               dataTherapist={{
                 ...therapist,
-                onSaveToggle: (isSaved) => console.log(`Saved ${therapist.name}:`, isSaved),
+                isSaved: favoriteIds.includes(parseInt(therapist.id)),
+                onSaveToggle: (isSaved) => {
+                  // Actualizar lista local de favoritos
+                  if (isSaved) {
+                    setFavoriteIds(prev => [...prev, parseInt(therapist.id)]);
+                  } else {
+                    setFavoriteIds(prev => prev.filter(id => id !== parseInt(therapist.id)));
+                  }
+                },
                 onReadReviews: (id) => router.push(`/therapist-profile?id=${id}`)
               }}
             />

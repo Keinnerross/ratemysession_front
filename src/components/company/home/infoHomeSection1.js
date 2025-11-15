@@ -63,7 +63,7 @@ export function InfoHomeSection1() {
               unfiltered ratings and reviews from clinicians, giving you
               confidence in choosing quality providers
             </p>
-            <ButtonCustom variant={1}>Rate Therapist</ButtonCustom>
+            <ButtonCustom href="/search" variant={1}>Rate Therapist</ButtonCustom>
           </div>
         </div>
       </div>

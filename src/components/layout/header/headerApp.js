@@ -51,7 +51,7 @@ export function HeaderApp() {
         isScrolled ? "bg-white shadow-xl/3  " : "bg-transparent border-b"
       }`}
     >
-      <div className="max-w-[1220px] w-full mx-auto px-4 md:px-6 lg:px-0 flex items-center ">
+      <div className="max-w-[1330px] w-full mx-auto px-4 md:px-6 lg:px-0 flex items-center ">
         {/* Logo and Navigation */}
 
         <div className="w-full flex items-center gap-4 md:gap-6 justify-between">
@@ -60,7 +60,7 @@ export function HeaderApp() {
           <SearchbarBasic
             placeholder="Search therapist..."
             onSearch={handleSearch}
-            className="w-full"
+            className="py-1.5 border-amethyst-100"
           />
           {/* Desktop Navigation */}
           <div className="hidden w-fit lg:flex items-center justify-end gap-6">

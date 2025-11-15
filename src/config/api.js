@@ -1,5 +1,4 @@
 // Configuración centralizada de la API
-// IMPORTANTE: No usar fallbacks - si falta una variable, debe fallar
 
 // Solo para uso en el servidor (API routes)
 export const getServerConfig = () => {
@@ -43,10 +42,19 @@ export const API_ROUTES = {
     LIST: '/api/comments',
     BY_POST: (postId) => `/api/comments?post=${postId}`,
     BY_POSTS: (postIds) => `/api/comments?include=${postIds.join(',')}`,
-    PAGINATED: '/api/comments/paginated'
+    PAGINATED: '/api/comments/paginated',
+    USER_COMMENTS: '/api/comments/user-comments',
+    UPDATE: (id) => `/api/comments/${id}`,
+    DELETE: (id) => `/api/comments/${id}`
   },
   USERS: {
     PROFILE: '/api/users/profile',
-    UPDATE: '/api/users/update'
+    UPDATE: '/api/users/update',
+    CHANGE_PASSWORD: '/api/users/change-password',
+    UPLOAD_PHOTO: '/api/users/upload-photo',
+    FAVORITES: '/api/users/favorites',
+    FAVORITE_ADD: '/api/users/favorites',
+    FAVORITE_REMOVE: (id) => `/api/users/favorites/${id}`,
+    FAVORITES_THERAPISTS: '/api/users/favorites-therapists'
   }
 };

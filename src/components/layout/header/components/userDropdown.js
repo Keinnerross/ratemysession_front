@@ -38,9 +38,9 @@ export function UserDropdown() {
     router.push('/user-profile');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsOpen(false);
-    logout();
+    await logout();
   };
 
   // Get display name from user object

@@ -3,19 +3,20 @@
 import { ButtonCustom } from "@/components/global/buttons/buttons";
 import { FaPlay } from "react-icons/fa";
 import { useRef, useState } from "react";
-// import { useScrollAppear } from "@/utils/scrollAppear";
+import { useScrollAppear } from "@/utils/scrollAppear";
+import Link from "next/link";
 
 export function HowItWorks() {
   const sectionRef = useRef(null);
-  // const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
-  // useScrollAppear(
-  //   sectionRef,
-  //   () => setIsVisible(true),
-  //   () => setIsVisible(false),
-  //   0.5, // Cambiado de 0.3 a 0.5 para activar a la mitad
-  //   100
-  // );
+  useScrollAppear(
+    sectionRef,
+    () => setIsVisible(true),
+    () => setIsVisible(false),
+    0.5, // Cambiado de 0.3 a 0.5 para activar a la mitad
+    100
+  );
 
   const steps = [
     {
@@ -85,19 +86,17 @@ export function HowItWorks() {
     <section
       ref={sectionRef}
       id="how-it-works"
-      className="relative bg-transparent pt-26 pb-16 md:pb-24 lg:pb-32 w-full"
+      className="relative bg-transparent pt-26 pb-16 md:pb-24 lg:pb-32 w-full transition-all duration-700"
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? "translateY(0)" : "translateY(50px)",
+      }}
     >
       {/*Gradient */}
       {/* <div className="absolute top-0 left-0 w-full  bg-gradient-to-b from-amethyst-50 to-white h-[300px]" /> */}
 
       {/* Content */}
-      <div
-        className="z-10 relative"
-        // style={{
-        //   opacity: isVisible ? 1 : 0,
-        //   transform: isVisible ? "translateY(0)" : "translateY(50px)",
-        // }}
-      >
+      <div className="z-10 relative">
         <div className="text-center pb-8 md:pb-12 px-6">
           <h2 className="text-3xl md:text-4xl lg:text-[2.6rem] font-semibold text-gray-800">
             How it works
@@ -136,7 +135,7 @@ export function HowItWorks() {
         </div>
 
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-8 md:pt-[50px] px-6">
-          <ButtonCustom variant={1}>Search therapist reviews</ButtonCustom>
+            <ButtonCustom variant={1} href="/search">Search therapist reviews</ButtonCustom>
           <a className="flex gap-2 items-center cursor-pointer group relative">
             <FaPlay
               className="text-gray-800 transition-colors group-hover:text-gray-900"

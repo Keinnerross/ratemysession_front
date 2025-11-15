@@ -3,6 +3,7 @@ import { therapists as mockTherapists } from "@/data/therapists";
 import { therapistService } from "@/services/therapists/therapistService";
 import { commentService } from "@/services/comments/commentService";
 import { transformTherapistData } from "@/utils/therapistTransformer";
+import { getAuthToken } from '@/utils/auth';
 
 export default async function SearchPage({ searchParams }) {
   const params = await searchParams;
@@ -17,12 +18,34 @@ export default async function SearchPage({ searchParams }) {
   let availableLocations = [];
   let totalResults = 0;
   let hasMore = false;
+  let favoriteIds = [];
   
   try {
     // Paso 1: Obtener categorías y ubicaciones disponibles
     const categoriesData = await therapistService.getCategories();
     availableCategories = categoriesData.categories || [];
     availableLocations = categoriesData.locations || [];
+    
+    // Obtener favoritos del usuario si está autenticado
+    const token = await getAuthToken();
+    if (token) {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+        const response = await fetch(`${baseUrl}/api/users/favorites`, {
+          headers: {
+            'Cookie': `authToken=${token}`,
+          },
+          cache: 'no-store'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          favoriteIds = data.favorites || [];
+        }
+      } catch (error) {
+        console.error('Error fetching favorites:', error);
+      }
+    }
     
     // Paso 2: Buscar terapeutas con filtros aplicados del lado del servidor
     const searchResults = await therapistService.searchTherapists({
@@ -63,6 +86,27 @@ export default async function SearchPage({ searchParams }) {
     hasMore = mockTherapists.length > 12;
     availableCategories = [...new Set(mockTherapists.map(t => t.specialty))].sort();
     availableLocations = [...new Set(mockTherapists.map(t => t.location).filter(loc => loc))].sort();
+    
+    // Intentar obtener favoritos incluso si falla la búsqueda
+    const token = await getAuthToken();
+    if (token) {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+        const response = await fetch(`${baseUrl}/api/users/favorites`, {
+          headers: {
+            'Cookie': `authToken=${token}`,
+          },
+          cache: 'no-store'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          favoriteIds = data.favorites || [];
+        }
+      } catch (error) {
+        console.error('Error fetching favorites in fallback:', error);
+      }
+    }
   }
   
   return <SearchLayout 
@@ -72,5 +116,6 @@ export default async function SearchPage({ searchParams }) {
     availableLocations={availableLocations}
     hasMore={hasMore}
     totalResults={totalResults}
+    initialFavoriteIds={favoriteIds}
   />;
 }

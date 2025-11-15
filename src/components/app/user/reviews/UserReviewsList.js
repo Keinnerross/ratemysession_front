@@ -4,56 +4,90 @@ import React, { useState } from "react";
 import UserReviewCard from "./UserReviewCard";
 import SavedTherapistsList from "../saved/SavedTherapistsList";
 import CustomSelect from "@/components/global/inputs/CustomSelect";
+import userReviewsService from "@/services/reviews/userReviewsService";
 
-export default function UserReviewsList({ reviews = [], savedTherapists = [] }) {
+export default function UserReviewsList({
+  reviews = [],
+  savedTherapists = [],
+  reviewsLoading = false,
+  reviewsPagination = null,
+  onFilterChange = () => {},
+  onLoadMore = () => {},
+  onReviewUpdate = () => {},
+  onReviewDelete = () => {},
+  favoritesLoading = false,
+  favoritesPagination = null,
+  onFavoritesFilterChange = () => {},
+  onFavoritesLoadMore = () => {}
+}) {
   const [activeTab, setActiveTab] = useState("reviews");
-  const [visibleCount, setVisibleCount] = useState(6);
   const [isLoading, setIsLoading] = useState(false);
   const [sortBy, setSortBy] = useState("recent");
   const [filterRating, setFilterRating] = useState("all");
-  const [isFilterLoading, setIsFilterLoading] = useState(false);
-  
-  const handleEditReview = (reviewId) => {
-    console.log('Edit review:', reviewId);
-    // Here you would implement edit functionality
-    // For example: open a modal, navigate to edit page, etc.
-  };
-  
-  const handleDeleteReview = (reviewId) => {
-    console.log('Delete review:', reviewId);
-    // Here you would implement delete functionality
-    // For example: show confirmation dialog, then delete
+
+  const handleVisibilityChange = async (reviewId, currentIsAnonymous) => {
+    try {
+      const updatedReview = await userReviewsService.toggleVisibility(reviewId, currentIsAnonymous);
+
+      // Notify parent to update the review
+      onReviewUpdate(reviewId, {
+        ...updatedReview,
+        isAnonymous: updatedReview.acf?.anonymous === '1'
+      });
+    } catch (error) {
+      console.error('Error changing visibility:', error);
+      // Could add toast notification here
+      throw error;
+    }
   };
 
-  // Reset visible count and show loader when filters change
+  const handleDeleteReview = async (reviewId) => {
+    try {
+      await userReviewsService.deleteReview(reviewId);
+
+      // Notify parent to remove the review from list
+      onReviewDelete(reviewId);
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      // Could add toast notification here
+      throw error;
+    }
+  };
+
+  // Track if component has mounted
+  const [hasMounted, setHasMounted] = useState(false);
+  
+  // Mark as mounted after first render
   React.useEffect(() => {
-    setIsFilterLoading(true);
-    setVisibleCount(6);
+    setHasMounted(true);
+  }, []);
+  
+  // Call onFilterChange when filters change (but not on initial mount)
+  React.useEffect(() => {
+    if (!hasMounted) return;
     
-    const timer = setTimeout(() => {
-      setIsFilterLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
+    const filters = {};
+    
+    // Convert sortBy to backend format
+    if (sortBy === "oldest") {
+      filters.order = "asc";
+    } else if (sortBy === "recent") {
+      filters.order = "desc";
+    }
+    
+    // Add rating filter
+    if (filterRating !== "all") {
+      filters.rate = filterRating;
+    }
+    
+    // Filters will reset pagination in parent
+    
+    // Call parent function to fetch filtered data
+    onFilterChange(filters);
   }, [sortBy, filterRating]);
 
-  // Apply sorting
-  const sortedReviews = [...reviews].sort((a, b) => {
-    if (sortBy === "recent") {
-      return new Date(b.date) - new Date(a.date);
-    } else if (sortBy === "rating") {
-      return b.rating - a.rating;
-    }
-    return 0;
-  });
-
-  // Apply rating filter
-  const filteredReviews = sortedReviews.filter((review) => {
-    if (filterRating === "all") return true;
-    return review.rating === parseInt(filterRating);
-  });
-
-  const visibleReviews = filteredReviews.slice(0, visibleCount);
+  // Reviews are already filtered and sorted by the backend
+  const visibleReviews = reviews;
 
   return (
     <div className="w-full flex flex-col">
@@ -97,38 +131,36 @@ export default function UserReviewsList({ reviews = [], savedTherapists = [] }) 
       {/* Content */}
       {activeTab === "reviews" ? (
         <>
-          {/* Filters */}
-          {reviews.length > 0 && (
-            <div className="flex sm:flex-row gap-3 flex-wrap sm:gap-4 mb-6 md:mb-8">
-              <CustomSelect
-                value={sortBy}
-                onChange={setSortBy}
-                options={[
-                  { value: "recent", label: "Most Recent" },
-                  { value: "rating", label: "Highest Rating" },
-                ]}
-                rounded="rounded-full"
-                className="w-full sm:min-w-[160px] sm:w-auto"
-                defaultValue="recent"
-              />
+          {/* Filters - Always visible */}
+          <div className="flex sm:flex-row gap-3 flex-wrap sm:gap-4 mb-6 md:mb-8">
+            <CustomSelect
+              value={sortBy}
+              onChange={setSortBy}
+              options={[
+                { value: "recent", label: "Most Recent" },
+                { value: "oldest", label: "Oldest First" },
+              ]}
+              rounded="rounded-full"
+              className="w-full sm:min-w-[160px] sm:w-auto"
+              defaultValue="recent"
+            />
 
-              <CustomSelect
-                value={filterRating}
-                onChange={setFilterRating}
-                rounded="rounded-full"
-                options={[
-                  { value: "all", label: "All Ratings" },
-                  { value: "5", label: "5 Stars" },
-                  { value: "4", label: "4 Stars" },
-                  { value: "3", label: "3 Stars" },
-                  { value: "2", label: "2 Stars" },
-                  { value: "1", label: "1 Star" },
-                ]}
-                className="w-full sm:w-[200px]"
-                defaultValue="all"
-              />
-            </div>
-          )}
+            <CustomSelect
+              value={filterRating}
+              onChange={setFilterRating}
+              rounded="rounded-full"
+              options={[
+                { value: "all", label: "All Ratings" },
+                { value: "5", label: "5 Stars" },
+                { value: "4", label: "4 Stars" },
+                { value: "3", label: "3 Stars" },
+                { value: "2", label: "2 Stars" },
+                { value: "1", label: "1 Star" },
+              ]}
+              className="w-full sm:w-[200px]"
+              defaultValue="all"
+            />
+          </div>
 
           {/* Reviews Tab Content */}
           {reviews.length === 0 ? (
@@ -144,16 +176,16 @@ export default function UserReviewsList({ reviews = [], savedTherapists = [] }) 
             <>
               {/* Reviews List */}
               <div className="flex flex-col gap-4 sm:gap-5 md:gap-6 relative min-h-[200px]">
-                {isFilterLoading ? (
+                {reviewsLoading ? (
                   <div className="flex justify-center items-center py-12 md:py-16">
                     <div className="animate-spin rounded-full h-8 w-8 md:h-10 md:w-10 border-4 border-gray-200 border-t-[#7466f2]"></div>
                   </div>
-                ) : filteredReviews.length > 0 ? (
+                ) : reviews.length > 0 ? (
                   visibleReviews.map((review) => (
-                    <UserReviewCard 
-                      key={review.id} 
-                      review={review} 
-                      onEdit={handleEditReview}
+                    <UserReviewCard
+                      key={review.id}
+                      review={review}
+                      onVisibilityChange={handleVisibilityChange}
                       onDelete={handleDeleteReview}
                     />
                   ))
@@ -165,20 +197,18 @@ export default function UserReviewsList({ reviews = [], savedTherapists = [] }) 
               </div>
 
               {/* Show More Button */}
-              {filteredReviews.length > visibleCount && !isLoading && (
+              {reviewsPagination?.hasNextPage && !isLoading && (
                 <div className="flex justify-center pt-6 md:pt-8">
                   <button
                     onClick={() => {
                       setIsLoading(true);
-                      setTimeout(() => {
-                        setVisibleCount((prev) => prev + 6);
-                        setIsLoading(false);
-                      }, 800);
+                      onLoadMore();
+                      setTimeout(() => setIsLoading(false), 800);
                     }}
                     className="px-6 sm:px-8 py-2 bg-white rounded-[100px] border border-solid border-[#e8e8e8] hover:border-[#7466f2] transition-all"
                   >
                     <span className="font-medium text-gray-800 text-xs sm:text-sm font-['poppins'] tracking-[0] leading-4">
-                      Show More Reviews ({filteredReviews.length - visibleCount} remaining)
+                      Show More Reviews ({reviewsPagination.totalComments - reviews.length} remaining)
                     </span>
                   </button>
                 </div>
@@ -195,7 +225,13 @@ export default function UserReviewsList({ reviews = [], savedTherapists = [] }) 
         </>
       ) : (
         /* Saved Therapists Tab Content */
-        <SavedTherapistsList therapists={savedTherapists} />
+        <SavedTherapistsList
+          therapists={savedTherapists}
+          isLoading={favoritesLoading}
+          pagination={favoritesPagination}
+          onFilterChange={onFavoritesFilterChange}
+          onLoadMore={onFavoritesLoadMore}
+        />
       )}
     </div>
   );

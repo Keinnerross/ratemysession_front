@@ -3,10 +3,18 @@
 import React, { useState } from "react";
 import { FaChevronRight, FaStar, FaEllipsisH } from "react-icons/fa";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import ConfirmationModal from "@/components/global/modals/ConfirmationModal";
 
-export default function UserReviewCard({ review, onEdit, onDelete }) {
+export default function UserReviewCard({ review, onVisibilityChange, onDelete }) {
+  const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
+  const [showVisibilityModal, setShowVisibilityModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const {
+    therapistId,
     therapistName,
     therapistImage,
     content,
@@ -38,8 +46,46 @@ export default function UserReviewCard({ review, onEdit, onDelete }) {
 
   // Truncate content
   const truncateContent = (text, maxLength = 150) => {
-    if (text.length <= maxLength) return text;
-    return text.substr(0, maxLength) + "...";
+    // Handle if text is an object with rendered property (WordPress format)
+    const textContent = typeof text === 'object' && text?.rendered
+      ? text.rendered.replace(/<[^>]*>/g, '').trim() // Strip HTML tags
+      : String(text || '');
+
+    if (textContent.length <= maxLength) return textContent;
+    return textContent.substring(0, maxLength) + "...";
+  };
+
+  // Handle visibility change
+  const handleVisibilityConfirm = async () => {
+    setIsProcessing(true);
+    try {
+      await onVisibilityChange(review.id, isAnonymous);
+      setShowVisibilityModal(false);
+    } catch (error) {
+      console.error('Error changing visibility:', error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Handle delete
+  const handleDeleteConfirm = async () => {
+    setIsProcessing(true);
+    try {
+      await onDelete(review.id);
+      setShowDeleteModal(false);
+    } catch (error) {
+      console.error('Error deleting review:', error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Handle view review - navigate to therapist profile
+  const handleViewReview = () => {
+    if (therapistId) {
+      router.push(`/therapist-profile?id=${therapistId}`);
+    }
   };
 
   // Handle click outside to close menu
@@ -147,7 +193,7 @@ export default function UserReviewCard({ review, onEdit, onDelete }) {
                 <button
                   onClick={() => {
                     setShowMenu(false);
-                    onDelete && onDelete(review.id);
+                    setShowVisibilityModal(true);
                   }}
                   className="w-full px-3 sm:px-4 py-1.5 sm:py-2 text-left text-gray-700 hover:bg-gray-50 font-['poppins']"
                 >
@@ -156,16 +202,7 @@ export default function UserReviewCard({ review, onEdit, onDelete }) {
                 <button
                   onClick={() => {
                     setShowMenu(false);
-                    onEdit && onEdit(review.id);
-                  }}
-                  className="w-full px-3 sm:px-4 py-1.5 sm:py-2 text-left text-gray-700 hover:bg-gray-50 font-['poppins']"
-                >
-                  Edit Review
-                </button>
-                <button
-                  onClick={() => {
-                    setShowMenu(false);
-                    onDelete && onDelete(review.id);
+                    setShowDeleteModal(true);
                   }}
                   className="w-full px-3 sm:px-4 py-1.5 sm:py-2 text-left text-gray-700 hover:bg-gray-50 font-['poppins']"
                 >
@@ -210,7 +247,10 @@ export default function UserReviewCard({ review, onEdit, onDelete }) {
           <span className="hidden sm:block text-sm font-bold text-[#191919]">–</span>
 
           {/* View Button */}
-          <button className="flex items-center gap-1.5 sm:gap-2 group">
+          <button
+            onClick={handleViewReview}
+            className="flex items-center gap-1.5 sm:gap-2 group"
+          >
             <span className="text-[12px] sm:text-[13.7px] font-normal text-[#796bf5] font-['Outfit'] group-hover:text-[#6153e0] transition-colors">
               View Review
             </span>
@@ -218,6 +258,29 @@ export default function UserReviewCard({ review, onEdit, onDelete }) {
           </button>
         </div>
       </div>
+
+      {/* Confirmation Modals */}
+      <ConfirmationModal
+        isOpen={showVisibilityModal}
+        onClose={() => setShowVisibilityModal(false)}
+        onConfirm={handleVisibilityConfirm}
+        title="Change Visibility"
+        message={`Are you sure you want to change this review to ${isAnonymous ? 'public' : 'anonymous'}?`}
+        confirmText="Yes"
+        cancelText="No"
+        isLoading={isProcessing}
+      />
+
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Review"
+        message="Are you sure you want to delete this review?"
+        confirmText="Yes"
+        cancelText="No"
+        isLoading={isProcessing}
+      />
     </div>
   );
 }

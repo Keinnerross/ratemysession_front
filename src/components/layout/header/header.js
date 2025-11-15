@@ -34,10 +34,10 @@ export function Header() {
 
   const handleSearch = (value) => {
     // Mark that we're applying a search
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('search-filter-applied', 'true');
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("search-filter-applied", "true");
     }
-    
+
     if (value.trim()) {
       router.push(`/search?q=${encodeURIComponent(value)}`);
     } else {
@@ -51,7 +51,7 @@ export function Header() {
         isScrolled ? "bg-white shadow-xl/2" : "bg-transparent"
       }`}
     >
-      <div className="max-w-[1650px] w-full mx-auto px-4 md:px-6 lg:px-0 flex items-center ">
+      <div className="max-w-[1330px] w-full mx-auto px-4 md:px-6 lg:px-0 flex items-center ">
         {/* Logo and Navigation */}
 
         <div className="w-full flex items-center gap-4 md:gap-6 justify-between">
@@ -60,13 +60,13 @@ export function Header() {
           <SearchbarBasic
             placeholder="Search therapist..."
             onSearch={handleSearch}
-            className="w-full md:px-6"
+            className="py-1.5 border-amethyst-100"
           />
           {/* Desktop Navigation */}
           <div className="hidden w-fit lg:flex items-center justify-end gap-6">
             <Navigation />
-            {!loading && (
-              user ? (
+            {!loading &&
+              (user ? (
                 <UserDropdown />
               ) : (
                 <>
@@ -84,8 +84,7 @@ export function Header() {
                     Sign up
                   </Link>
                 </>
-              )
-            )}
+              ))}
           </div>
 
           {/* Mobile Menu */}

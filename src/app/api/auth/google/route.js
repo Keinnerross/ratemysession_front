@@ -84,8 +84,12 @@ export async function POST(request) {
     const userResponse = await fetch(`${config.JWT_BASE}/auth/validate`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${basicAuth}`
+      },
+      body: JSON.stringify({
+        JWT: token
+      })
     });
 
     let userData = {};
@@ -94,8 +98,32 @@ export async function POST(request) {
       userData = userValidation.data?.user || {};
     }
 
-    // Return in the same format as manual login
-    return NextResponse.json({
+    // Save Google profile picture to user's ACF field for persistence
+    if (picture && userData.ID) {
+      try {
+        const updateUserResponse = await fetch(`${config.WP_API_BASE}/users/${userData.ID}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${basicAuth}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            acf: {
+              user_profile_picture_url: picture
+            }
+          })
+        });
+
+        if (!updateUserResponse.ok) {
+          console.warn('Failed to save Google profile picture to ACF field');
+        }
+      } catch (error) {
+        console.error('Error saving Google profile picture to ACF:', error);
+      }
+    }
+
+    // Prepare response data
+    const responseData = {
       success: true,
       data: {
         token,
@@ -107,7 +135,34 @@ export async function POST(request) {
           avatar: picture
         }
       }
+    };
+    
+    const response = NextResponse.json(responseData);
+    
+    // Set httpOnly cookie with the token
+    response.cookies.set('authToken', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: '/'
     });
+    
+    // Also set user data in cookies
+    response.cookies.set('userData', JSON.stringify({
+      id: userData.ID,
+      email: email,
+      displayName: name || userData.display_name || username,
+      avatar: picture
+    }), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: '/'
+    });
+    
+    return response;
 
   } catch (error) {
     console.error('Google login error:', error.message);

@@ -4,128 +4,142 @@ import React, { useState } from "react";
 import TherapistCard from "@/components/app/therapists/cards/therapistCard";
 import CustomSelect from "@/components/global/inputs/CustomSelect";
 
-export default function SavedTherapistsList({ therapists = [] }) {
+export default function SavedTherapistsList({
+  therapists = [],
+  isLoading = false,
+  pagination = null,
+  onFilterChange = () => {},
+  onLoadMore = () => {}
+}) {
   const [sortBy, setSortBy] = useState("recent");
-  const [filterSpecialty, setFilterSpecialty] = useState("all");
-  const [filterLocation, setFilterLocation] = useState("all");
-  const [isFilterLoading, setIsFilterLoading] = useState(false);
+  const [filterRating, setFilterRating] = useState("all");
+  const [loadMoreLoading, setLoadMoreLoading] = useState(false);
 
-  // Reset loading when filters change
+  // Track if component has mounted
+  const [hasMounted, setHasMounted] = useState(false);
+
+  // Mark as mounted after first render
   React.useEffect(() => {
-    setIsFilterLoading(true);
+    setHasMounted(true);
+  }, []);
 
-    const timer = setTimeout(() => {
-      setIsFilterLoading(false);
-    }, 500);
+  // Call onFilterChange when filters change (but not on initial mount)
+  React.useEffect(() => {
+    if (!hasMounted) return;
 
-    return () => clearTimeout(timer);
-  }, [sortBy, filterSpecialty, filterLocation]);
+    const filters = {};
 
-  // Get unique specialties and locations for filter options
-  const specialties = [...new Set(therapists.map((t) => t.specialty))].sort();
-  const locations = [...new Set(therapists.map((t) => t.location))].sort();
-
-  // Apply sorting
-  const sortedTherapists = [...therapists].sort((a, b) => {
+    // Convert sortBy to backend format
     if (sortBy === "recent") {
-      // Sort by saved date if available, otherwise by id
-      return (b.savedDate || b.id) - (a.savedDate || a.id);
-    } else if (sortBy === "rating") {
-      return b.rating - a.rating;
+      filters.order = "desc"; // Most recent first
     } else if (sortBy === "name") {
-      return a.name.localeCompare(b.name);
+      filters.order = "asc"; // Alphabetical
     }
-    return 0;
-  });
 
-  // Apply filters
-  const filteredTherapists = sortedTherapists.filter((therapist) => {
-    const matchesSpecialty =
-      filterSpecialty === "all" || therapist.specialty === filterSpecialty;
-    const matchesLocation =
-      filterLocation === "all" || therapist.location === filterLocation;
-    return matchesSpecialty && matchesLocation;
-  });
-  if (therapists.length === 0) {
-    return (
-      <div className="w-full py-12 text-center">
-        <p className="text-lg text-gray-500 font-['Outfit']">
-          You haven't saved any therapists yet.
-        </p>
-        <p className="text-sm text-gray-400 font-['Outfit'] mt-2">
-          Browse and save therapists to easily find them later.
-        </p>
-      </div>
-    );
-  }
+    // Add rating filter
+    if (filterRating !== "all") {
+      filters.rating = filterRating;
+    }
+
+    // Call parent function to fetch filtered data
+    onFilterChange(filters);
+  }, [sortBy, filterRating]);
+
+  // Therapists are already filtered and sorted by the backend
+  const visibleTherapists = therapists;
+
+  // Check if user has no saved therapists at all
+  const hasNoFavorites = !isLoading && pagination?.total === 0;
 
   return (
     <div className="w-full">
-      {/* Filters */}
+      {/* Filters - Always visible */}
+      <div className="flex sm:flex-row gap-3 flex-wrap sm:gap-4 mb-6 md:mb-8">
+          <CustomSelect
+            value={sortBy}
+            onChange={setSortBy}
+            options={[
+              { value: "recent", label: "Most Recent" },
+              { value: "name", label: "Alphabetical (A-Z)" },
+            ]}
+            rounded="rounded-full"
+            className="w-full sm:min-w-[160px] sm:w-auto"
+            defaultValue="recent"
+          />
 
-      <div className="flex items-center justify-between">
-        {therapists.length > 0 && (
-          <div className="flex gap-4 mb-4 md:mb-8 flex-wrap">
-            <CustomSelect
-              value={sortBy}
-              onChange={setSortBy}
-              options={[
-                { value: "recent", label: "Recently Saved" },
-                { value: "rating", label: "Highest Rating" },
-                { value: "name", label: "Name (A-Z)" },
-              ]}
-              rounded="rounded-full"
-              className="min-w-[160px]"
-              defaultValue="recent"
-            />
-
-            {/* <CustomSelect
-              value={filterSpecialty}
-              onChange={setFilterSpecialty}
-              rounded="rounded-full"
-              options={[
-                { value: "all", label: "All Specialties" },
-                ...specialties.map((s) => ({ value: s, label: s })),
-              ]}
-              className="min-w-[180px]"
-              defaultValue="all"
-            />
-
-            <CustomSelect
-              value={filterLocation}
-              onChange={setFilterLocation}
-              rounded="rounded-full"
-              options={[
-                { value: "all", label: "All Locations" },
-                ...locations.map((l) => ({ value: l, label: l })),
-              ]}
-              className="min-w-[160px]"
-              defaultValue="all"
-            /> */}
-          </div>
-        )}
+          <CustomSelect
+            value={filterRating}
+            onChange={setFilterRating}
+            rounded="rounded-full"
+            options={[
+              { value: "all", label: "All Ratings" },
+              { value: "5", label: "5 Stars" },
+              { value: "4", label: "4+ Stars" },
+              { value: "3", label: "3+ Stars" },
+              { value: "2", label: "2+ Stars" },
+              { value: "1", label: "1+ Stars" },
+            ]}
+            className="w-full sm:w-[200px]"
+            defaultValue="all"
+          />
       </div>
 
       {/* Therapists List */}
       <div className="flex flex-col gap-4 relative min-h-[200px]">
-        {isFilterLoading ? (
+        {isLoading ? (
           <div className="flex justify-center items-center py-16">
             <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-[#7466f2]"></div>
           </div>
-        ) : filteredTherapists.length > 0 ? (
-          filteredTherapists.map((therapist) => (
-            <TherapistCard
-              key={therapist.id}
-              dataTherapist={{
-                ...therapist,
-                isSaved: true,
-                onSaveToggle: (isSaved) =>
-                  console.log(`Saved ${therapist.name}:`, isSaved),
-                onReadReviews: (id) =>
-                  console.log(`Read reviews for therapist ID:`, id),
-              }}
-            />
-          ))
+        ) : hasNoFavorites ? (
+          <div className="w-full py-8 md:py-12 text-center">
+            <p className="text-base sm:text-lg text-gray-500 font-['Outfit']">
+              You haven't saved any therapists yet.
+            </p>
+            <p className="text-xs sm:text-sm text-gray-400 font-['Outfit'] mt-2">
+              Browse and save therapists to easily find them later.
+            </p>
+          </div>
+        ) : visibleTherapists.length > 0 ? (
+          <>
+            {visibleTherapists.map((therapist) => (
+              <TherapistCard
+                key={therapist.id}
+                dataTherapist={{
+                  ...therapist,
+                  isSaved: true,
+                  onSaveToggle: (isSaved) =>
+                    console.log(`Saved ${therapist.name}:`, isSaved),
+                  onReadReviews: (id) =>
+                    console.log(`Read reviews for therapist ID:`, id),
+                }}
+              />
+            ))}
+
+            {/* Show More Button */}
+            {pagination?.hasNextPage && !loadMoreLoading && (
+              <div className="flex justify-center pt-6 md:pt-8">
+                <button
+                  onClick={() => {
+                    setLoadMoreLoading(true);
+                    onLoadMore();
+                    setTimeout(() => setLoadMoreLoading(false), 800);
+                  }}
+                  className="px-6 sm:px-8 py-2 bg-white rounded-[100px] border border-solid border-[#e8e8e8] hover:border-[#7466f2] transition-all"
+                >
+                  <span className="font-medium text-gray-800 text-xs sm:text-sm font-['poppins'] tracking-[0] leading-4">
+                    Show More Therapists ({pagination.total - therapists.length} remaining)
+                  </span>
+                </button>
+              </div>
+            )}
+
+            {/* Loading Spinner for Load More */}
+            {loadMoreLoading && (
+              <div className="flex justify-center items-center py-6 md:py-8">
+                <div className="animate-spin rounded-full h-8 w-8 md:h-10 md:w-10 border-4 border-gray-200 border-t-[#7466f2]"></div>
+              </div>
+            )}
+          </>
         ) : (
           <div className="flex items-center justify-center h-[200px] text-gray-500 font-['Outfit']">
             No therapists found matching your criteria

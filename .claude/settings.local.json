@@ -8,7 +8,10 @@
       "Bash(git checkout:*)",
       "Bash(rg:*)",
       "Bash(rm:*)",
-      "WebFetch(domain:simplejwtlogin.com)"
+      "WebFetch(domain:simplejwtlogin.com)",
+      "Bash(find:*)",
+      "WebFetch(domain:wordpress.stackexchange.com)",
+      "WebFetch(domain:developer.wordpress.org)"
     ],
     "deny": []
   }

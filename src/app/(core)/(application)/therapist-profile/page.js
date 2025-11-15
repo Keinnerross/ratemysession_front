@@ -4,6 +4,7 @@ import { therapistService } from "@/services/therapists/therapistService";
 import { commentService } from "@/services/comments/commentService";
 import { transformTherapistData } from "@/utils/therapistTransformer";
 import { loadMoreReviews } from "./actions";
+import { getAuthToken } from '@/utils/auth';
 
 export default async function TherapistProfilePage({ searchParams }) {
   const params = await searchParams;
@@ -12,6 +13,7 @@ export default async function TherapistProfilePage({ searchParams }) {
   // Try to get therapist and initial reviews from API
   let therapist = null;
   let initialReviewsData = { reviews: [], hasMore: false, totalCount: 0, distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 } };
+  let isSaved = false;
   
   try {
     if (therapistId) {
@@ -27,11 +29,55 @@ export default async function TherapistProfilePage({ searchParams }) {
       
       // Get initial page of reviews
       initialReviewsData = await loadMoreReviews(therapistId, 1, 'recent', 'all');
+      
+      // Check if therapist is saved by current user
+      const token = await getAuthToken();
+      if (token && therapistId) {
+        try {
+          const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+          const response = await fetch(`${baseUrl}/api/users/favorites`, {
+            headers: {
+              'Cookie': `authToken=${token}`,
+            },
+            cache: 'no-store'
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            const favoriteIds = data.favorites || [];
+            isSaved = favoriteIds.includes(therapistId);
+          }
+        } catch (error) {
+          console.error('Error checking favorite status:', error);
+        }
+      }
     }
   } catch (error) {
     console.error('Failed to fetch therapist from API:', error);
     // Fallback to mock data
     therapist = therapistId ? mockTherapists.find(t => t.id === therapistId) : null;
+    
+    // Still check if saved even with mock data
+    const token = await getAuthToken();
+    if (token && therapistId) {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+        const response = await fetch(`${baseUrl}/api/users/favorites`, {
+          headers: {
+            'Cookie': `authToken=${token}`,
+          },
+          cache: 'no-store'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          const favoriteIds = data.favorites || [];
+          isSaved = favoriteIds.includes(therapistId);
+        }
+      } catch (error) {
+        console.error('Error checking favorite status:', error);
+      }
+    }
   }
   
   // If no therapist found, you could redirect or show a not found message
@@ -49,5 +95,6 @@ export default async function TherapistProfilePage({ searchParams }) {
     hasMoreReviews={initialReviewsData.hasMore}
     totalReviewCount={initialReviewsData.totalCount}
     initialDistribution={initialReviewsData.distribution}
+    isSaved={isSaved}
   />;
 }

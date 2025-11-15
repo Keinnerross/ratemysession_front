@@ -10,7 +10,7 @@ import { FaFilter } from "react-icons/fa";
 import { loadMoreTherapists } from "@/app/(core)/(application)/search/actions";
 import { sortTherapists } from "@/utils/sortTherapists";
 
-export default function SearchLayout({ data, searchParams = {}, availableCategories = [], availableLocations = [], hasMore = true, totalResults = 0 }) {
+export default function SearchLayout({ data, searchParams = {}, availableCategories = [], availableLocations = [], hasMore = true, totalResults = 0, initialFavoriteIds = [] }) {
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [sortBy, setSortBy] = useState("recommended");
@@ -140,6 +140,7 @@ export default function SearchLayout({ data, searchParams = {}, availableCategor
                 onLoadMore={handleLoadMore}
                 initialHasMore={hasMore}
                 sortBy={sortBy}
+                initialFavoriteIds={initialFavoriteIds}
               />
             </main>
           </div>
