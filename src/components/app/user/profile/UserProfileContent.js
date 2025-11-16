@@ -34,6 +34,8 @@ export default function UserProfileContent({
   favoritesPagination = null,
   onFavoritesFilterChange = () => {},
   onFavoritesLoadMore = () => {},
+  initialTotalReviews = 0,
+  initialTotalFavorites = 0,
 }) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedName, setEditedName] = useState("");
@@ -383,11 +385,11 @@ export default function UserProfileContent({
               <div className="flex flex-col gap-2 md:gap-2.5 md:pl-2">
                 <p className="text-[15px] md:text-[17px] text-[#535252] font-['Outfit']">
                   <span className="font-medium">My reviews:</span>
-                  <span className="font-light"> {reviewsCount}</span>
+                  <span className="font-light"> {initialTotalReviews}</span>
                 </p>
                 <p className="text-[15px] md:text-[17px] text-[#535252] font-['Outfit']">
                   <span className="font-medium">Therapists Saved:</span>
-                  <span className="font-light"> {favoritesPagination?.total || 0}</span>
+                  <span className="font-light"> {initialTotalFavorites}</span>
                 </p>
                 <p className="text-[15px] md:text-[17px] text-[#535252] font-['Outfit']">
                   <span className="font-medium">Register Since:</span>

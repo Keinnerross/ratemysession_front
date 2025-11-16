@@ -1,89 +1,103 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Image from 'next/image';
+import Image from "next/image";
 
-export function ReactionBar() {
-    const [reactions, setReactions] = useState({
-        helpful: 0,
-        love: 0,
-        ohNo: 0,
-        thanks: 0
-    });
+export function ReactionBar({
+  commentId,
+  reactions = {},
+  userReaction = null,
+  onReaction,
+  disabled = false,
+  useInCard = false,
+}) {
+  // Default reactions if not provided
+  const defaultReactions = {
+    useful: 0,
+    helpful: 0,
+    insightful: 0,
+    inappropriate: 0,
+  };
 
-    const [userReactions, setUserReactions] = useState({
-        helpful: false,
-        love: false,
-        ohNo: false,
-        thanks: false
-    });
+  const reactionData = { ...defaultReactions, ...reactions };
 
-    const toggleReaction = (type) => {
-        setUserReactions(prev => ({
-            ...prev,
-            [type]: !prev[type]
-        }));
+  // Map frontend keys to reaction types
+  const reactionTypes = [
+    {
+      key: "useful",
+      src: "/assets/icons-svg/react/Helpful.svg",
+      alt: "Useful",
+      label: "Useful",
+    },
+    {
+      key: "helpful",
+      src: "/assets/icons-svg/react/love.svg",
+      alt: "Love",
+      label: "Loved",
+    },
+    {
+      key: "insightful",
+      src: "/assets/icons-svg/react/thanks.svg",
+      alt: "Thanks",
+      label: "Thankful",
+    },
+    {
+      key: "inappropriate",
+      src: "/assets/icons-svg/react/oh_no.svg",
+      alt: "Oh No",
+      label: "Oh no!",
+    },
+  ];
 
-        setReactions(prev => ({
-            ...prev,
-            [type]: userReactions[type] ? prev[type] - 1 : prev[type] + 1
-        }));
-    };
+  const handleClick = (reactionKey) => {
+    if (disabled || !onReaction) return;
+    onReaction(commentId, reactionKey);
+  };
 
-    const reactionTypes = [
-        {
-            id: 'helpful',
-            src: '/assets/icons-svg/react/Helpful.svg',
-            alt: 'Helpful'
-        },
-        {
-            id: 'love',
-            src: '/assets/icons-svg/react/love.svg',
-            alt: 'Love'
-        },
-        {
-            id: 'ohNo',
-            src: '/assets/icons-svg/react/oh_no.svg',
-            alt: 'Oh No'
-        },
-        {
-            id: 'thanks',
-            src: '/assets/icons-svg/react/thanks.svg',
-            alt: 'Thanks'
-        }
-    ];
+  return (
+    <div
+      className={`${
+        useInCard ? "justify-start" : "justify-between "
+      } w-full flex items-center gap-5`}
+    >
+      {reactionTypes.map((reaction) => {
+        const count = reactionData[reaction.key] || 0;
+        const isActive = userReaction === reaction.key;
 
-    return (
-        <div className="w-full justify-between flex items-center gap-4 px-4">
-            {reactionTypes.map((reaction) => (
-                <button
-                    key={reaction.id}
-                    onClick={() => toggleReaction(reaction.id)}
-                    className={`flex items-center gap-1 p-1.5 rounded-lg transition-all ${userReactions[reaction.id]
-                            ? 'bg-amethyst-50 hover:bg-amethyst-100'
-                            : 'hover:bg-gray-100'
-                        }`}
-                    aria-label={`React with ${reaction.alt}`}
-                >
-                    <div className="w-6 h-6 relative">
-                        <Image
-                            src={reaction.src}
-                            alt={reaction.alt}
-                            fill
-                            className={`object-contain ${userReactions[reaction.id]
-                                    ? 'filter-amethyst'
-                                    : ''
-                                }`}
-                        />
-                    </div>
-                    {reactions[reaction.id] > 0 && (
-                        <span className={`text-sm font-medium ${userReactions[reaction.id]
-                                ? 'text-amethyst-600'
-                                : 'text-gray-600'
-                            }`}>{reactions[reaction.id]}</span>
-                    )}
-                </button>
-            ))}
-        </div>
-    );
+        return (
+          <button
+            key={reaction.key}
+            onClick={() => handleClick(reaction.key)}
+            disabled={disabled}
+            className={`flex items-center gap-1 p-1.5 rounded-lg transition-all ${
+              isActive
+                ? "bg-amethyst-50 hover:bg-amethyst-100"
+                : "hover:bg-gray-100"
+            } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            aria-label={`React with ${reaction.label}`}
+            title={reaction.label}
+          >
+            <div className={`${useInCard ? "w-5 h-5" : "w-6 h-6"}  relative`}>
+              <Image
+                src={reaction.src}
+                alt={reaction.alt}
+                fill
+                className={`object-contain ${
+                  isActive ? "filter-amethyst" : ""
+                }`}
+              />
+            </div>
+            {count > 0 && (
+              <span
+                className={`text-sm font-medium ${
+                  isActive ? "text-amethyst-600" : "text-gray-600"
+                }`}
+              >
+                {count}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
 }

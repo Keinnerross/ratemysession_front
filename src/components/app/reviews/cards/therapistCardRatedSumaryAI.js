@@ -5,9 +5,9 @@ import { FaThumbsUp } from "react-icons/fa";
 import Image from "next/image";
 
 export default function TherapistCardRatedSummaryAI({
-  summary = "Based on 45 reviews, patients consistently praise this therapist's empathetic approach and effective techniques. Many report significant improvements in managing anxiety and making important life decisions. The safe, welcoming environment is frequently mentioned as a key factor in their therapeutic progress.",
-  totalReviews = 45,
-  helpfulCount = 87,
+  summary,
+  totalReviews = 0,
+  helpfulCount = 0,
   isHelpful = false,
   onReaction,
 }) {

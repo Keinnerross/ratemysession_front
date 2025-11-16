@@ -4,7 +4,7 @@ import { therapistService } from "@/services/therapists/therapistService";
 import { commentService } from "@/services/comments/commentService";
 import { transformTherapistData } from "@/utils/therapistTransformer";
 import { loadMoreReviews } from "./actions";
-import { getAuthToken } from '@/utils/auth';
+import { getAuthToken, getUserIdFromToken } from '@/utils/auth';
 
 export default async function TherapistProfilePage({ searchParams }) {
   const params = await searchParams;
@@ -14,21 +14,24 @@ export default async function TherapistProfilePage({ searchParams }) {
   let therapist = null;
   let initialReviewsData = { reviews: [], hasMore: false, totalCount: 0, distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 } };
   let isSaved = false;
-  
+
+  // Get user ID if logged in (for reaction state)
+  const userId = await getUserIdFromToken();
+
   try {
     if (therapistId) {
       const [apiTherapist, commentCounts] = await Promise.all([
         therapistService.getTherapistById(therapistId),
         commentService.getCommentCountsForPosts([therapistId])
       ]);
-      
+
       if (apiTherapist) {
-        const transformedData = transformTherapistData([apiTherapist], commentCounts);
+        const transformedData = transformTherapistData([apiTherapist], commentCounts, userId);
         therapist = transformedData[0] || null;
       }
-      
-      // Get initial page of reviews
-      initialReviewsData = await loadMoreReviews(therapistId, 1, 'recent', 'all');
+
+      // Get initial page of reviews with userId for reaction state
+      initialReviewsData = await loadMoreReviews(therapistId, 1, 'recent', 'all', userId);
       
       // Check if therapist is saved by current user
       const token = await getAuthToken();

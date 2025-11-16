@@ -11,7 +11,10 @@
       "WebFetch(domain:simplejwtlogin.com)",
       "Bash(find:*)",
       "WebFetch(domain:wordpress.stackexchange.com)",
-      "WebFetch(domain:developer.wordpress.org)"
+      "WebFetch(domain:developer.wordpress.org)",
+      "WebSearch",
+      "Bash(cat:*)",
+      "Bash(npm install:*)"
     ],
     "deny": []
   }

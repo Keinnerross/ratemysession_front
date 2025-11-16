@@ -1,7 +1,7 @@
 import { BACKEND_URL } from '@/services/api/endpoints';
 
 // Transforms WordPress API data to match the app's expected format
-export function transformTherapistData(apiData, commentCounts = null) {
+export function transformTherapistData(apiData, commentCounts = null, currentUserId = null) {
   return apiData.map(therapist => {
     // Get featured image URL from embedded data
     let imageUrl = null;
@@ -42,6 +42,9 @@ export function transformTherapistData(apiData, commentCounts = null) {
     // Count approved comments for review count
     const reviewCount = countApprovedComments(therapist, commentCounts);
 
+    // Extract AI review summary data
+    const aiSummary = extractAISummaryData(therapist, currentUserId);
+
     return {
       id: therapist.id,
       name: therapist.title.rendered,
@@ -57,6 +60,7 @@ export function transformTherapistData(apiData, commentCounts = null) {
       insurance: ["Aetna", "Blue Cross"], // TODO: Get from ACF insurance field
       address: fullAddress,
       website: acf.Website ? formatWebsiteUrl(acf.Website) : therapist.link,
+      aiSummary: aiSummary,
       // Keep original data for reference
       _original: therapist,
       _acf: acf
@@ -102,20 +106,20 @@ function extractCredentials(classList) {
 }
 
 // Get therapist by ID from API data
-export function getTherapistById(apiData, id, commentCounts = null) {
+export function getTherapistById(apiData, id, commentCounts = null, currentUserId = null) {
   const therapist = apiData.find(t => t.id === parseInt(id));
   if (!therapist) return null;
-  
-  const transformed = transformTherapistData([therapist], commentCounts);
+
+  const transformed = transformTherapistData([therapist], commentCounts, currentUserId);
   return transformed[0];
 }
 
 // Get therapist by slug from API data
-export function getTherapistBySlug(apiData, slug, commentCounts = null) {
+export function getTherapistBySlug(apiData, slug, commentCounts = null, currentUserId = null) {
   const therapist = apiData.find(t => t.slug === slug);
   if (!therapist) return null;
-  
-  const transformed = transformTherapistData([therapist], commentCounts);
+
+  const transformed = transformTherapistData([therapist], commentCounts, currentUserId);
   return transformed[0];
 }
 
@@ -138,12 +142,39 @@ function countApprovedComments(therapist, commentCounts = null) {
   if (commentCounts && typeof commentCounts[therapist.id] !== 'undefined') {
     return commentCounts[therapist.id];
   }
-  
+
   // Fallback: Check if replies are embedded (for individual pages)
   if (!therapist._embedded || !therapist._embedded.replies || !Array.isArray(therapist._embedded.replies)) {
     return 0;
   }
-  
+
   // All comments from API are already approved
   return therapist._embedded.replies.length;
+}
+
+// Extract AI review summary data from ACF fields
+function extractAISummaryData(therapist, currentUserId = null) {
+  const acf = therapist.acf || {};
+
+  const content = acf.ai_review_summary || '';
+  const usefulString = acf.ai_review_summary_useful || '';
+
+  // Parse user IDs who marked as useful
+  const usefulUserIds = usefulString
+    ? usefulString.split(',').filter(id => id.trim())
+    : [];
+
+  const usefulCount = usefulUserIds.length;
+
+  // Check if current user has marked as useful
+  const isUseful = currentUserId
+    ? usefulUserIds.includes(currentUserId.toString())
+    : false;
+
+  return {
+    content: content,
+    usefulCount: usefulCount,
+    isUseful: isUseful,
+    hasContent: content.trim().length > 0
+  };
 }

@@ -1,10 +1,14 @@
 "use client";
 
 import React, { useState, useTransition, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import TherapistCardRated from "../cards/therapistCardRated";
 import TherapistCardRatedSummaryAI from "../cards/therapistCardRatedSumaryAI";
 import CustomSelect from "@/components/global/inputs/CustomSelect";
 import { loadMoreReviews } from "@/app/(core)/(application)/therapist-profile/actions";
+import reactionService from "@/services/reviews/reactionService";
+import { aiSummaryService } from "@/services/therapists/aiSummaryService";
 
 export default function ReviewsLayout({
   therapistId,
@@ -12,33 +16,52 @@ export default function ReviewsLayout({
   therapistImage,
   initialComments = [],
   initialHasMore = false,
-  totalReviewCount = 0
+  totalReviewCount = 0,
+  aiSummary = null
 }) {
+  const { user } = useAuth();
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [sortBy, setSortBy] = useState("recent");
   const [filterRating, setFilterRating] = useState("all");
   const [comments, setComments] = useState(initialComments);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isAISummaryHelpful, setIsAISummaryHelpful] = useState(false);
-  const [aiHelpfulCount, setAiHelpfulCount] = useState(87);
+  const [isAISummaryHelpful, setIsAISummaryHelpful] = useState(aiSummary?.isUseful || false);
+  const [aiHelpfulCount, setAiHelpfulCount] = useState(aiSummary?.usefulCount || 0);
+  const [reactingCommentId, setReactingCommentId] = useState(null);
+  const [reactingAISummary, setReactingAISummary] = useState(false);
   const isFirstRender = React.useRef(true);
 
   // Handle filter changes - load new data from server
   useEffect(() => {
     if (!therapistId) return;
-    
+
     // Skip the first render since we already have initial data
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
-    
+
     setCurrentPage(1);
-    
+
     startTransition(async () => {
       try {
-        const result = await loadMoreReviews(therapistId, 1, sortBy, filterRating);
+        // Get userId from localStorage if available (set during login)
+        let userId = null;
+        if (typeof window !== 'undefined') {
+          const userDataStr = localStorage.getItem('user');
+          if (userDataStr) {
+            try {
+              const userData = JSON.parse(userDataStr);
+              userId = userData.id || null;
+            } catch (e) {
+              console.error('Error parsing user data:', e);
+            }
+          }
+        }
+
+        const result = await loadMoreReviews(therapistId, 1, sortBy, filterRating, userId);
         if (result) {
           setComments(result.reviews);
           setHasMore(result.hasMore);
@@ -62,36 +85,128 @@ export default function ReviewsLayout({
         ).toFixed(1)
       : 0;
 
-  const handleReaction = React.useCallback((commentId, reactionType) => {
+  const handleReaction = React.useCallback(async (commentId, reactionType) => {
+    // Check if user is logged in
+    if (!user) {
+      router.push('/register');
+      return;
+    }
+
+    // Prevent multiple simultaneous reactions on the same comment
+    if (reactingCommentId === commentId) {
+      return;
+    }
+
+    setReactingCommentId(commentId);
+
+    // Optimistic update
     setComments((prevComments) =>
       prevComments.map((comment) => {
         if (comment.id === commentId) {
-          // Create a deep copy to avoid mutations
-          const newComment = {
-            ...comment,
-            reactions: { ...comment.reactions }
-          };
           const currentReaction = comment.userReaction;
+          const currentReactions = comment.reactions || {};
+
+          // Create new reactions object with all keys explicitly initialized
+          const newReactions = {
+            useful: currentReactions.useful || 0,
+            helpful: currentReactions.helpful || 0,
+            insightful: currentReactions.insightful || 0,
+            inappropriate: currentReactions.inappropriate || 0
+          };
 
           if (currentReaction === reactionType) {
             // Remove reaction
-            newComment.reactions[reactionType] = Math.max(0, newComment.reactions[reactionType] - 1);
-            newComment.userReaction = null;
+            newReactions[reactionType] = Math.max(0, newReactions[reactionType] - 1);
+            return {
+              ...comment,
+              reactions: newReactions,
+              userReaction: null
+            };
           } else {
-            // Add/change reaction
+            // Remove previous reaction if exists
             if (currentReaction) {
-              newComment.reactions[currentReaction] = Math.max(0, newComment.reactions[currentReaction] - 1);
+              newReactions[currentReaction] = Math.max(0, newReactions[currentReaction] - 1);
             }
-            newComment.reactions[reactionType] = (newComment.reactions[reactionType] || 0) + 1;
-            newComment.userReaction = reactionType;
+            // Add new reaction
+            newReactions[reactionType] = newReactions[reactionType] + 1;
+            return {
+              ...comment,
+              reactions: newReactions,
+              userReaction: reactionType
+            };
           }
-
-          return newComment;
         }
         return comment;
       })
     );
-  }, []);
+
+    try {
+      // Call API to persist the reaction
+      const response = await reactionService.toggleReaction(commentId, reactionType);
+
+      // Update with actual data from server
+      if (response.success) {
+        setComments((prevComments) =>
+          prevComments.map((comment) => {
+            if (comment.id === commentId) {
+              return {
+                ...comment,
+                reactions: response.reactions,
+                userReaction: response.userReaction
+              };
+            }
+            return comment;
+          })
+        );
+      }
+    } catch (error) {
+      console.error('Failed to update reaction:', error);
+
+      // Revert optimistic update on error
+      setComments((prevComments) =>
+        prevComments.map((comment) => {
+          if (comment.id === commentId) {
+            const currentReaction = comment.userReaction;
+            const currentReactions = comment.reactions || {};
+
+            // Create new reactions object with all keys explicitly initialized
+            const newReactions = {
+              useful: currentReactions.useful || 0,
+              helpful: currentReactions.helpful || 0,
+              insightful: currentReactions.insightful || 0,
+              inappropriate: currentReactions.inappropriate || 0
+            };
+
+            // Revert the optimistic change
+            if (currentReaction === reactionType) {
+              newReactions[reactionType] = newReactions[reactionType] + 1;
+              return {
+                ...comment,
+                reactions: newReactions,
+                userReaction: reactionType
+              };
+            } else {
+              if (currentReaction) {
+                newReactions[currentReaction] = newReactions[currentReaction] + 1;
+              }
+              newReactions[reactionType] = Math.max(0, newReactions[reactionType] - 1);
+              return {
+                ...comment,
+                reactions: newReactions,
+                userReaction: currentReaction
+              };
+            }
+          }
+          return comment;
+        })
+      );
+
+      // Show error to user (you could add a toast notification here)
+      alert('Failed to update reaction. Please try again.');
+    } finally {
+      setReactingCommentId(null);
+    }
+  }, [user, router, reactingCommentId]);
 
   const handleViewReview = (reviewId) => {
     console.log("View review:", reviewId);
@@ -102,6 +217,48 @@ export default function ReviewsLayout({
     console.log("Menu clicked");
     // Implement menu logic
   };
+
+  const handleAISummaryReaction = React.useCallback(async () => {
+    // Check if user is logged in
+    if (!user) {
+      router.push('/register');
+      return;
+    }
+
+    // Prevent multiple simultaneous reactions
+    if (reactingAISummary) {
+      return;
+    }
+
+    setReactingAISummary(true);
+
+    // Optimistic update
+    const wasUseful = isAISummaryHelpful;
+    setIsAISummaryHelpful(!wasUseful);
+    setAiHelpfulCount(wasUseful ? aiHelpfulCount - 1 : aiHelpfulCount + 1);
+
+    try {
+      // Call API to persist the reaction
+      const response = await aiSummaryService.toggleUsefulReaction(therapistId);
+
+      // Update with actual data from server
+      if (response.success) {
+        setIsAISummaryHelpful(response.isUseful);
+        setAiHelpfulCount(response.usefulCount);
+      }
+    } catch (error) {
+      console.error('Failed to update AI summary reaction:', error);
+
+      // Revert optimistic update on error
+      setIsAISummaryHelpful(wasUseful);
+      setAiHelpfulCount(wasUseful ? aiHelpfulCount + 1 : aiHelpfulCount - 1);
+
+      // Show error to user
+      alert('Failed to update reaction. Please try again.');
+    } finally {
+      setReactingAISummary(false);
+    }
+  }, [user, router, therapistId, isAISummaryHelpful, aiHelpfulCount, reactingAISummary]);
 
   return (
     <div className="w-full max-w-[1050px] flex flex-col">
@@ -148,24 +305,15 @@ export default function ReviewsLayout({
         />
       </div>
 
-      {/* AI Summary Card - Always visible at top */}
-      {totalReviews > 0 && (
+      {/* AI Summary Card - Only show if content exists */}
+      {aiSummary?.hasContent && aiSummary.content && (
         <div className="bg-white rounded-lg mb-8">
-          <TherapistCardRatedSummaryAI 
+          <TherapistCardRatedSummaryAI
+            summary={aiSummary.content}
             totalReviews={totalReviews}
             helpfulCount={aiHelpfulCount}
             isHelpful={isAISummaryHelpful}
-            onReaction={(id, type) => {
-              if (type === 'helpful') {
-                if (!isAISummaryHelpful) {
-                  setAiHelpfulCount(aiHelpfulCount + 1);
-                  setIsAISummaryHelpful(true);
-                } else {
-                  setAiHelpfulCount(aiHelpfulCount - 1);
-                  setIsAISummaryHelpful(false);
-                }
-              }
-            }}
+            onReaction={handleAISummaryReaction}
           />
         </div>
       )}

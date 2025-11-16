@@ -30,13 +30,16 @@ export const API_ROUTES = {
     LOGIN: '/api/auth/login',
     REGISTER: '/api/auth/register',
     VALIDATE: '/api/auth/validate',
-    LOGOUT: '/api/auth/logout'
+    LOGOUT: '/api/auth/logout',
+    GOOGLE: '/api/auth/google',
+    FACEBOOK: '/api/auth/facebook'
   },
   THERAPISTS: {
     LIST: '/api/therapists',
     DETAIL: (id) => `/api/therapists/${id}`,
     SEARCH: '/api/therapists/search',
-    CREATE: '/api/therapists'
+    CREATE: '/api/therapists',
+    aiSummaryUseful: (id) => `/api/therapists/${id}/ai-summary-useful`
   },
   COMMENTS: {
     LIST: '/api/comments',
@@ -45,7 +48,8 @@ export const API_ROUTES = {
     PAGINATED: '/api/comments/paginated',
     USER_COMMENTS: '/api/comments/user-comments',
     UPDATE: (id) => `/api/comments/${id}`,
-    DELETE: (id) => `/api/comments/${id}`
+    DELETE: (id) => `/api/comments/${id}`,
+    TOGGLE_REACTION: (id) => `/api/comments/${id}/reactions`
   },
   USERS: {
     PROFILE: '/api/users/profile',
@@ -56,5 +60,7 @@ export const API_ROUTES = {
     FAVORITE_ADD: '/api/users/favorites',
     FAVORITE_REMOVE: (id) => `/api/users/favorites/${id}`,
     FAVORITES_THERAPISTS: '/api/users/favorites-therapists'
-  }
+  },
+  RECENT_REVIEWS: '/api/recent-reviews',
+  FEEDBACK: '/api/feedback'
 };

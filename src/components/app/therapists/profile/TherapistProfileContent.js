@@ -51,6 +51,7 @@ export default function TherapistProfileContent({
     insurance = [],
     address = "Address not available",
     website = "",
+    aiSummary = null,
   } = data;
 
   // Calculate rating stars
@@ -395,13 +396,14 @@ export default function TherapistProfileContent({
             {/* Reviews Section */}
 
             <div>
-              <ReviewsLayout 
+              <ReviewsLayout
                 therapistId={id}
                 therapistName={name}
                 therapistImage={image}
                 initialComments={initialReviews}
                 initialHasMore={hasMoreReviews}
                 totalReviewCount={totalReviewCount}
+                aiSummary={aiSummary}
               />
             </div>
           </div>

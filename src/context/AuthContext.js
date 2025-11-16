@@ -56,6 +56,14 @@ export function AuthProvider({ children }) {
     return result;
   };
 
+  const loginWithFacebook = async (facebookUserInfo) => {
+    const result = await authService.loginWithFacebook(facebookUserInfo);
+    if (result.success) {
+      setUser(result.user);
+    }
+    return result;
+  };
+
   const logout = async () => {
     await authService.logout();
     setUser(null);
@@ -63,7 +71,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, loginWithGoogle, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, loginWithGoogle, loginWithFacebook, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

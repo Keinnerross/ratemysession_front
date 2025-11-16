@@ -3,23 +3,23 @@
 import { commentService } from "@/services/comments/commentService";
 import { transformCommentData } from "@/utils/commentTransformer";
 
-export async function loadMoreReviews(therapistId, page, sortBy = 'recent', filterRating = 'all') {
+export async function loadMoreReviews(therapistId, page, sortBy = 'recent', filterRating = 'all', userId = null) {
   try {
     // Map frontend sort values to API values
     const sortMapping = {
       'recent': 'date',
       'helpful': 'helpful'
     };
-    
+
     // Use the new paginated endpoint
     const response = await commentService.getCommentsPaginated(therapistId, {
       page: page,
-      perPage: 1,
+      perPage: 5,
       rating: filterRating === 'all' ? null : filterRating,
       sortBy: sortMapping[sortBy] || 'date',
       sortOrder: 'desc' // Always descending for now
     });
-    
+
     if (!response || !response.comments) {
       return {
         reviews: [],
@@ -28,9 +28,9 @@ export async function loadMoreReviews(therapistId, page, sortBy = 'recent', filt
         distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
       };
     }
-    
-    // Transform the comments from the API
-    const transformedComments = transformCommentData(response.comments);
+
+    // Transform the comments from the API with userId for reaction state
+    const transformedComments = transformCommentData(response.comments, userId);
     
     // Use the distribution from the API response
     const distribution = response.rating_distribution || { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };

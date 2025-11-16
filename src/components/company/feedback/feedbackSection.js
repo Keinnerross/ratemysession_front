@@ -2,18 +2,62 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import NotificationToast from '@/components/global/notifications/NotificationToast';
+import { API_ROUTES } from '@/config/api';
 
 export function FeedbackSection() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        feedback: ''
+        feedback: '',
+        website: '' // Honeypot field - should remain empty
     });
 
-    const handleSubmit = (e) => {
+    const [loading, setLoading] = useState(false);
+    const [showNotification, setShowNotification] = useState(false);
+    const [notificationMessage, setNotificationMessage] = useState('');
+    const [notificationType, setNotificationType] = useState('success');
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle form submission here
-        console.log('Form submitted:', formData);
+        setLoading(true);
+
+        try {
+            const response = await fetch(API_ROUTES.FEEDBACK, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // Success - clear form and show notification
+                setFormData({
+                    name: '',
+                    email: '',
+                    feedback: '',
+                    website: ''
+                });
+                setNotificationMessage('Feedback submitted successfully!');
+                setNotificationType('success');
+                setShowNotification(true);
+            } else {
+                // Error from server
+                setNotificationMessage(data.error || 'Failed to submit feedback. Please try again.');
+                setNotificationType('error');
+                setShowNotification(true);
+            }
+        } catch (error) {
+            console.error('Error submitting feedback:', error);
+            setNotificationMessage('An error occurred. Please try again later.');
+            setNotificationType('error');
+            setShowNotification(true);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleChange = (e) => {
@@ -114,12 +158,35 @@ export function FeedbackSection() {
                                 />
                             </div>
 
+                            {/* Honeypot field - hidden from users, only bots will fill it */}
+                            <input
+                                type="text"
+                                name="website"
+                                value={formData.website}
+                                onChange={handleChange}
+                                tabIndex="-1"
+                                autoComplete="off"
+                                style={{ position: 'absolute', left: '-9999px' }}
+                                aria-hidden="true"
+                            />
+
                             {/* Submit Button */}
                             <button
                                 type="submit"
-                                className="w-full bg-amethyst-500 text-white font-bold py-3 px-6 rounded-full hover:bg-amethyst-600 transition-colors text-sm md:text-base"
+                                disabled={loading}
+                                className={`w-full bg-amethyst-500 text-white font-bold py-3 px-6 rounded-full hover:bg-amethyst-600 transition-colors text-sm md:text-base ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
-                                Submit Now
+                                {loading ? (
+                                    <span className="flex items-center justify-center">
+                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Submitting...
+                                    </span>
+                                ) : (
+                                    'Submit Now'
+                                )}
                             </button>
                         </form>
                     </div>
@@ -135,7 +202,15 @@ export function FeedbackSection() {
 
             <div className='w-full h-[300px] md:h-[450px] lg:h-[600px] bg-gradient-to-b from-amethyst-50 to-white absolute bottom-0' />
 
-
+            {/* Notification Toast */}
+            <NotificationToast
+                message={notificationMessage}
+                subtitle={notificationType === 'success' ? 'Thank you for your feedback' : ''}
+                isVisible={showNotification}
+                onClose={() => setShowNotification(false)}
+                type={notificationType}
+                duration={4000}
+            />
 
         </section>
     );

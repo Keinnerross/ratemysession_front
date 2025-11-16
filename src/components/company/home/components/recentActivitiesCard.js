@@ -1,17 +1,30 @@
-import { ReactionBar } from './reactionBar';
+'use client';
 
-export function RecentActivityCard({ review }) {
+import { useRouter } from 'next/navigation';
+import { ReactionBar } from './reactionBar';
+import { formatTimeAgo } from '@/utils/timeAgo';
+
+export function RecentActivityCard({ review, onReaction }) {
+    const router = useRouter();
+
     // Default values if review prop is not provided
     const defaultReview = {
-        authorName: "Sherry W.",
-        timeAgo: "1 week ago",
-        therapistName: "Jessica Miller",
-        rating: 4.0,
-        content: "Jessica was incredibly supportive and patient throughout my sessions. She helped me see...",
-        authorImage: null,
-        likes: 1,
-        comments: 0,
-        shares: 0
+        authorName: "Anonymous",
+        date: new Date().toISOString(),
+        therapist: {
+            name: "Therapist Name",
+            id: null
+        },
+        rating: 0,
+        content: "Review content...",
+        authorAvatar: null,
+        isAnonymous: false,
+        reactions: {
+            useful: 0,
+            helpful: 0,
+            insightful: 0,
+            inappropriate: 0
+        }
     };
 
     const data = review || defaultReview;
@@ -20,7 +33,6 @@ export function RecentActivityCard({ review }) {
     const renderStars = (rating) => {
         return Array.from({ length: 5 }, (_, index) => {
             const filled = index < Math.floor(rating);
-            const halfFilled = index < rating && index >= Math.floor(rating);
 
             return (
                 <svg
@@ -36,27 +48,51 @@ export function RecentActivityCard({ review }) {
         });
     };
 
+    // Truncate content if too long
+    const truncateContent = (text, maxLength = 120) => {
+        if (!text) return '';
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + '...';
+    };
+
+    // Handle "Read More" click - navigate to therapist profile
+    const handleReadMore = (e) => {
+        e.stopPropagation();
+        if (data.therapist?.id) {
+            router.push(`/therapist-profile?id=${data.therapist.id}`);
+        }
+    };
+
+    // Get author initial for avatar fallback
+    const getAuthorInitial = () => {
+        if (!data.authorName) return 'A';
+        return data.authorName.charAt(0).toUpperCase();
+    };
+
+    // Format time ago
+    const timeAgo = formatTimeAgo(data.date);
+
     return (
-        <div className="w-full bg-white rounded-xl border border-amethyst-100 max-w-[350px] transform hover:scale-[1.02] transition-transform cursor-pointer">
+        <div className="w-full bg-white rounded-xl border border-amethyst-100 max-w-[350px] transform hover:scale-[1.02] transition-transform">
             <div className="px-4 pt-4 pb-16 relative">
                 {/* Header */}
                 <div className="flex items-start gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-amethyst-200 flex items-center justify-center text-amethyst-700 font-semibold text-sm">
-                        {data.authorImage ? (
+                    <div className="w-10 h-10 rounded-full bg-amethyst-200 flex items-center justify-center text-amethyst-700 font-semibold text-sm flex-shrink-0">
+                        {data.authorAvatar ? (
                             <img
-                                src={data.authorImage}
+                                src={data.authorAvatar}
                                 alt={data.authorName}
                                 className="w-full h-full rounded-full object-cover"
                             />
                         ) : (
-                            data.authorName.charAt(0)
+                            getAuthorInitial()
                         )}
                     </div>
-                    <div className="flex-1">
-                        <p className="text-base font-light text-gray-900">
-                            {data.authorName} wrote a review
+                    <div className="flex-1 min-w-0">
+                        <p className="text-base font-light text-gray-900 truncate">
+                            {data.isAnonymous ? 'Anonymous' : data.authorName} wrote a review
                         </p>
-                        <p className="text-sm text-gray-500">{data.timeAgo}</p>
+                        <p className="text-sm text-gray-500">{timeAgo}</p>
                     </div>
                 </div>
 
@@ -64,18 +100,25 @@ export function RecentActivityCard({ review }) {
 
                 {/* Content */}
                 <div className="space-y-3">
-                    <h3 className="text-lg font-medium text-gray-900">{data.therapistName}</h3>
+                    <h3 className="text-lg font-medium text-gray-900 truncate">
+                        {data.therapist?.name || 'Therapist'}
+                    </h3>
 
                     <div className="flex items-center gap-2">
-                        <div className="flex">{renderStars(data.rating)}</div>
-                        <span className="text-gray-600 text-xs">{data.rating.toFixed(1)}</span>
+                        <div className="flex">{renderStars(data.rating || 0)}</div>
+                        <span className="text-gray-600 text-xs">
+                            {(data.rating || 0).toFixed(1)}
+                        </span>
                     </div>
 
                     <p className="text-gray-600 text-sm leading-relaxed">
-                        {data.content}
+                        {truncateContent(data.content)}
                     </p>
 
-                    <button className="text-amethyst-600 hover:text-amethyst-700 text-sm font-medium transition-colors">
+                    <button
+                        onClick={handleReadMore}
+                        className="text-amethyst-600 hover:text-amethyst-700 text-sm font-medium transition-colors"
+                    >
                         Read More
                     </button>
                 </div>
@@ -83,8 +126,14 @@ export function RecentActivityCard({ review }) {
                 <hr className="border-gray-100 my-3" />
 
                 {/* Reactions */}
-                <div className='w-full absolute bottom-5 left-0 px-4 '>
-                    <ReactionBar />
+                <div className='w-full absolute bottom-5 left-0 px-4'>
+                    <ReactionBar
+                        commentId={data.id}
+                        reactions={data.reactions}
+                        userReaction={data.userReaction}
+                        onReaction={onReaction}
+                        disabled={false}
+                    />
                 </div>
             </div>
         </div>

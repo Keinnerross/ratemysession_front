@@ -68,11 +68,72 @@ src/
 
 Required environment variables:
 ```bash
-NEXT_PUBLIC_GOOGLE_CLIENT_ID  # Google OAuth client ID
-BACKEND_URL                   # WordPress backend URL
-USER_AUTH                     # System user for API calls
-PASSWORD_AUTH                 # System password for API calls
+NEXT_PUBLIC_GOOGLE_CLIENT_ID   # Google OAuth client ID
+NEXT_PUBLIC_FACEBOOK_APP_ID    # Facebook App ID for OAuth
+BACKEND_URL                    # WordPress backend URL
+USER_AUTH                      # System user for API calls
+PASSWORD_AUTH                  # System password for API calls
+AUTH_CODE_REGISTER             # Auth key for user registration
 ```
+
+### Facebook App Configuration
+
+To set up Facebook Login, create a Facebook App in Meta Developer Console:
+
+1. **Create Facebook App**:
+   - Go to [Meta for Developers](https://developers.facebook.com/)
+   - Click "My Apps" → "Create App"
+   - Select "Consumer" as app type
+   - Fill in app name and contact email
+
+2. **Configure Facebook Login**:
+   - In the app dashboard, add "Facebook Login" product
+   - Go to Settings → Basic and copy your App ID
+   - Add `NEXT_PUBLIC_FACEBOOK_APP_ID` to your `.env.local` file
+
+3. **Set Valid OAuth Redirect URIs**:
+   - Go to Facebook Login → Settings
+   - Add your domains to "Valid OAuth Redirect URIs":
+     - Development: `http://localhost:3000/`
+     - Production: `https://yourdomain.com/`
+
+4. **Configure App Domains**:
+   - In Settings → Basic
+   - Add your domains (without protocol):
+     - `localhost` (for development)
+     - `yourdomain.com` (for production)
+
+5. **Make App Live**:
+   - Toggle "App Mode" from Development to Live (when ready for production)
+   - Complete App Review if requesting advanced permissions
+
+**Permissions Used**: `public_profile`, `email`
+
+### Gmail SMTP Configuration (Feedback Form)
+
+The feedback form uses Gmail SMTP to send emails. Configuration required:
+
+1. **Enable 2-Factor Authentication on Gmail**:
+   - Go to [Google Account Security](https://myaccount.google.com/security)
+   - Enable "2-Step Verification"
+
+2. **Generate App Password**:
+   - Go to [App Passwords](https://myaccount.google.com/apppasswords)
+   - Select "Mail" and your device
+   - Copy the 16-character password generated
+
+3. **Add to Environment Variables**:
+   ```bash
+   GMAIL_USER=your-email@gmail.com
+   GMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx  # 16-character app password
+   FEEDBACK_RECIPIENT_EMAIL=recipient@example.com
+   ```
+
+**Important Notes**:
+- Do NOT use your regular Gmail password - use App Password only
+- App Passwords only work with 2FA enabled
+- The feedback form includes honeypot anti-spam protection
+- Emails are sent with Reply-To header for easy user responses
 
 ## API Development
 
@@ -134,7 +195,7 @@ export const featureService = {
 
 3. **Client-Side Route Protection**: Authentication checks happen client-side. Protected pages should verify auth status.
 
-4. **WordPress Integration**: 
+4. **WordPress Integration**:
    - Uses ACF (Advanced Custom Fields) for therapist data
    - Simple JWT Login plugin for authentication
    - Custom post types for therapists and reviews

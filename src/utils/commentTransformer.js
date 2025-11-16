@@ -1,18 +1,43 @@
 // Transform WordPress comment data to match app's expected format
-export function transformCommentData(apiComments) {
+export function transformCommentData(apiComments, currentUserId = null) {
   return apiComments.map(comment => {
     // Extract rating from ACF field
     const rating = parseInt(comment.acf?.rate || 0);
-    
+
     // Parse content to extract the actual review text
     // The content has format: <p>Review text</p>\n<p><strong>Rate:</strong> X Stars</p>
     const contentHtml = comment.content?.rendered || '';
     const reviewText = extractReviewText(contentHtml);
-    
+
     // Determine author name
     const authorName = comment.author_name || 'Anonymous';
     const isAnonymous = comment.acf?.anonymous === "1" || !comment.author_name;
-    
+
+    // Parse reaction IDs from comma-separated strings
+    const parseReactionIds = (value) => {
+      // Handle empty values, null, undefined, or numbers (0)
+      if (!value || value === '' || typeof value === 'number') return [];
+      // Ensure value is a string
+      const strValue = String(value);
+      if (strValue === '' || strValue === '0') return [];
+      return strValue.split(',').map(id => id.trim()).filter(id => id);
+    };
+
+    const usefulIds = parseReactionIds(comment.acf?.useful);
+    const lovedIds = parseReactionIds(comment.acf?.loved);
+    const thankfulIds = parseReactionIds(comment.acf?.thankful);
+    const ohNoIds = parseReactionIds(comment.acf?.['oh-no']);
+
+    // Determine user's current reaction if userId is provided
+    let userReaction = null;
+    if (currentUserId) {
+      const userIdStr = String(currentUserId);
+      if (usefulIds.includes(userIdStr)) userReaction = 'useful';
+      else if (lovedIds.includes(userIdStr)) userReaction = 'helpful';
+      else if (thankfulIds.includes(userIdStr)) userReaction = 'insightful';
+      else if (ohNoIds.includes(userIdStr)) userReaction = 'inappropriate';
+    }
+
     return {
       id: comment.id,
       therapistId: comment.post,
@@ -23,12 +48,12 @@ export function transformCommentData(apiComments) {
       date: comment.date,
       content: reviewText, // TherapistCardRated expects 'content' not 'reviewText'
       reactions: {
-        useful: comment.acf?.useful || 0,        // Útil (directo)
-        helpful: comment.acf?.loved || 0,        // Me encanta → helpful
-        insightful: comment.acf?.thankful || 0,  // Agradecido → insightful
-        inappropriate: comment.acf?.['oh-no'] || 0  // Oh no → inappropriate
+        useful: usefulIds.length,        // Count of IDs
+        helpful: lovedIds.length,        // Count of IDs (loved → helpful)
+        insightful: thankfulIds.length,  // Count of IDs (thankful → insightful)
+        inappropriate: ohNoIds.length    // Count of IDs (oh-no → inappropriate)
       },
-      userReaction: null, // This would need to be tracked separately
+      userReaction: userReaction, // Current user's reaction
       isAnonymous: isAnonymous,
       hasProof: !!comment.acf?.proof,
       // Keep original data for reference

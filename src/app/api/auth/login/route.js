@@ -41,15 +41,16 @@ export async function POST(request) {
       });
       
       const userData = await userResponse.json();
-      
+
       // Formato compatible con el plugin anterior
       const responseData = {
         token: data.data.jwt,
+        user_id: userData.data?.user?.ID || userData.data?.user?.id || null,
         user_email: userData.data?.user?.user_email || body.username,
         user_nicename: userData.data?.user?.user_nicename || '',
         user_display_name: userData.data?.user?.display_name || ''
       };
-      
+
       const response = NextResponse.json(responseData, { status: 200 });
       
       // Set httpOnly cookie with the token
@@ -63,6 +64,7 @@ export async function POST(request) {
       
       // Also set user data in cookies
       response.cookies.set('userData', JSON.stringify({
+        id: responseData.user_id,
         email: responseData.user_email,
         displayName: responseData.user_display_name,
         nicename: responseData.user_nicename

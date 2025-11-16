@@ -37,6 +37,10 @@ export default function UserProfileClient({ initialData = {} }) {
   );
   const [currentFavoritesFilters, setCurrentFavoritesFilters] = useState({});
 
+  // Store initial totals (absolute counts that never change)
+  const [initialTotalReviews] = useState(initialData.reviews?.pagination?.totalComments || 0);
+  const [initialTotalFavorites] = useState(initialData.favoriteTherapists?.pagination?.total || 0);
+
   // Define fetchUserReviews with useCallback first to avoid hooks order issues
   const fetchUserReviews = useCallback(async (email, page = 1, perPage = 10, filters = {}, append = false) => {
     try {
@@ -45,13 +49,7 @@ export default function UserProfileClient({ initialData = {} }) {
       
       // Transform reviews to match frontend format
       const transformedReviews = userReviewsService.transformReviews(response.reviews);
-      
-      // Update user data with actual review count
-      setUserData(prev => prev ? {
-        ...prev,
-        reviewsCount: response.pagination.totalComments
-      } : null);
-      
+
       // Append or replace reviews based on pagination
       if (append) {
         setUserReviews(prev => [...prev, ...transformedReviews]);
@@ -210,5 +208,7 @@ export default function UserProfileClient({ initialData = {} }) {
     favoritesPagination={favoritesPagination}
     onFavoritesFilterChange={handleFavoritesFilterChange}
     onFavoritesLoadMore={handleFavoritesLoadMore}
+    initialTotalReviews={initialTotalReviews}
+    initialTotalFavorites={initialTotalFavorites}
   />;
 }
