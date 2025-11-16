@@ -1,8 +1,19 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { useScrollAppear } from "@/utils/scrollAppear";
 
 export function FAQSection() {
     const [openIndex, setOpenIndex] = useState(null);
+    const sectionRef = useRef(null);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useScrollAppear(
+        sectionRef,
+        () => setIsVisible(true),
+        () => setIsVisible(false),
+        0.2,
+        50
+    );
 
     const faqs = [
         {
@@ -28,7 +39,14 @@ export function FAQSection() {
     };
 
     return (
-        <section className="py-20 bg-white">
+        <section
+            ref={sectionRef}
+            className="py-20 bg-white transition-all duration-700"
+            style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? "translateY(0)" : "translateY(30px)",
+            }}
+        >
             <div className="container mx-auto max-w-[1330px] px-6">
                 <div className="grid lg:grid-cols-2 gap-12 items-start">
                     {/* Left side - Title */}

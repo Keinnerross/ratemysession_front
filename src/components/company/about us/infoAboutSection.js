@@ -1,9 +1,22 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
+import { useRef, useState } from "react";
+import { useScrollAppear } from "@/utils/scrollAppear";
 import {missionData}  from "@/data/about/mission";
 import {historyData} from "@/data/about/history";
 
 export function InfoSection({ data }) {
+  const sectionRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useScrollAppear(
+    sectionRef,
+    () => setIsVisible(true),
+    () => setIsVisible(false),
+    0.3,
+    100
+  );
   const {
     title,
     subtitle,
@@ -22,9 +35,14 @@ export function InfoSection({ data }) {
 
   return (
     <div
-      className={`px-6 md:px-0 flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-30 ${
+      ref={sectionRef}
+      className={`px-6 md:px-0 flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-30 transition-all duration-700 ${
         !isImageLeft ? "lg:flex-row-reverse" : ""
       }`}
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? "translateY(0)" : "translateY(50px)",
+      }}
     >
       {/* Image Container */}
       <div className="flex-1 w-full">

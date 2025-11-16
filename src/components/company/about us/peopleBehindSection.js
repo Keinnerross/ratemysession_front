@@ -1,7 +1,21 @@
+"use client";
+import { useRef, useState } from "react";
+import { useScrollAppear } from "@/utils/scrollAppear";
 import { PeopleBehindCard } from "./components/peopleBehindCard";
 
 
 export function PeopleBehindSection() {
+    const sectionRef = useRef(null);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useScrollAppear(
+        sectionRef,
+        () => setIsVisible(true),
+        () => setIsVisible(false),
+        0.4,
+        100
+    );
+
     const teamMembers = [
         {
             name: "Dana Horowitz",
@@ -32,7 +46,14 @@ export function PeopleBehindSection() {
     ];
 
     return (
-        <section className="pt-26 pb-0 md:py-30 bg-white">
+        <section
+            ref={sectionRef}
+            className="pt-26 pb-0 md:py-30 bg-white transition-all duration-700"
+            style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? "translateY(0)" : "translateY(50px)",
+            }}
+        >
             <div className="container mx-auto max-w-7xl px-6">
                 {/* Section Title */}
                 <h2 className="text-4xl font-medium text-gray-800 mb-10">

@@ -1,10 +1,29 @@
+"use client";
 import Image from "next/image";
+import { useRef, useState } from "react";
+import { useScrollAppear } from "@/utils/scrollAppear";
 import {objectives} from "@/data/about/objetives"
 export function OurObjectivesSection() {
-    
+    const sectionRef = useRef(null);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useScrollAppear(
+        sectionRef,
+        () => setIsVisible(true),
+        () => setIsVisible(false),
+        0.3,
+        100
+    );
 
     return (
-        <section className="relative w-full py-16 md:py-24 lg:py-32 bg-amethyst-100 overflow-hidden">
+        <section
+            ref={sectionRef}
+            className="relative w-full py-16 md:py-24 lg:py-32 bg-amethyst-100 overflow-hidden transition-all duration-700"
+            style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? "translateY(0)" : "translateY(50px)",
+            }}
+        >
             {/* Background decorative elements */}
             <div className="absolute -left-96 -top-96 w-[800px] h-[800px] rounded-full bg-amethyst-400/10 blur-3xl"></div>
             <div className="absolute -right-96 -bottom-96 w-[800px] h-[800px] rounded-full bg-amethyst-400/20 blur-3xl"></div>
