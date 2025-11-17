@@ -7,9 +7,28 @@ import { FaStar } from "react-icons/fa";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { SearchbarBasic } from "@/components/global/searchbars/searchBarBasic";
 import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
+import { useTypewriter } from "@/utils/useTypewriter";
+import { useScrollAppear } from "@/utils/scrollAppear";
 
 export function Hero() {
   const router = useRouter();
+  const contentRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  const placeholderText = useTypewriter([
+    "Search therapist reviews",
+    "Find the right therapist for you",
+    "Read honest patient experiences"
+  ]);
+
+  useScrollAppear(
+    contentRef,
+    () => setIsVisible(true),
+    () => setIsVisible(false),
+    0.3,
+    100
+  );
   
   const handleSearch = (value) => {
     // Mark that we're applying a search
@@ -25,7 +44,14 @@ export function Hero() {
   };
   return (
     <section className="relative bg-gradient-to-t from-amethyst-50 to-white  w-full md:min-h-[570px] lg:min-h-screen flex items-center pt-30 md:pt-32 lg:pt-40 pb-22 md:pb-48 overflow-hidden">
-      <div className="container mx-auto max-w-[1330px] px-6 md:px-8 lg:px-0 flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-0 z-10 relative">
+      <div
+        ref={contentRef}
+        className="container mx-auto max-w-[1330px] px-6 md:px-8 lg:px-0 flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-0 z-10 relative transition-all duration-700"
+        style={{
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? "translateY(0)" : "translateY(50px)",
+        }}
+      >
         <div id="left-hero" className="flex-1 w-full lg:w-1/2 gap-10">
           <div className="w-full text-center md:text-left">
             <div className="flex items-center gap-2 mb-4 justify-center md:justify-start">
@@ -48,7 +74,11 @@ export function Hero() {
             </p>
           </div>
           <div className="pt-8 md:pt-8">
-            <SearchbarBasic onSearch={handleSearch} className="py-3 border-amethyst-300"/>
+            <SearchbarBasic
+              onSearch={handleSearch}
+              placeholder={placeholderText}
+              className="py-3 border-amethyst-200"
+            />
           </div>
         </div>
         <div

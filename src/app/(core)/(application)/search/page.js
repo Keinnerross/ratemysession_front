@@ -56,17 +56,14 @@ export default async function SearchPage({ searchParams }) {
       location,
       categories
     });
-    
-    console.log('Search results:', searchResults);
-    
+
     // Extraer IDs de los resultados
     const therapistIds = searchResults.map(t => t.id);
     
     // Paso 3: Si hay resultados, obtener los conteos de comentarios
     if (therapistIds.length > 0) {
       const commentCounts = await commentService.getCommentCountsForPosts(therapistIds);
-      console.log('Comment counts:', commentCounts);
-      
+
       // Transformar los datos con los conteos de comentarios
       therapistsData = transformTherapistData(searchResults, commentCounts);
     }
@@ -75,9 +72,7 @@ export default async function SearchPage({ searchParams }) {
     // Por ahora, asumimos que hay más si recibimos 12 resultados
     totalResults = searchResults.length;
     hasMore = searchResults.length === 12;
-    
-    console.log('Final data - Total results:', totalResults, 'Has more:', hasMore);
-    
+
   } catch (error) {
     console.error('Error en búsqueda:', error);
     // Fallback a mock data

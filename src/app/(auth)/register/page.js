@@ -41,21 +41,21 @@ export default function RegisterPage() {
 
   const validateForm = () => {
     const newErrors = {};
-    
-    // Validar email
+
+    // Validate email
     if (!formData.email) {
-      newErrors.email = 'El email es requerido';
+      newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Email inválido';
+      newErrors.email = 'Invalid email';
     }
-    
-    // Validar contraseña
+
+    // Validate password
     if (!formData.password) {
-      newErrors.password = 'La contraseña es requerida';
+      newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
-      newErrors.password = 'La contraseña debe tener al menos 8 caracteres';
+      newErrors.password = 'Password must be at least 8 characters';
     }
-    
+
     return newErrors;
   };
 
@@ -80,7 +80,7 @@ export default function RegisterPage() {
         router.push('/user-profile');
       }
     } else {
-      setErrors({ general: result.message || 'Error al registrar usuario' });
+      setErrors({ general: result.message || 'Error registering user' });
     }
     
     setLoading(false);
@@ -156,7 +156,7 @@ export default function RegisterPage() {
                   {/* Password Requirements Hint */}
                   {showPasswordHint && !errors.password && (
                     <div className="mt-2 text-xs text-[#595d70]">
-                      <p>La contraseña debe tener al menos 8 caracteres</p>
+                      <p>Password must be at least 8 characters</p>
                     </div>
                   )}
                 </div>
@@ -169,11 +169,11 @@ export default function RegisterPage() {
                 )}
 
                 {/* Sign Up Button */}
-                <button 
+                <button
                   onClick={handleSubmit}
                   disabled={loading}
                   className="w-[120px] h-[38px] sm:h-[42px] bg-white rounded-[21px] border border-[#d8d4ff] font-semibold text-[#7466f2] text-sm sm:text-base font-['Outfit'] hover:bg-[#7466f2] hover:text-white transition-colors flex items-center justify-center mx-auto lg:mx-0 disabled:opacity-50">
-                  {loading ? 'Cargando...' : 'Sign Up'}
+                  {loading ? 'Loading...' : 'Sign Up'}
                 </button>
               </div>
 

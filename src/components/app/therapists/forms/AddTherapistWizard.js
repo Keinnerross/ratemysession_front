@@ -376,13 +376,15 @@ export default function AddTherapistWizard({ isOpen, onClose, savedDraft = null 
       </ModalWrapper>
       
       <NotificationToast
-        isShowing={showNotification}
+        isVisible={showNotification}
         onClose={() => setShowNotification(false)}
-        message={selectedOption === 'therapist' 
-          ? "Therapist profile created successfully!" 
+        message={selectedOption === 'therapist'
+          ? "Therapist profile created successfully!"
           : "Therapist recommendation submitted successfully!"}
-        icon="✓"
-        iconBgColor="bg-green-500"
+        subtitle={selectedOption === 'therapist'
+          ? "Your profile will be reviewed and published soon"
+          : "Thank you for your recommendation"}
+        type="success"
         duration={4000}
       />
     </>

@@ -28,7 +28,7 @@ function HomeContent() {
   }, [searchParams]);
 
   return (
-    <div className="overflow-x-hidden">
+    <div className="overflow-x-clip">
       <Hero />
       <HowItWorks />
       <CtaBanner />

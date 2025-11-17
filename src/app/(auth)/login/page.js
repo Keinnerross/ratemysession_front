@@ -41,7 +41,7 @@ export default function LoginPage() {
     setError('');
 
     if (!formData.username || !formData.password) {
-      setError('Por favor completa todos los campos');
+      setError('Please complete all fields');
       setLoading(false);
       return;
     }
@@ -56,7 +56,7 @@ export default function LoginPage() {
         router.push('/user-profile');
       }
     } else {
-      setError(result.message || 'Error al iniciar sesión');
+      setError(result.message || 'Login error');
     }
     
     setLoading(false);
@@ -97,7 +97,7 @@ export default function LoginPage() {
                 {/* Username Field */}
                 <div className="mb-6 sm:mb-8 lg:mb-[60px]">
                   <label className="block text-sm text-[#595d70] font-['Poppins'] mb-1 sm:mb-2">
-                    Usuario o Email
+                    Username or Email
                   </label>
                   <input
                     type="text"
@@ -135,12 +135,12 @@ export default function LoginPage() {
                 )}
 
                 {/* Login Button */}
-                <button 
+                <button
                   onClick={handleSubmit}
                   disabled={loading}
                   className="relative w-[120px] h-[38px] sm:h-[42px] bg-white rounded-[21px] border border-[#d8d4ff] font-semibold text-[#796bf5] text-sm sm:text-base font-['Outfit'] hover:bg-[#796bf5] hover:text-white transition-colors flex items-center justify-center mx-auto lg:mx-0 disabled:opacity-50"
                 >
-                  {loading ? 'Cargando...' : 'Log In'}
+                  {loading ? 'Loading...' : 'Log In'}
                 </button>
               </div>
 

@@ -30,16 +30,11 @@ export const commentService = {
   async getCommentCountsForPosts(postIds) {
     try {
       if (!postIds || postIds.length === 0) return {};
-      
-      console.log('Fetching comments for post IDs:', postIds);
+
       const url = ENDPOINTS.COMMENTS.BY_POSTS(postIds);
-      console.log('Comments URL:', url);
-      
+
       const comments = await apiClient.get(url);
-      console.log('Comments API response:', comments);
-      console.log('Comments is array?', Array.isArray(comments));
-      console.log('Comments length:', comments?.length);
-      
+
       // Create a map of post ID to comment count
       const countMap = {};
       
@@ -51,14 +46,12 @@ export const commentService = {
       if (Array.isArray(comments)) {
         comments.forEach(comment => {
           const postId = comment.post;
-          console.log('Comment post ID:', postId, 'Type:', typeof postId);
           if (postId && countMap.hasOwnProperty(postId)) {
             countMap[postId]++;
           }
         });
       }
-      
-      console.log('Final comment count map:', countMap);
+
       return countMap;
     } catch (error) {
       console.error('Failed to fetch comment counts for posts:', error);

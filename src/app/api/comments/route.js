@@ -242,8 +242,7 @@ export async function GET(request) {
     // Si estamos buscando comentarios para múltiples posts
     if (searchParams.has('include')) {
       const postIds = searchParams.get('include').split(',').map(id => parseInt(id));
-      console.log('Fetching comments for multiple posts:', postIds);
-      
+
       const authString = `${config.SYSTEM_USER}:${config.SYSTEM_PASSWORD}`;
       const basicAuth = Buffer.from(authString).toString('base64');
       
@@ -281,12 +280,10 @@ export async function GET(request) {
       }
       
       // Filtrar solo los comentarios que pertenecen a los posts solicitados
-      const filteredComments = allComments.filter(comment => 
+      const filteredComments = allComments.filter(comment =>
         postIds.includes(comment.post)
       );
-      
-      console.log(`Found ${filteredComments.length} comments for posts:`, postIds);
-      
+
       return NextResponse.json(filteredComments);
     }
     

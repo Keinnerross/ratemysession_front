@@ -349,14 +349,7 @@ export default function UserProfileContent({
                       {email}
                     </span>
                   </div>
-                  <div className="text-base  font-['Outfit'] tracking-[-0.20px]">
-                    <span className="font-medium text-[#7466f2]">
-                      Password:{" "}
-                    </span>
-                    <span className="font-medium text-gray-800 text-sm">
-                      **********
-                    </span>
-                  </div>
+               
                 </div>
 
                 {/* Log Out Button - Desktop Position */}
@@ -465,14 +458,7 @@ export default function UserProfileContent({
                           {email}
                         </span>
                       </div>
-                      <div className="text-sm sm:text-base font-['Outfit'] tracking-[-0.20px]">
-                        <span className="font-medium text-[#7466f2]">
-                          Password:{" "}
-                        </span>
-                        <span className="font-medium text-gray-800 text-xs sm:text-sm">
-                          **********
-                        </span>
-                      </div>
+                     
                     </div>
                   </div>
 
