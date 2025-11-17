@@ -43,7 +43,7 @@ export function Hero() {
     }
   };
   return (
-    <section className="relative bg-gradient-to-t from-amethyst-50 to-white  w-full md:min-h-[570px] lg:min-h-screen flex items-center pt-30 md:pt-32 lg:pt-40 pb-22 md:pb-48 overflow-hidden">
+    <section className="relative bg-gradient-to-b from-amethyst-50 to-white  w-full md:min-h-[570px] lg:min-h-screen flex items-center pt-30 md:pt-32 lg:pt-40 pb-22 md:pb-48 overflow-hidden">
       <div
         ref={contentRef}
         className="container mx-auto max-w-[1330px] px-6 md:px-8 lg:px-0 flex flex-col-reverse lg:flex-row items-center gap-10 lg:gap-0 z-10 relative transition-all duration-700"
@@ -105,7 +105,7 @@ export function Hero() {
           </div>
         </div>
       </div>
-      <div className="w-[400px] md:w-[600px] lg:w-[1000px] h-[400px] md:h-[600px] lg:h-[1000px] absolute -bottom-40 md:-bottom-60 lg:-bottom-80 -right-40 md:-right-60 lg:-right-80 pointer-events-none">
+      <div className="w-[400px] md:w-[600px] lg:w-[1000px] h-[400px] md:h-[600px] lg:h-[1000px] absolute -bottom-40 md:-bottom-60 lg:-bottom-10 -right-40 md:-right-60 lg:-right-80 pointer-events-none">
         <div
           className="w-full h-full"
           style={{

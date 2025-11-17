@@ -86,7 +86,7 @@ export function HowItWorks() {
     <section
       ref={sectionRef}
       id="how-it-works"
-      className="relative bg-transparent pt-26 pb-16 md:pb-24 lg:pb-32 w-full transition-all duration-700"
+      className="relative bg-transparent pt-10 pb-16 md:pb-24 lg:pb-32 w-full transition-all duration-700"
       style={{
         opacity: isVisible ? 1 : 0,
         transform: isVisible ? "translateY(0)" : "translateY(50px)",
