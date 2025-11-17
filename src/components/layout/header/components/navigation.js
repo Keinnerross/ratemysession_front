@@ -6,12 +6,10 @@ import { FaChevronDown } from 'react-icons/fa';
 import { useAddTherapist } from '@/context/AddTherapistContext';
 
 // Navigation component for the header, desktop and mobile navigation can be handled here
-function Navigation() {
+function Navigation({ isOpen, onOpen, onClose, onCloseImmediate }) {
     const router = useRouter();
     const pathname = usePathname();
     const [activeHash, setActiveHash] = useState('');
-    const [showTherapistDropdown, setShowTherapistDropdown] = useState(false);
-    const [dropdownTimeout, setDropdownTimeout] = useState(null);
     const dropdownRef = useRef(null);
     const { openAddTherapist } = useAddTherapist();
 
@@ -27,15 +25,6 @@ function Navigation() {
         window.addEventListener('hashchange', handleHashChange);
         return () => window.removeEventListener('hashchange', handleHashChange);
     }, []);
-
-    // Cleanup timeout on unmount
-    useEffect(() => {
-        return () => {
-            if (dropdownTimeout) {
-                clearTimeout(dropdownTimeout);
-            }
-        };
-    }, [dropdownTimeout]);
 
     // Reset hash when pathname changes
     useEffect(() => {
@@ -100,23 +89,17 @@ function Navigation() {
                         : pathname === item.href;
                     
                     return (
-                        <li key={i} className="relative" ref={item.name === 'Therapists' ? dropdownRef : null}>
+                        <li key={i} className="relative">
                             {item.name === 'Therapists' ? (
                                 <div
-                                    onMouseEnter={() => {
-                                        if (dropdownTimeout) clearTimeout(dropdownTimeout);
-                                        setShowTherapistDropdown(true);
-                                    }}
-                                    onMouseLeave={() => {
-                                        const timeout = setTimeout(() => {
-                                            setShowTherapistDropdown(false);
-                                        }, 150);
-                                        setDropdownTimeout(timeout);
-                                    }}
+                                    ref={dropdownRef}
+                                    onMouseEnter={onOpen}
+                                    onMouseLeave={onClose}
                                 >
                                     <button
                                         onClick={(e) => {
                                             e.preventDefault();
+                                            onOpen();
                                             router.push('/search');
                                         }}
                                         className={`relative py-2 text-[15px] font-['Poppins'] font-regular transition-all duration-300 group flex items-center gap-1 ${
@@ -124,8 +107,8 @@ function Navigation() {
                                         }`}
                                     >
                                         {item.name}
-                                        <FaChevronDown className={`text-xs transition-transform ${
-                                            showTherapistDropdown ? 'rotate-180' : ''
+                                        <FaChevronDown className={`text-xs text-gray-600 transition-transform ${
+                                            isOpen ? 'rotate-180' : ''
                                         }`} />
                                         <span className={`absolute bottom-0 left-0 h-0.5 bg-amethyst-600 transition-all duration-300 ${
                                             isActive ? 'w-full' : 'w-0 group-hover:w-full'
@@ -133,13 +116,12 @@ function Navigation() {
                                     </button>
                                     
                                     {/* Dropdown Menu */}
-                                    {showTherapistDropdown && (
-                                        <div className="absolute top-full left-0 mt-2 bg-white rounded-lg border border-gray-200 py-2 min-w-[180px] z-50 text-sm">
+                                    {isOpen && (
+                                        <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[200px] z-50 text-sm">
                                             <a
                                                 href="/search"
                                                 onClick={(e) => {
                                                     e.preventDefault();
-                                                    setShowTherapistDropdown(false);
                                                     router.push('/search');
                                                 }}
                                                 className="block px-4 py-2  font-['Poppins'] text-gray-700 hover:bg-gray-50 hover:text-amethyst-600 transition-colors"
@@ -148,7 +130,6 @@ function Navigation() {
                                             </a>
                                             <button
                                                 onClick={() => {
-                                                    setShowTherapistDropdown(false);
                                                     openAddTherapist();
                                                 }}
                                                 className="block w-full text-left px-4 py-2  font-['Poppins'] text-gray-700 hover:bg-gray-50 hover:text-amethyst-600 transition-colors"

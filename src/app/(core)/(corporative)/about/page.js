@@ -7,7 +7,7 @@ import { FAQSection } from "@/components/global/FAQ/FAQSection";
 
 export default function About() {
   return (
-    <div className="flex flex-col items-center bg-gradient-to-t from-white to-amethyst-50">
+    <div className="flex flex-col items-center bg-gradient-to-b from-amethyst-50 to-white  ">
         <HeroAbout />
         <InfoAboutSection />
         <OurObjectivesSection />

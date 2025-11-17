@@ -6,9 +6,10 @@ The idea emerged from the understanding that finding the right therapist can be 
   imageSrc: "/assets/about/about-1.png",
   imageAlt: "Illustration 1",
   buttonText: "Learn more",
-  buttonLink: "/learn-more",
+  buttonLink: "#our-mission",
   imagePosition: "left",
   decorationPosition: "top-right",
+  id: "our-history"
 };
 
  

@@ -13,6 +13,8 @@ import { UserDropdown } from "./components/userDropdown";
 
 export function HeaderHome() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null); // 'therapist' | 'user' | null
+  const [dropdownTimeout, setDropdownTimeout] = useState(null);
   const router = useRouter();
   const { user, loading } = useAuth();
 
@@ -31,6 +33,32 @@ export function HeaderHome() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (dropdownTimeout) {
+        clearTimeout(dropdownTimeout);
+      }
+    };
+  }, [dropdownTimeout]);
+
+  const handleDropdownOpen = (dropdownName) => {
+    if (dropdownTimeout) clearTimeout(dropdownTimeout);
+    setOpenDropdown(dropdownName);
+  };
+
+  const handleDropdownClose = () => {
+    const timeout = setTimeout(() => {
+      setOpenDropdown(null);
+    }, 150);
+    setDropdownTimeout(timeout);
+  };
+
+  const handleDropdownCloseImmediate = () => {
+    if (dropdownTimeout) clearTimeout(dropdownTimeout);
+    setOpenDropdown(null);
+  };
 
   const handleSearch = (value) => {
     if (value.trim()) {
@@ -56,10 +84,20 @@ export function HeaderHome() {
 
         {/* Desktop Navigation and Auth */}
         <div className="hidden lg:flex items-center gap-6">
-          <Navigation />
+          <Navigation
+            isOpen={openDropdown === 'therapist'}
+            onOpen={() => handleDropdownOpen('therapist')}
+            onClose={handleDropdownClose}
+            onCloseImmediate={handleDropdownCloseImmediate}
+          />
           {!loading && (
             user ? (
-              <UserDropdown />
+              <UserDropdown
+                isOpen={openDropdown === 'user'}
+                onOpen={() => handleDropdownOpen('user')}
+                onClose={handleDropdownClose}
+                onCloseImmediate={handleDropdownCloseImmediate}
+              />
             ) : (
               <>
                 <Link

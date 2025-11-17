@@ -18,7 +18,7 @@ export function OurObjectivesSection() {
     return (
         <section
             ref={sectionRef}
-            className="relative w-full py-16 md:py-24 lg:py-32 bg-amethyst-100 overflow-hidden transition-all duration-700"
+            className="relative w-full py-16 md:py-24 lg:py-32 bg-gradient-to-b from-amethyst-50 to-white overflow-hidden transition-all duration-700"
             style={{
                 opacity: isVisible ? 1 : 0,
                 transform: isVisible ? "translateY(0)" : "translateY(50px)",
@@ -26,7 +26,7 @@ export function OurObjectivesSection() {
         >
             {/* Background decorative elements */}
             <div className="absolute -left-96 -top-96 w-[800px] h-[800px] rounded-full bg-amethyst-400/10 blur-3xl"></div>
-            <div className="absolute -right-96 -bottom-96 w-[800px] h-[800px] rounded-full bg-amethyst-400/20 blur-3xl"></div>
+            <div className="absolute -right-96 bottom-10 w-[600px] h-[600px] rounded-full bg-amethyst-400/20 blur-3xl"></div>
             <div className="container mx-auto max-w-[1330px] relative z-10 px-6 md:px-0">
                 {/* Header */}
                 <div className="mb-8 lg:mb-12">

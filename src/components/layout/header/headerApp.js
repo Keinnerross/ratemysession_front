@@ -13,6 +13,8 @@ import { UserDropdown } from "./components/userDropdown";
 
 export function HeaderApp() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null); // 'therapist' | 'user' | null
+  const [dropdownTimeout, setDropdownTimeout] = useState(null);
   const router = useRouter();
   const { user, loading } = useAuth();
 
@@ -31,6 +33,32 @@ export function HeaderApp() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (dropdownTimeout) {
+        clearTimeout(dropdownTimeout);
+      }
+    };
+  }, [dropdownTimeout]);
+
+  const handleDropdownOpen = (dropdownName) => {
+    if (dropdownTimeout) clearTimeout(dropdownTimeout);
+    setOpenDropdown(dropdownName);
+  };
+
+  const handleDropdownClose = () => {
+    const timeout = setTimeout(() => {
+      setOpenDropdown(null);
+    }, 150);
+    setDropdownTimeout(timeout);
+  };
+
+  const handleDropdownCloseImmediate = () => {
+    if (dropdownTimeout) clearTimeout(dropdownTimeout);
+    setOpenDropdown(null);
+  };
 
   const handleSearch = (value) => {
     // Mark that we're applying a search
@@ -64,10 +92,20 @@ export function HeaderApp() {
           />
           {/* Desktop Navigation */}
           <div className="hidden w-fit lg:flex items-center justify-end gap-6">
-            <Navigation />
+            <Navigation
+              isOpen={openDropdown === 'therapist'}
+              onOpen={() => handleDropdownOpen('therapist')}
+              onClose={handleDropdownClose}
+              onCloseImmediate={handleDropdownCloseImmediate}
+            />
             {!loading && (
               user ? (
-                <UserDropdown />
+                <UserDropdown
+                  isOpen={openDropdown === 'user'}
+                  onOpen={() => handleDropdownOpen('user')}
+                  onClose={handleDropdownClose}
+                  onCloseImmediate={handleDropdownCloseImmediate}
+                />
               ) : (
                 <>
                   <Link

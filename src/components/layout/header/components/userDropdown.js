@@ -5,41 +5,16 @@ import { useRouter } from 'next/navigation';
 import { FaChevronDown, FaUser, FaSignOutAlt } from 'react-icons/fa';
 import { useAuth } from '@/context/AuthContext';
 
-export function UserDropdown() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [dropdownTimeout, setDropdownTimeout] = useState(null);
+export function UserDropdown({ isOpen, onOpen, onClose, onCloseImmediate }) {
   const dropdownRef = useRef(null);
   const router = useRouter();
   const { user, logout } = useAuth();
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (dropdownTimeout) {
-        clearTimeout(dropdownTimeout);
-      }
-    };
-  }, [dropdownTimeout]);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   const handleProfileClick = () => {
-    setIsOpen(false);
     router.push('/user-profile');
   };
 
   const handleLogout = async () => {
-    setIsOpen(false);
     await logout();
   };
 
@@ -47,22 +22,14 @@ export function UserDropdown() {
   const displayName = user?.email?.split('@')[0] || 'User';
 
   return (
-    <div 
+    <div
       ref={dropdownRef}
       className="relative"
-      onMouseEnter={() => {
-        if (dropdownTimeout) clearTimeout(dropdownTimeout);
-        setIsOpen(true);
-      }}
-      onMouseLeave={() => {
-        const timeout = setTimeout(() => {
-          setIsOpen(false);
-        }, 150);
-        setDropdownTimeout(timeout);
-      }}
+      onMouseEnter={onOpen}
+      onMouseLeave={onClose}
     >
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={onOpen}
         className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors group"
       >
         <div className="w-8 h-8 rounded-full bg-amethyst-500 flex items-center justify-center text-white text-sm font-medium">
@@ -92,16 +59,16 @@ export function UserDropdown() {
               e.preventDefault();
               handleProfileClick();
             }}
-            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-amethyst-600 transition-colors"
+            className="flex items-center gap-3 px-4 py-2 text-sm font-['Poppins'] text-gray-700 hover:bg-gray-50 hover:text-amethyst-600 transition-colors"
           >
             <FaUser className="text-gray-400" />
             <span>My Profile</span>
           </a>
-          
+
           <div className="border-t border-gray-100 mt-2 pt-2">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors w-full text-left"
+              className="flex items-center gap-3 px-4 py-2 text-sm font-['Poppins'] text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors w-full text-left"
             >
               <FaSignOutAlt className="text-gray-400" />
               <span>Log out</span>

@@ -10,5 +10,6 @@ Our mission is to provide individuals with a platform to share their therapy exp
   buttonLink: "/join-us",
   imagePosition: "right",
   decorationPosition: "top-left",
+  id: "our-mission"
 };
 

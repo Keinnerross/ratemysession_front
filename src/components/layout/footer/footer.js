@@ -7,19 +7,16 @@ export function Footer() {
         legal: [
             { label: "Privacy policy", href: "/privacy-policy" },
             { label: "Terms and conditions", href: "/terms-and-conditions" },
-            { label: "Cookie Policy", href: "/cookie-policy" }
         ],
         product: [
             { label: "Therapists", href: "/search" },
             { label: "Feedback", href: "/feedback" },
-            { label: "Support", href: "/support" },
             { label: "Login", href: "/login" },
             { label: "Sign up", href: "/register" }
         ],
         about: [
             { label: "Company", href: "/about" },
-            { label: "Contact", href: "/contact" },
-            { label: "Careers", href: "/careers" }
+            { label: "Contact", href: "/feedback" },
         ]
     };
 
@@ -121,16 +118,16 @@ export function Footer() {
                 <div className="border-t border-stone-300 py-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <Link 
-                            href="/cookie-settings"
+                            href="/terms-and-conditions"
                             className="text-xs text-stone-800 underline hover:text-amethyst-600"
                         >
-                            Cookie Settings
+                            Terms and conditions
                         </Link>
                         <Link 
-                            href="/cookie-policy"
+                            href="/privacy-policy"
                             className="text-xs text-stone-800 underline hover:text-amethyst-600"
                         >
-                            Check our cookies policy to delete cookies
+                            Check our privacy policy
                         </Link>
                         <p className="text-xs text-stone-800">
                             © RateMySession
@@ -139,8 +136,6 @@ export function Footer() {
                 </div>
             </div>
 
-            {/* Decorative Background Element */}
-            {/* <div className="absolute -left-80 -bottom-20 w-96 h-96 rounded-full bg-amethyst-100 opacity-20 blur-3xl pointer-events-none"></div> */}
         </footer>
     );
 }
