@@ -12,7 +12,7 @@ export default function UserRecommendationStep({ formData, onInputChange }) {
         </p>
       </div>
 
-      <div className="flex flex-col gap-6 w-full max-w-[621px] mx-auto font-['poppins'] text-sm px-10">
+      <div className="flex flex-col gap-6 w-full max-w-[621px] mx-auto font-['poppins'] text-sm px-4 md:px-10">
         <div className="relative">
           <label className="flex items-center gap-1 text-sm text-[#888787] font-['Outfit'] mb-2">
             Therapist Name

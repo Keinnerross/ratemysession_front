@@ -336,8 +336,11 @@ export default function AddTherapistWizard({ isOpen, onClose, savedDraft = null 
         onClose={handleModalClose}
         currentStep={currentStep}
         onBack={handleBack}
+        stepIndicator={
+          <StepIndicators currentStep={currentStep} selectedOption={selectedOption} />
+        }
         footer={
-          <div className="flex justify-center gap-3 w-full max-w-[551px] mx-auto">
+          <div className="flex justify-center gap-3 w-full max-w-[551px] mx-auto px-4 md:px-0">
             {currentStep > 1 && (
               <button
                 onClick={handleBack}
@@ -370,8 +373,6 @@ export default function AddTherapistWizard({ isOpen, onClose, savedDraft = null 
           </div>
         }
       >
-        <StepIndicators currentStep={currentStep} selectedOption={selectedOption} />
-        
         {renderStepContent()}
       </ModalWrapper>
       

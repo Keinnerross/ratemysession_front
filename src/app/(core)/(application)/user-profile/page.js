@@ -224,6 +224,7 @@ export default async function UserProfilePage() {
     }),
     reviewsCount: 0, // Will be updated from reviews data
     location: "Not specified",
+    loginMethod: cookieUserData?.loginMethod || null,
   };
 
   // Fetch user reviews

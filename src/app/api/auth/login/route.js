@@ -67,7 +67,8 @@ export async function POST(request) {
         id: responseData.user_id,
         email: responseData.user_email,
         displayName: responseData.user_display_name,
-        nicename: responseData.user_nicename
+        nicename: responseData.user_nicename,
+        loginMethod: 'password'
       }), {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

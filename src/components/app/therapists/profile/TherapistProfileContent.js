@@ -7,25 +7,34 @@ import RatingStatisticsChart from "../../reviews/charts/RatingStatisticsChart";
 import ReviewsLayout from "../../reviews/layouts/reviewsLayout";
 import LeaveReviewForm from "../../reviews/forms/leaveReviewForm";
 import NotificationToast from "../../../global/notifications/NotificationToast";
+import ConfirmationModal from "../../../global/modals/ConfirmationModal";
 import reviewService from "@/services/reviews/reviewService";
 import reviewStateService from "@/services/reviews/reviewStateService";
 import { useAuth } from "@/context/AuthContext";
 import favoritesService from "@/services/users/favoritesService";
+import { extractDomain } from "@/utils/therapistTransformer";
 
-export default function TherapistProfileContent({ 
-  data = {}, 
-  initialReviews = [], 
+export default function TherapistProfileContent({
+  data = {},
+  initialReviews = [],
   hasMoreReviews = false,
   totalReviewCount = 0,
   initialDistribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
-  isSaved: initialIsSaved = false
+  isSaved: initialIsSaved = false,
+  initialReviewStatus = { canReview: true, reason: null }
 }) {
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [savedReview, setSavedReview] = useState(null);
-  const [reviewStatus, setReviewStatus] = useState('checking'); // 'checking', 'can-review', 'already-reviewed-logged', 'already-reviewed-anonymous'
-  const [buttonText, setButtonText] = useState('Rate Therapist');
-  const [buttonDisabled, setButtonDisabled] = useState(false);
+
+  // Initialize review state from server data instead of optimistic values
+  const [reviewStatus, setReviewStatus] = useState(
+    initialReviewStatus.canReview ? 'can-review' : initialReviewStatus.reason
+  );
+  const [buttonText, setButtonText] = useState(
+    initialReviewStatus.canReview ? 'Rate Therapist' : 'Already Reviewed'
+  );
+  const [buttonDisabled, setButtonDisabled] = useState(!initialReviewStatus.canReview);
   const [isSaved, setIsSaved] = useState(initialIsSaved);
   const [isLoadingFavorite, setIsLoadingFavorite] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -96,31 +105,25 @@ export default function TherapistProfileContent({
     }
   };
 
-  // Check review status for current user
+  // Check review status for non-authenticated users (localStorage check)
+  // For authenticated users, the status is already set from server
   useEffect(() => {
-    const checkReviewStatus = async () => {
+    const checkAnonymousReviewStatus = () => {
       if (!id) return;
-      
-      const status = await reviewStateService.canUserReview(id, user);
-      
-      if (!status.canReview) {
-        setReviewStatus(status.reason);
-        setButtonDisabled(true);
-        
-        if (status.reason === 'already-reviewed-logged') {
+
+      // Only check localStorage if user is not authenticated and can review (from server)
+      if (!user && initialReviewStatus.canReview) {
+        // Check localStorage for anonymous reviews
+        if (reviewStateService.hasAnonymouslyReviewed(id)) {
+          setReviewStatus('already-reviewed-anonymous');
+          setButtonDisabled(true);
           setButtonText('Already Reviewed');
-        } else if (status.reason === 'already-reviewed-anonymous') {
-          setButtonText('Already Reviewed (Anonymous)');
         }
-      } else {
-        setReviewStatus('can-review');
-        setButtonDisabled(false);
-        setButtonText('Rate Therapist');
       }
     };
-    
-    checkReviewStatus();
-  }, [id, user]);
+
+    checkAnonymousReviewStatus();
+  }, [id, user, initialReviewStatus.canReview]);
 
   // Check for saved review and open modal if coming from login
   useEffect(() => {
@@ -160,7 +163,7 @@ export default function TherapistProfileContent({
   };
 
   return (
-    <div className="min-h-screen pb-8 md:pb-12 lg:pb-16 pt-4 md:pt-6 lg:pt-8 mt-16 md:mt-20 lg:mt-23 ">
+    <div className="min-h-screen pb-8 md:pb-12 lg:pb-16  pt-16 md:pt-22 lg:pt-28 bg-gradient-to-b from-amethyst-50 from-[5%] to-white to-[12%] ">
       <div className="max-w-[1140px] mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex gap-6 md:gap-8 lg:gap-16 flex-col lg:flex-row">
           {/* Left Column - Therapist Info */}
@@ -260,16 +263,16 @@ export default function TherapistProfileContent({
               {/* Contact Information */}
               <div className="flex flex-col gap-2 w-full">
                 <div className="flex items-start gap-3">
-                  <FaMapMarkerAlt className="text-stone-600 mt-1 flex-shrink-0 text-sm md:text-base" />
+                  <FaMapMarkerAlt className="text-amethyst-400 mt-1 flex-shrink-0 text-sm md:text-base" />
                   <p className="text-sm font-base text-stone-600 font-['poppins']">
                     {address}
                   </p>
                 </div>
                 {website && (
                   <div className="flex items-center gap-3">
-                    <FaGlobe className="text-stone-600 text-sm md:text-base" />
-                    <p className="text-sm font-base text-stone-600 font-['poppins']">
-                      {website}
+                    <FaGlobe className="text-amethyst-400 text-sm md:text-base" />
+                    <p className="text-sm font-base text-stone-600 font-['poppins'] cursor-pointer">
+                      <a href={website} target="_blank" rel="noopener noreferrer">{extractDomain(website)}</a>
                     </p>
                   </div>
                 )}
@@ -300,7 +303,7 @@ export default function TherapistProfileContent({
           {/* Right Column - Main Content */}
           <div className="w-full flex flex-col">
             {/* Therapist Info */}
-            <div className="w-full flex flex-col xl:flex-row justify-between gap-6 xl:gap-8">
+            <div className="w-full flex flex-col lg:flex-row justify-between gap-6 lg:gap-8">
               {/* Therapist Details */}
               <div className="w-full flex flex-col gap-4">
                 {/* Header Info */}
@@ -311,7 +314,7 @@ export default function TherapistProfileContent({
                     </h1>
                     <div>
                       {/* Location tag */}
-                      <div className="px-2 py-1 bg-[#f3f1ff] rounded-full flex items-center gap-1">
+                      <div className="px-2 py-1 bg-white border border-amethyst-100/70 rounded-full flex items-center gap-1 cursor-pointer">
                         <FaMapMarkerAlt className="text-[#7466f2] text-base" />
                         <span className="text-sm  text-[#7466f2] font-['Outfit'] whitespace-nowrap">
                           {location}
@@ -353,7 +356,7 @@ export default function TherapistProfileContent({
                       <button
                         onClick={handleFavoriteToggle}
                         disabled={isLoadingFavorite}
-                        className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50 ml-2"
+                        className="p-2 rounded-lg border border-gray-200 bg-white hover:bg-amethyst-50 transition-colors disabled:opacity-50 ml-2"
                       >
                         <FaHeart 
                           className={`w-5 h-5 transition-all ${
@@ -385,7 +388,7 @@ export default function TherapistProfileContent({
               </div>
 
               {/* Statistics Chart */}
-              <div className="w-full xl:max-w-lg h-64  order-first xl:order-last">
+              <div className="w-full md:max-w-md lg:max-w-lg md:mx-auto lg:mx-0 aspect-[473/312] order-first xl:order-last">
                 <RatingStatisticsChart
                   rating={rating}
                   distribution={initialDistribution}
@@ -435,32 +438,16 @@ export default function TherapistProfileContent({
       />
       
       {/* Confirmation Dialog */}
-      {showConfirmDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold font-outfit mb-4">
-              Remove from favorites?
-            </h3>
-            <p className="text-gray-600 font-poppins mb-6">
-              Are you sure you want to remove {name} from your favorites list?
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowConfirmDialog(false)}
-                className="px-4 py-2 text-gray-600 font-poppins hover:text-gray-800 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={performFavoriteToggle}
-                className="px-4 py-2 bg-amethyst-500 text-white rounded-lg hover:bg-amethyst-600 transition-colors font-poppins"
-              >
-                Yes, remove
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmationModal
+        isOpen={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        onConfirm={performFavoriteToggle}
+        title="Remove from favorites?"
+        message={`Are you sure you want to remove ${name} from your favorites list?`}
+        confirmText="Yes, remove"
+        cancelText="Cancel"
+        isLoading={isLoadingFavorite}
+      />
     </div>
   );
 }

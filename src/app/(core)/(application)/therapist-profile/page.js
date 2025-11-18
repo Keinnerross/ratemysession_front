@@ -14,6 +14,7 @@ export default async function TherapistProfilePage({ searchParams }) {
   let therapist = null;
   let initialReviewsData = { reviews: [], hasMore: false, totalCount: 0, distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 } };
   let isSaved = false;
+  let initialReviewStatus = { canReview: true, reason: null };
 
   // Get user ID if logged in (for reaction state)
   const userId = await getUserIdFromToken();
@@ -33,25 +34,45 @@ export default async function TherapistProfilePage({ searchParams }) {
       // Get initial page of reviews with userId for reaction state
       initialReviewsData = await loadMoreReviews(therapistId, 1, 'recent', 'all', userId);
       
-      // Check if therapist is saved by current user
+      // Check if therapist is saved by current user and review status
       const token = await getAuthToken();
-      if (token && therapistId) {
+      if (therapistId) {
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
         try {
-          const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-          const response = await fetch(`${baseUrl}/api/users/favorites`, {
-            headers: {
-              'Cookie': `authToken=${token}`,
-            },
-            cache: 'no-store'
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            const favoriteIds = data.favorites || [];
-            isSaved = favoriteIds.includes(therapistId);
+          // Check if saved (for authenticated users)
+          if (token) {
+            const favoritesResponse = await fetch(`${baseUrl}/api/users/favorites`, {
+              headers: {
+                'Cookie': `authToken=${token}`,
+              },
+              cache: 'no-store'
+            });
+
+            if (favoritesResponse.ok) {
+              const favoritesData = await favoritesResponse.json();
+              const favoriteIds = favoritesData.favorites || [];
+              isSaved = favoriteIds.includes(therapistId);
+            }
           }
         } catch (error) {
           console.error('Error checking favorite status:', error);
+        }
+
+        // Check review status (for all users - authenticated and anonymous)
+        try {
+          const reviewResponse = await fetch(`${baseUrl}/api/reviews/can-review?therapistId=${therapistId}`, {
+            headers: token ? {
+              'Cookie': `authToken=${token}`,
+            } : {},
+            cache: 'no-store'
+          });
+
+          if (reviewResponse.ok) {
+            initialReviewStatus = await reviewResponse.json();
+          }
+        } catch (error) {
+          console.error('Error checking review status:', error);
         }
       }
     }
@@ -59,26 +80,46 @@ export default async function TherapistProfilePage({ searchParams }) {
     console.error('Failed to fetch therapist from API:', error);
     // Fallback to mock data
     therapist = therapistId ? mockTherapists.find(t => t.id === therapistId) : null;
-    
-    // Still check if saved even with mock data
+
+    // Still check if saved and review status even with mock data
     const token = await getAuthToken();
-    if (token && therapistId) {
+    if (therapistId) {
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-        const response = await fetch(`${baseUrl}/api/users/favorites`, {
-          headers: {
-            'Cookie': `authToken=${token}`,
-          },
-          cache: 'no-store'
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          const favoriteIds = data.favorites || [];
-          isSaved = favoriteIds.includes(therapistId);
+        // Check if saved (for authenticated users)
+        if (token) {
+          const favoritesResponse = await fetch(`${baseUrl}/api/users/favorites`, {
+            headers: {
+              'Cookie': `authToken=${token}`,
+            },
+            cache: 'no-store'
+          });
+
+          if (favoritesResponse.ok) {
+            const favoritesData = await favoritesResponse.json();
+            const favoriteIds = favoritesData.favorites || [];
+            isSaved = favoriteIds.includes(therapistId);
+          }
         }
       } catch (error) {
         console.error('Error checking favorite status:', error);
+      }
+
+      // Check review status
+      try {
+        const reviewResponse = await fetch(`${baseUrl}/api/reviews/can-review?therapistId=${therapistId}`, {
+          headers: token ? {
+            'Cookie': `authToken=${token}`,
+          } : {},
+          cache: 'no-store'
+        });
+
+        if (reviewResponse.ok) {
+          initialReviewStatus = await reviewResponse.json();
+        }
+      } catch (error) {
+        console.error('Error checking review status:', error);
       }
     }
   }
@@ -92,12 +133,13 @@ export default async function TherapistProfilePage({ searchParams }) {
     );
   }
   
-  return <TherapistProfileContent 
-    data={therapist || {}} 
+  return <TherapistProfileContent
+    data={therapist || {}}
     initialReviews={initialReviewsData.reviews}
     hasMoreReviews={initialReviewsData.hasMore}
     totalReviewCount={initialReviewsData.totalCount}
     initialDistribution={initialReviewsData.distribution}
     isSaved={isSaved}
+    initialReviewStatus={initialReviewStatus}
   />;
 }

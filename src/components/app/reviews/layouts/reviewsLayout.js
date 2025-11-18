@@ -307,7 +307,7 @@ export default function ReviewsLayout({
 
       {/* AI Summary Card - Only show if content exists */}
       {aiSummary?.hasContent && aiSummary.content && (
-        <div className="bg-white rounded-lg mb-8">
+        <div className=" rounded-lg mb-8">
           <TherapistCardRatedSummaryAI
             summary={aiSummary.content}
             totalReviews={totalReviews}
@@ -320,7 +320,7 @@ export default function ReviewsLayout({
 
       {/* Reviews List */}
       <div className="flex flex-col gap-8 pt-4">
-        <div className="flex flex-col bg-white rounded-lg gap-8 relative min-h-[200px] ">
+        <div className="flex flex-col  rounded-lg gap-8 relative min-h-[200px] ">
           {isPending && comments.length === 0 ? (
             <div className="flex justify-center items-center py-16">
               <div className="animate-spin rounded-full h-10 w-10 border-4 border-gray-200 border-t-[#7466f2]"></div>
@@ -364,7 +364,7 @@ export default function ReviewsLayout({
                 });
               }}
               disabled={isPending}
-              className="px-8 py-2 bg-white rounded-[100px] border border-solid border-[#e8e8e8] hover:border-[#7466f2] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-8 py-2  rounded-[100px] border border-solid border-[#e8e8e8] hover:border-[#7466f2] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isPending && comments.length > 0 ? (
                 <div className="flex items-center gap-2">

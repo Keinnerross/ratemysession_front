@@ -36,7 +36,7 @@ export default function PrivacySection() {
     ];
 
     return (
-        <section className="py-20 bg-white">
+        <section className="pb-20 pt-32 bg-gradient-to-b from-amethyst-50 to-white">
             <div className="container mx-auto max-w-3xl px-6">
                 {/* Header */}
                 <div className="text-center mb-16">

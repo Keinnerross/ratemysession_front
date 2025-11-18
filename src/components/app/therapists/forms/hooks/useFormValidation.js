@@ -15,7 +15,12 @@ export default function useFormValidation() {
     if (currentStep === 1 && !selectedOption) return true;
     if (currentStep === 2 && !validateStep2(selectedOption, formData)) return true;
     if (currentStep === 3 && !identityOption) return true;
-    if (currentStep === 4 && formData.review && !formData.acceptTerms) return true;
+    if (currentStep === 4) {
+      // Review step validation: require rating, review content (min 10 chars), and terms acceptance
+      if (!formData.rating || !formData.review || formData.review.trim().length < 10 || !formData.acceptTerms) {
+        return true;
+      }
+    }
     if (isSubmitting) return true;
     return false;
   };

@@ -1,7 +1,20 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export function useScrollAppear(ref, onVisible, onHidden, delayThreshold = 0.3, delayMs = 0) {
+  // Store callbacks in refs to prevent observer recreation
+  const onVisibleRef = useRef(onVisible);
+  const onHiddenRef = useRef(onHidden);
+
+  // Update refs when callbacks change
+  useEffect(() => {
+    onVisibleRef.current = onVisible;
+  }, [onVisible]);
+
+  useEffect(() => {
+    onHiddenRef.current = onHidden;
+  }, [onHidden]);
+
   useEffect(() => {
     let timeoutId = null;
 
@@ -11,20 +24,19 @@ export function useScrollAppear(ref, onVisible, onHidden, delayThreshold = 0.3, 
 
         timeoutId = setTimeout(() => {
           if (entry.intersectionRatio > delayThreshold) {
-            onVisible();
+            onVisibleRef.current();
           } else if (entry.intersectionRatio === 0) {
-            onHidden();
+            onHiddenRef.current();
           }
         }, delayMs);
       },
       {
-        threshold: Array.from({ length: 11 }, (_, i) => i / 10), 
+        threshold: Array.from({ length: 11 }, (_, i) => i / 10),
       }
     );
 
     if (ref.current) {
       observer.observe(ref.current);
-      console.log('observing');
     }
 
     return () => {
@@ -33,5 +45,5 @@ export function useScrollAppear(ref, onVisible, onHidden, delayThreshold = 0.3, 
         observer.unobserve(ref.current);
       }
     };
-  }, [ref, onVisible, onHidden, delayThreshold, delayMs]);
+  }, [ref, delayThreshold, delayMs]);
 }

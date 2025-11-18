@@ -74,7 +74,7 @@ export async function POST(request) {
         state_address: body.state || body.city || '',
         zip_code: body.zipcode ? parseInt(body.zipcode) : 0,
         Website: body.website || '',
-        credentials: typeof body.credentials === 'string' ? body.credentials : '',
+        credentials_therapist: typeof body.credentials === 'string' ? body.credentials : '',
         Rating: 0,
         category: body.specialization || 'Uncategorized',
         created_by: body.selectedOption === 'therapist' ? 'Therapist' : 'User',

@@ -108,8 +108,43 @@ export async function POST(request) {
       userData = userValidation.data?.user || {};
     }
 
-    // Save Facebook profile picture to user's ACF field for persistence
-    if (profilePictureUrl && userData.ID) {
+    // Fetch existing user data to preserve custom profile settings
+    let customAvatar = null;
+    let customDisplayName = null;
+
+    if (userData.ID) {
+      try {
+        const userDetailsResponse = await fetch(
+          `${config.WP_API_BASE}/users/${userData.ID}?context=edit`,
+          {
+            method: 'GET',
+            headers: {
+              'Authorization': `Basic ${basicAuth}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (userDetailsResponse.ok) {
+          const userDetails = await userDetailsResponse.json();
+
+          // Check if user has custom profile picture
+          if (userDetails.acf?.user_profile_picture_url) {
+            customAvatar = userDetails.acf.user_profile_picture_url;
+          }
+
+          // Check if user has custom display name (different from username)
+          if (userDetails.name && userDetails.name !== userDetails.user_login) {
+            customDisplayName = userDetails.name;
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching existing user data:', error);
+      }
+    }
+
+    // Save Facebook profile picture only if user doesn't have a custom one
+    if (profilePictureUrl && userData.ID && !customAvatar) {
       try {
         const updateUserResponse = await fetch(`${config.WP_API_BASE}/users/${userData.ID}`, {
           method: 'POST',
@@ -132,7 +167,7 @@ export async function POST(request) {
       }
     }
 
-    // Prepare response data
+    // Prepare response data with preserved custom data
     const responseData = {
       success: true,
       data: {
@@ -140,9 +175,9 @@ export async function POST(request) {
         user: {
           id: userData.ID,
           email: email,
-          displayName: name || userData.display_name || username,
+          displayName: customDisplayName || name || userData.display_name || username,
           username: userData.user_login || username,
-          avatar: profilePictureUrl
+          avatar: customAvatar || profilePictureUrl
         }
       }
     };
@@ -163,7 +198,8 @@ export async function POST(request) {
       id: userData.ID,
       email: email,
       displayName: name || userData.display_name || username,
-      avatar: profilePictureUrl
+      avatar: profilePictureUrl,
+      loginMethod: 'facebook'
     }), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

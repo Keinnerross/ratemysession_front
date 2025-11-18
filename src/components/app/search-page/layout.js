@@ -76,7 +76,7 @@ export default function SearchLayout({ data, searchParams = {}, availableCategor
   };
 
   return (
-    <div className="min-h-screen bg-white pt-20">
+    <div className="min-h-screen pt-20 bg-gradient-to-b from-amethyst-50 from-[5%] to-white to-[12%] ">
       {/* Main Content Container */}
       <div className="w-full ">
         <div className="max-w-[1220px] mx-auto h-full">

@@ -93,8 +93,8 @@ class FavoritesTherapistsService {
     // Use ACF rating directly
     const rating = parseFloat(acf.Rating || 0);
 
-    // Extract credentials from class_list
-    const credentials = this._extractCredentials(therapist.class_list);
+    // Extract credentials from ACF credentials_therapist field
+    const credentials = this._extractCredentials(acf.credentials_therapist);
 
     // Extract specialty
     const specialty = this._extractSpecialty(therapist);
@@ -124,23 +124,16 @@ class FavoritesTherapistsService {
   }
 
   /**
-   * Extract credentials from class list
+   * Extract credentials from ACF credentials field (comma-separated string)
    * @private
    */
-  _extractCredentials(classList) {
-    if (!classList || !Array.isArray(classList)) return [];
+  _extractCredentials(credentialsString) {
+    if (!credentialsString || typeof credentialsString !== 'string') return [];
 
-    return classList
-      .filter(className => className.startsWith('credential-'))
-      .map(credential => {
-        // Remove 'credential-' prefix and format
-        const cred = credential.replace('credential-', '');
-        // Replace hyphens with spaces and uppercase appropriately
-        return cred
-          .split('-')
-          .map(part => part.toUpperCase())
-          .join(' ');
-      });
+    return credentialsString
+      .split(',')
+      .map(credential => credential.trim())
+      .filter(credential => credential.length > 0);
   }
 
   /**

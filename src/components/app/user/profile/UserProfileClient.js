@@ -154,6 +154,13 @@ export default function UserProfileClient({ initialData = {} }) {
     setUserData(updatedData);
   }, []);
 
+  // Sync loginMethod from AuthContext to userData if missing
+  useEffect(() => {
+    if (user && userData && !userData.loginMethod && user.loginMethod) {
+      setUserData(prev => ({ ...prev, loginMethod: user.loginMethod }));
+    }
+  }, [user, userData]);
+
   useEffect(() => {
     if (!loading && !user) {
       // Redirect to login if not authenticated
@@ -172,6 +179,7 @@ export default function UserProfileClient({ initialData = {} }) {
         }),
         reviewsCount: initialData.reviews?.totalCount || 0,
         location: "Not specified",
+        loginMethod: user.loginMethod || null,
       };
       setUserData(newUserData);
 

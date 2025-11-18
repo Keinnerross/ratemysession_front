@@ -44,7 +44,6 @@ function Navigation({ isOpen, onOpen, onClose, onCloseImmediate }) {
         { name: "About us", href: "/about" },
         { name: "How it works", href: "/#how-it-works", isSection: true, hash: "#how-it-works" },
         { name: "Therapists", href: "/search" },
-        // { name: "Feedback", href: "/feedback" },
     ];
 
     const handleNavClick = (e, item) => {

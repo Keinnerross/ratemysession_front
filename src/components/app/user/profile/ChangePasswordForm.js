@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-export default function ChangePasswordForm({ onSubmit, isLoading = false }) {
+export default function ChangePasswordForm({ onSubmit, onCancel, isLoading = false }) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -45,6 +45,7 @@ export default function ChangePasswordForm({ onSubmit, isLoading = false }) {
     setNewPassword("");
     setConfirmPassword("");
     setError("");
+    onCancel?.();
   };
 
   return (

@@ -75,9 +75,8 @@ export function HeaderApp() {
   // border-b border-amethyst-100
   return (
     <header
-      className={`fixed left-0 top-0 z-50 w-full transition-all duration-300    border-amethyst-100 ${
-        isScrolled ? "bg-white shadow-xl/3  " : "bg-transparent border-b"
-      }`}
+      className={`fixed left-0 top-0 z-50 w-full transition-all duration-300 ${
+        isScrolled ? "bg-white shadow-xl/3  " : "bg-transparent"      }`}
     >
       <div className="max-w-[1330px] w-full mx-auto px-4 md:px-6 lg:px-0 flex items-center ">
         {/* Logo and Navigation */}

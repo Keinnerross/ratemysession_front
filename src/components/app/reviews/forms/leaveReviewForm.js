@@ -144,15 +144,15 @@ export default function LeaveReviewForm({
   return (
     <>
       {/* Overlay */}
-      <div 
+      <div
         className="fixed inset-0 bg-black/40 backdrop-blur-xs bg-opacity-50 z-50 flex items-center justify-center"
         onClick={handleClose}
       >
         {/* Modal */}
-        <div 
-          className={`bg-white rounded-[30px] transition-all duration-300 flex flex-col ${
-            currentStep === 1 ? 'w-[625px] min-h-[440px]' : 'w-[625px] h-[480px]'
-          } p-5`}
+        <div
+          className={`bg-white md:rounded-[30px] rounded-none transition-all duration-300 flex flex-col w-full h-full md:w-[625px] md:h-auto ${
+            currentStep === 1 ? 'md:min-h-[440px]' : 'md:h-[480px]'
+          } p-5 md:p-6 md:max-h-[90vh]`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -165,13 +165,6 @@ export default function LeaveReviewForm({
               <span className="text-xs font-['Outfit'] tracking-[0.16px] uppercase">
                 Cancel
               </span>
-            </button>
-
-            <button
-              onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <FaTimes className="w-5 h-5" />
             </button>
           </div>
 
@@ -216,10 +209,10 @@ export default function LeaveReviewForm({
           
 
           {/* Step Content */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col overflow-y-auto">
             {currentStep === 1 ? (
               // Step 1: Review Form
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center px-2 md:px-0">
                 {/* Therapist Image */}
                 <div className="w-[90px] h-[90px] rounded-full bg-gray-300 overflow-hidden mb-2">
                   {therapistImage ? (
@@ -264,7 +257,7 @@ export default function LeaveReviewForm({
                 </div>
 
                 {/* Review Section */}
-                <div className="w-full px-12 mt-3 flex-1">
+                <div className="w-full px-4 md:px-12 mt-3 flex-1">
                   <div className="border-b border-[#cec9ff] pb-3 flex flex-col">
                     <p className="text-xs font-['Outfit'] text-[#888787] uppercase tracking-wider  mb-2">
                       REVIEW
@@ -299,22 +292,22 @@ export default function LeaveReviewForm({
               </div>
             ) : (
               // Step 2: Identity Selection
-              <div className="flex flex-col items-center">
-                <h2 className="text-[22px] font-medium font-['Outfit'] text-[#191919] text-center mb-1">
+              <div className="flex flex-col items-center px-4 md:px-0">
+                <h2 className="text-xl md:text-[22px] font-medium font-['Outfit'] text-[#191919] text-center mb-1">
                   Your Identity
                 </h2>
-                <p className="text-sm font-light font-['Outfit'] text-[#767676] mb-8">
+                <p className="text-sm font-light font-['Outfit'] text-[#767676] mb-6 md:mb-8 text-center">
                   Choose how you'd like to submit this review
                 </p>
 
                 {/* Identity Options */}
-                <div className="flex gap-[30px]">
+                <div className="flex flex-col md:flex-row gap-4 md:gap-[30px] w-full md:w-auto">
                   {/* Anonymous Option */}
                   <button
                     onClick={() => setIdentityChoice("anonymous")}
-                    className={`relative w-[200px] h-[130px] rounded-xl border-2 transition-all ${
-                      identityChoice === "anonymous" 
-                        ? "border-[#7466f2] bg-[#f8f7ff]" 
+                    className={`relative w-full md:w-[200px] h-[130px] rounded-xl border-2 transition-all ${
+                      identityChoice === "anonymous"
+                        ? "border-[#7466f2] bg-[#f8f7ff]"
                         : "border-[#dad6ff] hover:border-[#b9b1ff]"
                     }`}
                   >
@@ -334,9 +327,9 @@ export default function LeaveReviewForm({
                   {/* Create Account Option */}
                   <button
                     onClick={() => setIdentityChoice("account")}
-                    className={`relative w-[200px] h-[130px] rounded-xl border-2 transition-all ${
-                      identityChoice === "account" 
-                        ? "border-[#7466f2] bg-[#f8f7ff]" 
+                    className={`relative w-full md:w-[200px] h-[130px] rounded-xl border-2 transition-all ${
+                      identityChoice === "account"
+                        ? "border-[#7466f2] bg-[#f8f7ff]"
                         : "border-[#dad6ff] hover:border-[#b9b1ff]"
                     }`}
                   >
@@ -358,25 +351,25 @@ export default function LeaveReviewForm({
           </div>
 
           {/* Footer Buttons */}
-          <div className={`flex gap-3 mt-6 justify-center`}>
+          <div className={`flex gap-3 mt-6 justify-center px-4 md:px-0 w-full max-w-[551px] mx-auto`}>
             {currentStep === 2 && (
               <button
                 onClick={() => setCurrentStep(1)}
-                className="w-[140px] h-[45px] rounded-[15px] border-2 border-[#7466f2] text-[#7466f2] font-['Outfit'] font-medium text-base hover:bg-[#f8f7ff] transition-colors flex items-center justify-center gap-2"
+                className="w-[100px] md:w-[140px] h-[45px] rounded-[15px] border-2 border-[#7466f2] text-[#7466f2] font-['Outfit'] font-medium text-sm md:text-base hover:bg-[#f8f7ff] transition-colors flex items-center justify-center gap-2"
               >
                 <FaChevronLeft className="w-3 h-3" />
                 Back
               </button>
             )}
-            
+
             <button
               onClick={handleContinue}
               disabled={(
                 currentStep === 1 && (rating === 0 || content.length < 10 || !termsAccepted)
               ) || isSubmitting}
-              className={`flex-1 h-[45px] rounded-[15px] bg-[#7466f2] text-white font-['Outfit'] font-medium text-base transition-all ${
+              className={`flex-1 h-[45px] rounded-[15px] bg-[#7466f2] text-white font-['Outfit'] font-medium text-sm md:text-base transition-all ${
                 (currentStep === 1 && (rating === 0 || content.length < 10 || !termsAccepted)) || isSubmitting
-                  ? 'opacity-50 cursor-not-allowed' 
+                  ? 'opacity-50 cursor-not-allowed'
                   : 'hover:bg-[#6153e0]'
               }`}
             >

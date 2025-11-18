@@ -2,17 +2,29 @@
 
 import React, { useEffect, useState } from "react";
 
-export default function RatingStatisticsChart({ 
-  rating = 0, 
-  distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 } 
+export default function RatingStatisticsChart({
+  rating = 0,
+  distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
 }) {
   const [animatedHeights, setAnimatedHeights] = useState({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
   const [hoveredStar, setHoveredStar] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  
+
   // Calculate the maximum height for normalization
   const maxCount = Math.max(...Object.values(distribution), 1);
-  
+
+  // Calculate total reviews for percentage calculation
+  const totalReviews = Object.values(distribution).reduce((sum, count) => sum + count, 0);
+
+  // Calculate percentages for each star rating
+  const percentages = {
+    5: totalReviews > 0 ? Math.round((distribution[5] / totalReviews) * 100) : 0,
+    4: totalReviews > 0 ? Math.round((distribution[4] / totalReviews) * 100) : 0,
+    3: totalReviews > 0 ? Math.round((distribution[3] / totalReviews) * 100) : 0,
+    2: totalReviews > 0 ? Math.round((distribution[2] / totalReviews) * 100) : 0,
+    1: totalReviews > 0 ? Math.round((distribution[1] / totalReviews) * 100) : 0,
+  };
+
   // Calculate target bar heights (max height is 236px based on SVG)
   const targetHeights = {
     5: Math.round((distribution[5] / maxCount) * 236),
@@ -22,13 +34,13 @@ export default function RatingStatisticsChart({
     1: Math.round((distribution[1] / maxCount) * 236),
   };
 
-  // Animate bars on mount
+  // Animate bars on mount and when distribution changes
   useEffect(() => {
     const timer = setTimeout(() => {
       setAnimatedHeights(targetHeights);
     }, 100);
     return () => clearTimeout(timer);
-  }, [distribution]);
+  }, [targetHeights]);
 
   // Handle mouse move for tooltip positioning
   const handleMouseMove = (e) => {
@@ -41,11 +53,12 @@ export default function RatingStatisticsChart({
 
   return (
     <div className="relative w-full h-full">
-      <svg 
-        viewBox="0 0 473 312" 
-        fill="none" 
-        xmlns="http://www.w3.org/2000/svg" 
-        className=""
+      <svg
+        viewBox="0 0 473 312"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full h-auto"
+        preserveAspectRatio="xMidYMid meet"
         onMouseMove={handleMouseMove}
       >
       <g clipPath="url(#clip0_552_9354)">
@@ -79,7 +92,8 @@ export default function RatingStatisticsChart({
           const minHeight = 45; // Increased minimum height to maintain bar shape
           const displayHeight = height > 0 ? Math.max(height, minHeight) : 0;
           const isHovered = hoveredStar === star;
-          
+          const percentage = percentages[star];
+
           return (
             <g key={star}>
               <rect
@@ -120,7 +134,7 @@ export default function RatingStatisticsChart({
         }}
       >
         <div className="font-medium">{hoveredStar} {hoveredStar === 1 ? 'star' : 'stars'}</div>
-        <div className="text-gray-300">{distribution[hoveredStar]} reviews</div>
+        <div className="text-gray-300">{distribution[hoveredStar]} reviews ({percentages[hoveredStar]}%)</div>
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full">
           <div className="w-0 h-0 border-l-4 border-l-transparent border-r-4 border-r-transparent border-t-4 border-t-gray-900"></div>
         </div>

@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaStar, FaRegStar } from "react-icons/fa";
 
 export default function ReviewStep({ formData, identityOption, selectedOption, onInputChange }) {
   return (
@@ -10,8 +10,7 @@ export default function ReviewStep({ formData, identityOption, selectedOption, o
           Leave a Review
         </h2>
         <p className="font-['Poppins'] font-light text-[#767676] text-sm">
-          Share your experience to help others{" "}
-          <span className="text-[#796bf5]">(optional)</span>
+          Share your experience to help others
         </p>
       </div>
 
@@ -54,17 +53,14 @@ export default function ReviewStep({ formData, identityOption, selectedOption, o
           <button
             key={star}
             onClick={() => onInputChange('rating', star)}
-            className="w-[41px] h-[37px]"
+            className="transition-transform hover:scale-110"
+            type="button"
           >
-            <svg
-              className={`w-full h-full ${
-                formData.rating >= star ? 'text-[#7466f2]' : 'text-gray-300'
-              }`}
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
+            {star <= formData.rating ? (
+              <FaStar className="w-8 h-8 text-[#ffc107]" />
+            ) : (
+              <FaRegStar className="w-8 h-8 text-gray-300" />
+            )}
           </button>
         ))}
       </div>

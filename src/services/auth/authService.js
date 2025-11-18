@@ -10,29 +10,28 @@ class AuthService {
       });
 
       if (response.token) {
+        const userId = response.user_id || this.extractUserIdFromToken(response.token);
+
+        // Standardized user object structure
+        const userObject = {
+          id: userId,
+          displayName: response.user_display_name,
+          email: response.user_email,
+          nicename: response.user_nicename,
+          avatar: null,
+          loginMethod: 'password'
+        };
+
         localStorage.setItem('authToken', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user_display_name));
+        localStorage.setItem('user', JSON.stringify(userObject));
 
-        // Save userId - with fallback to extract from JWT if not provided
-        if (response.user_id) {
-          localStorage.setItem('userId', response.user_id);
-        } else {
-          // Fallback: extract userId from JWT token
-          const userId = this.extractUserIdFromToken(response.token);
-          if (userId) {
-            localStorage.setItem('userId', userId);
-          }
-        }
-
+        // Keep legacy fields for backward compatibility
+        localStorage.setItem('userId', userId);
         localStorage.setItem('userEmail', response.user_email);
+
         return {
           success: true,
-          user: {
-            id: response.user_id || this.extractUserIdFromToken(response.token),
-            displayName: response.user_display_name,
-            email: response.user_email,
-            nicename: response.user_nicename
-          }
+          user: userObject
         };
       }
 
@@ -113,22 +112,33 @@ class AuthService {
       console.log('Google login response:', response);
 
       if (response.success && response.data.token) {
+        // Standardized user object structure
+        const userObject = {
+          id: response.data.user.id,
+          displayName: response.data.user.displayName,
+          email: response.data.user.email,
+          username: response.data.user.username,
+          avatar: response.data.user.avatar || null,
+          loginMethod: 'google'
+        };
+
         // Save authentication data
         localStorage.setItem('authToken', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user.displayName));
+        localStorage.setItem('user', JSON.stringify(userObject));
+
+        // Keep legacy fields for backward compatibility
         localStorage.setItem('userId', response.data.user.id);
         localStorage.setItem('userEmail', response.data.user.email);
-
         if (response.data.user.avatar) {
           localStorage.setItem('userPicture', response.data.user.avatar);
         }
 
         console.log('Token saved:', response.data.token);
-        console.log('User data saved:', response.data.user);
+        console.log('User data saved:', userObject);
 
         return {
           success: true,
-          user: response.data.user
+          user: userObject
         };
       }
 
@@ -148,22 +158,33 @@ class AuthService {
       console.log('Facebook login response:', response);
 
       if (response.success && response.data.token) {
+        // Standardized user object structure
+        const userObject = {
+          id: response.data.user.id,
+          displayName: response.data.user.displayName,
+          email: response.data.user.email,
+          username: response.data.user.username,
+          avatar: response.data.user.avatar || null,
+          loginMethod: 'facebook'
+        };
+
         // Save authentication data
         localStorage.setItem('authToken', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user.displayName));
+        localStorage.setItem('user', JSON.stringify(userObject));
+
+        // Keep legacy fields for backward compatibility
         localStorage.setItem('userId', response.data.user.id);
         localStorage.setItem('userEmail', response.data.user.email);
-
         if (response.data.user.avatar) {
           localStorage.setItem('userPicture', response.data.user.avatar);
         }
 
         console.log('Token saved:', response.data.token);
-        console.log('User data saved:', response.data.user);
+        console.log('User data saved:', userObject);
 
         return {
           success: true,
-          user: response.data.user
+          user: userObject
         };
       }
 
@@ -248,7 +269,7 @@ class AuthService {
   }
 
   getUser() {
-    const displayName = localStorage.getItem('user');
+    const userString = localStorage.getItem('user');
     const email = localStorage.getItem('userEmail');
     const userPicture = localStorage.getItem('userPicture');
     let userId = localStorage.getItem('userId');
@@ -265,22 +286,43 @@ class AuthService {
       }
     }
 
-    if (displayName) {
-      // Parse displayName if it's JSON stringified
-      let parsedDisplayName = displayName;
+    if (userString) {
       try {
-        parsedDisplayName = JSON.parse(displayName);
-      } catch (e) {
-        // If it's not JSON, use as is
-      }
+        const parsedUser = JSON.parse(userString);
 
-      return {
-        id: userId ? parseInt(userId) : null,
-        displayName: parsedDisplayName,
-        email,
-        avatar: userPicture
-      };
+        // If parsed result is an object with user properties (new standardized format)
+        if (typeof parsedUser === 'object' && parsedUser !== null && !Array.isArray(parsedUser)) {
+          return {
+            id: parsedUser.id || (userId ? parseInt(userId) : null),
+            displayName: parsedUser.displayName,  // Extract displayName as string
+            email: parsedUser.email || email,
+            nicename: parsedUser.nicename,
+            username: parsedUser.username,
+            avatar: parsedUser.avatar || userPicture,
+            loginMethod: parsedUser.loginMethod || null
+          };
+        }
+
+        // Legacy format: if it's just a string (old format where user = displayName only)
+        if (typeof parsedUser === 'string') {
+          return {
+            id: userId ? parseInt(userId) : null,
+            displayName: parsedUser,
+            email,
+            avatar: userPicture
+          };
+        }
+      } catch (e) {
+        // Not valid JSON, treat as legacy plain string (very old format)
+        return {
+          id: userId ? parseInt(userId) : null,
+          displayName: userString,
+          email,
+          avatar: userPicture
+        };
+      }
     }
+
     return null;
   }
 

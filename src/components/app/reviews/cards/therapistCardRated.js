@@ -112,14 +112,7 @@ export default function TherapistCardRated({
               {formatShortDate}
             </span>
 
-            {showMenu && (
-              <button
-                onClick={onMenuClick}
-                className="p-1 hover:bg-stone-100 rounded transition-colors"
-              >
-                <FaEllipsisV className="text-[#888787] text-sm" />
-              </button>
-            )}
+           
           </div>
         </div>
 

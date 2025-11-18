@@ -298,16 +298,17 @@ const FilterSidebar = ({
 
       {/* Action Buttons - Mobile Only */}
       {isMobile && (
-        <div className="flex-shrink-0 border-t border-gray-200 p-4 flex flex-col gap-3 bg-white rounded-b">
-          <ButtonCustom variant={1} onClick={onClose}>
-            View Results
-          </ButtonCustom>
+        <div className="flex-shrink-0 border-t border-gray-200 p-4 flex flex-col items-center gap-3 bg-white rounded-b">
+        
           <button
             onClick={onClearAll}
             className="text-center text-sm text-gray-600 hover:text-gray-900 transition-colors font-poppins"
           >
             Clear filters
           </button>
+            <ButtonCustom variant={1} onClick={onClose}>
+            View Results
+          </ButtonCustom>
         </div>
       )}
     </div>

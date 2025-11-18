@@ -31,10 +31,18 @@ export async function loadMoreReviews(therapistId, page, sortBy = 'recent', filt
 
     // Transform the comments from the API with userId for reaction state
     const transformedComments = transformCommentData(response.comments, userId);
-    
-    // Use the distribution from the API response
-    const distribution = response.rating_distribution || { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-    
+
+    // Normalize the distribution from the API response
+    // Backend returns keys as strings ("1", "2", etc.), convert to numbers
+    const rawDistribution = response.rating_distribution || {};
+    const distribution = {
+      5: parseInt(rawDistribution["5"] || rawDistribution[5] || 0),
+      4: parseInt(rawDistribution["4"] || rawDistribution[4] || 0),
+      3: parseInt(rawDistribution["3"] || rawDistribution[3] || 0),
+      2: parseInt(rawDistribution["2"] || rawDistribution[2] || 0),
+      1: parseInt(rawDistribution["1"] || rawDistribution[1] || 0)
+    };
+
     return {
       reviews: transformedComments,
       hasMore: response.pagination?.has_next_page || false,

@@ -18,8 +18,14 @@ export function UserDropdown({ isOpen, onOpen, onClose, onCloseImmediate }) {
     await logout();
   };
 
-  // Get display name from user object
-  const displayName = user?.email?.split('@')[0] || 'User';
+  // Get display name from user object - prioritize displayName over email
+  const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';
+
+  // Extract only the first word from the display name
+  const firstName = displayName.split(' ')[0];
+
+  // Clean email for display - remove escaped quotes
+  const userEmail = user?.email?.replace(/^["']|["']$/g, '').replace(/\\"/g, '"') || 'No email';
 
   return (
     <div
@@ -30,13 +36,13 @@ export function UserDropdown({ isOpen, onOpen, onClose, onCloseImmediate }) {
     >
       <button
         onClick={onOpen}
-        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors group"
+        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amethyst-100/40 hover:bg-amethyst-100/80 transition-colors group"
       >
         <div className="w-8 h-8 rounded-full bg-amethyst-500 flex items-center justify-center text-white text-sm font-medium">
           {displayName[0].toUpperCase()}
         </div>
         <span className="text-[15px] font-medium text-gray-900 hidden md:block">
-          {displayName}
+          {firstName}
         </span>
         <FaChevronDown 
           className={`text-xs text-gray-600 transition-transform ${
@@ -47,10 +53,10 @@ export function UserDropdown({ isOpen, onOpen, onClose, onCloseImmediate }) {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[200px] z-50">
+        <div className="absolute top-full right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[280px] z-50">
           <div className="px-4 py-2 border-b border-gray-100">
             <p className="text-sm text-gray-500">Signed in as</p>
-            <p className="text-sm font-medium text-gray-900 truncate">{user?.email}</p>
+            <p className="text-sm font-medium text-gray-900 truncate">{userEmail}</p>
           </div>
           
           <a

@@ -95,7 +95,7 @@ export default function TherapistRegistrationStep({ formData, onInputChange }) {
         </p>
       </div>
 
-      <div className="flex flex-col gap-6 w-full max-w-[621px] mx-auto text-sm font-['poppins'] px-10 pb-4">
+      <div className="flex flex-col gap-6 w-full max-w-[621px] mx-auto text-sm font-['poppins'] px-4 md:px-10 pb-4">
         <div className="relative">
           <label className="flex items-center gap-1 text-sm text-[#888787] font-['Outfit'] mb-2">
             Therapist Name
@@ -110,7 +110,7 @@ export default function TherapistRegistrationStep({ formData, onInputChange }) {
           />
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <label className="flex items-center gap-1 text-sm text-[#888787] font-['Outfit'] mb-2">
               Credentials
@@ -129,7 +129,7 @@ export default function TherapistRegistrationStep({ formData, onInputChange }) {
                 <button
                   type="button"
                   onClick={handleAddCredential}
-                  className="px-3 py-1 bg-[#796bf5] text-white rounded-md hover:bg-[#6153e0] transition-colors"
+                  className="px-3 py-1 bg-[#796bf5] text-white rounded-md hover:bg-[#6153e0] transition-colors flex-shrink-0"
                 >
                   <FaPlus className="w-3 h-3" />
                 </button>
@@ -167,7 +167,7 @@ export default function TherapistRegistrationStep({ formData, onInputChange }) {
           </div>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <label className="flex items-center gap-1 text-sm text-[#888787] font-['Outfit'] mb-2">
               Address
@@ -196,7 +196,7 @@ export default function TherapistRegistrationStep({ formData, onInputChange }) {
           </div>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1">
             <label className="flex items-center gap-1 text-sm text-[#888787] font-['Outfit'] mb-2">
               State

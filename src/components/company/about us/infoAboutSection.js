@@ -70,7 +70,25 @@ export function InfoSection({ data }) {
         </p>
 
         {buttonLink.includes("#") ? (
-          <a href={buttonLink}>Learn more</a>
+          <a
+            href={buttonLink}
+            className="inline-flex items-center gap-3 bg-amethyst-400 text-white px-6 py-3 rounded-full hover:bg-amethyst-500 transition-colors"
+          >
+            {buttonText}
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </a>
         ) : (
           <Link
             href={buttonLink}

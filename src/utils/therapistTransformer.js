@@ -51,7 +51,7 @@ export function transformTherapistData(apiData, commentCounts = null, currentUse
       slug: therapist.slug,
       image: imageUrl,
       thumbnail: thumbnailUrl,
-      credentials: extractCredentials(therapist.class_list),
+      credentials: extractCredentials(acf.credentials_therapist),
       rating: rating,
       reviews: reviewCount,
       specialty: extractSpecialty(therapist), // Extract from credentials
@@ -88,21 +88,14 @@ function extractSpecialty(therapist) {
   return "Other Specialties";
 }
 
-// Extract credentials from class list
-function extractCredentials(classList) {
-  if (!classList || !Array.isArray(classList)) return [];
-  
-  return classList
-    .filter(className => className.startsWith('credential-'))
-    .map(credential => {
-      // Remove 'credential-' prefix and format
-      const cred = credential.replace('credential-', '');
-      // Replace hyphens with spaces and uppercase appropriately
-      return cred
-        .split('-')
-        .map(part => part.toUpperCase())
-        .join(' ');
-    });
+// Extract credentials from ACF credentials field (comma-separated string)
+function extractCredentials(credentialsString) {
+  if (!credentialsString || typeof credentialsString !== 'string') return [];
+
+  return credentialsString
+    .split(',')
+    .map(credential => credential.trim())
+    .filter(credential => credential.length > 0);
 }
 
 // Get therapist by ID from API data
@@ -126,14 +119,65 @@ export function getTherapistBySlug(apiData, slug, commentCounts = null, currentU
 // Format website URL to ensure it has a protocol
 function formatWebsiteUrl(url) {
   if (!url) return '';
-  
+
   // If URL already has protocol, return as is
   if (url.startsWith('http://') || url.startsWith('https://')) {
     return url;
   }
-  
+
   // Add https:// if no protocol
   return `https://${url}`;
+}
+
+/**
+ * Extracts clean domain from URL
+ * Removes protocol (http://, https://), www., paths, and query params
+ *
+ * @param {string} url - The URL to extract domain from
+ * @returns {string} - Clean domain (e.g., "example.com")
+ *
+ * @example
+ * extractDomain("https://www.example.com/path?query=1") // "example.com"
+ * extractDomain("http://example.com") // "example.com"
+ * extractDomain("www.example.com") // "example.com"
+ * extractDomain("example.com/about") // "example.com"
+ * extractDomain("https://app.example.com") // "app.example.com"
+ */
+export function extractDomain(url) {
+  if (!url || typeof url !== 'string') return '';
+
+  try {
+    // Remove leading/trailing whitespace
+    let cleanUrl = url.trim();
+
+    // If URL doesn't have protocol, add it temporarily for parsing
+    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+      cleanUrl = 'https://' + cleanUrl;
+    }
+
+    // Parse URL
+    const urlObj = new URL(cleanUrl);
+    let domain = urlObj.hostname;
+
+    // Remove 'www.' prefix if present
+    if (domain.startsWith('www.')) {
+      domain = domain.substring(4);
+    }
+
+    return domain;
+  } catch (error) {
+    // Fallback for invalid URLs
+    console.warn('Invalid URL format:', url);
+
+    // Manual extraction as fallback
+    let cleanUrl = url
+      .replace(/^https?:\/\//, '')  // Remove protocol
+      .replace(/^www\./, '')         // Remove www.
+      .split('/')[0]                 // Get domain part only
+      .split('?')[0];                // Remove query params
+
+    return cleanUrl;
+  }
 }
 
 // Count approved comments for review count

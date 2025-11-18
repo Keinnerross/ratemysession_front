@@ -22,14 +22,17 @@ npm run build
 npm start
 ```
 
+**Note**: No testing, linting, or formatting scripts configured. Test manually and follow existing code style.
+
 ## Architecture Overview
 
 ### Tech Stack
 - **Framework**: Next.js 15.5.3 with App Router
 - **UI**: React 19.1.0 + Tailwind CSS v4
-- **Authentication**: JWT + Google OAuth
+- **Authentication**: JWT + Google/Facebook OAuth
 - **Backend**: WordPress REST API (external)
-- **Styling**: Pure Tailwind CSS (no CSS-in-JS)
+- **Styling**: Pure Tailwind CSS v4 (no CSS-in-JS)
+- **Additional**: nodemailer (feedback form), jsonwebtoken, react-icons
 
 ### Project Structure
 
@@ -40,40 +43,60 @@ src/
 │   ├── (core)/            # Main app sections
 │   │   ├── (application)/ # App features (search, profiles)
 │   │   └── (corporative)/ # Corporate pages (about, feedback)
-│   └── api/               # API proxy routes
+│   └── api/               # API proxy routes (server-side only)
 ├── components/            # React components
 ├── context/              # React Context (AuthContext, AddTherapistContext)
-├── services/             # API service layer
-├── config/               # Configuration (API endpoints)
+├── services/             # API service layer (client-side)
+│   └── api/              # API client utilities
+├── config/               # Configuration (API endpoints, server config)
 └── utils/                # Utilities (transformers, helpers)
 ```
 
 ### Key Architectural Patterns
 
-1. **API Proxy Pattern**: All external API calls go through Next.js API routes (`/api/*`) which proxy to WordPress backend. This hides credentials and provides consistent error handling.
+1. **API Proxy Pattern**: All external API calls go through Next.js API routes (`src/app/api/*/route.js`) which proxy to WordPress backend. This pattern:
+   - Hides WordPress credentials (uses `getServerConfig()` server-side only)
+   - Provides consistent error handling with proper HTTP status codes
+   - Uses Basic Auth with system credentials for WordPress API calls
+   - Returns WordPress pagination headers when applicable (x-wp-total, x-wp-totalpages)
 
-2. **Service Layer**: Business logic is centralized in `src/services/`. Each service imports the API client and handles specific domain logic.
+2. **Three-Layer Architecture**:
+   - **API Routes** (`src/app/api/*/route.js`): Server-side, use `getServerConfig()` for credentials, proxy to WordPress
+   - **Service Layer** (`src/services/*.js`): Client-side, use `apiClient` to call internal API routes, handle business logic
+   - **Components**: Call services, handle UI state and rendering
 
-3. **Data Transformation**: WordPress API responses are transformed using utilities in `src/utils/*Transformer.js`.
+3. **Data Transformation**: WordPress API responses are transformed using utilities in `src/utils/*Transformer.js`:
+   - `transformTherapistData()`: Transforms WordPress posts to app format, extracts ACF fields, handles embedded media
+   - `commentTransformer.js`: Transforms WordPress comments to review format
+   - Transformers handle null/missing data gracefully
 
 4. **Authentication Flow**:
-   - JWT tokens stored in localStorage
-   - AuthContext provides global auth state
-   - API client automatically includes Bearer token
-   - Google OAuth integrated with WordPress backend
+   - JWT tokens stored in localStorage as `authToken`
+   - `AuthContext` provides global auth state and methods (login, register, logout, loginWithGoogle, loginWithFacebook)
+   - `apiClient` automatically includes Bearer token in headers when `authType: 'user'` is specified
+   - WordPress uses Simple JWT Login plugin for token validation
+   - Google/Facebook OAuth flows handled by dedicated API routes
 
-5. **Route Groups**: Uses Next.js route groups for organization without affecting URLs.
+5. **Route Groups**: Uses Next.js route groups `(auth)`, `(application)`, `(corporative)` for organization without affecting URLs. All routes in `(core)` group inherit the main layout.
 
 ## Environment Variables
 
-Required environment variables:
+Required `.env.local` variables:
 ```bash
-NEXT_PUBLIC_GOOGLE_CLIENT_ID   # Google OAuth client ID
-NEXT_PUBLIC_FACEBOOK_APP_ID    # Facebook App ID for OAuth
-BACKEND_URL                    # WordPress backend URL
-USER_AUTH                      # System user for API calls
-PASSWORD_AUTH                  # System password for API calls
-AUTH_CODE_REGISTER             # Auth key for user registration
+# WordPress Backend
+BACKEND_URL=http://rms-backend.local         # WordPress backend URL
+USER_AUTH=username                           # System user for API calls
+PASSWORD_AUTH=password                       # System password for API calls
+AUTH_CODE_REGISTER=your-auth-key            # Auth key for user registration
+
+# OAuth
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com
+NEXT_PUBLIC_FACEBOOK_APP_ID=your-facebook-app-id
+
+# Email (for feedback form)
+GMAIL_USER=your-email@gmail.com
+GMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx      # 16-character app password (NOT regular password)
+FEEDBACK_RECIPIENT_EMAIL=recipient@example.com
 ```
 
 ### Facebook App Configuration
@@ -139,91 +162,127 @@ The feedback form uses Gmail SMTP to send emails. Configuration required:
 
 ### Adding New API Endpoints
 
-1. Add route definition to `src/config/api.js`:
+Follow this three-step pattern:
+
+1. **Define route in `src/config/api.js`** (client-accessible):
 ```javascript
-API_ROUTES.feature = {
-  list: '/api/feature/list',
-  detail: '/api/feature/detail'
+API_ROUTES.FEATURE = {
+  LIST: '/api/feature',
+  DETAIL: (id) => `/api/feature/${id}`
 }
 ```
 
-2. Create API route in `src/app/api/feature/route.js`:
+2. **Create API route in `src/app/api/feature/route.js`** (server-side):
 ```javascript
+import { NextResponse } from 'next/server';
 import { getServerConfig } from '@/config/api';
 
 export async function GET(request) {
   try {
-    const config = getServerConfig();
-    // Proxy to WordPress backend
+    const config = getServerConfig(); // Only works server-side
+    const { searchParams } = new URL(request.url);
+
+    // Create Basic Auth
+    const authString = `${config.SYSTEM_USER}:${config.SYSTEM_PASSWORD}`;
+    const basicAuth = Buffer.from(authString).toString('base64');
+
+    // Proxy to WordPress
+    const response = await fetch(`${config.WP_API_BASE}/endpoint`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${basicAuth}`
+      }
+    });
+
+    const data = await response.json();
+    return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('API error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 ```
 
-3. Create service in `src/services/feature.js`:
+3. **Create service in `src/services/feature.js`** (client-side):
 ```javascript
 import { apiClient } from './api/client';
 import { API_ROUTES } from '@/config/api';
 
 export const featureService = {
-  async getList() {
-    return await apiClient.get(API_ROUTES.feature.list);
+  async getList(params) {
+    return await apiClient.get(API_ROUTES.FEATURE.LIST, {
+      params,
+      authType: 'user' // or 'none' if no auth needed
+    });
   }
 };
 ```
 
+### API Client Auth Types
+- `authType: 'none'`: No authentication (default)
+- `authType: 'user'`: Includes user JWT token from localStorage in Authorization header
+
 ## Component Development
 
-### Styling Conventions
-- Use Tailwind CSS classes exclusively
-- Custom theme colors: Amethyst (purple) and Fern (green)
-- Fonts: Outfit (headings), Poppins (body)
-- Responsive design: mobile-first approach
+### Styling with Tailwind CSS v4
+- **Theme colors**: Defined in `src/app/globals.css` using `@theme` directive
+  - Amethyst (purple): `bg-amethyst-500`, `text-amethyst-600`, etc. (50-900 scale)
+  - Fern (green): `bg-fern-500`, `text-fern-600`, etc. (50-900 scale)
+- **Fonts**: `font-outfit` (headings), `font-poppins` (body) - defined globally
+- **Responsive design**: Mobile-first approach
+- **No CSS-in-JS**: Pure Tailwind classes only
 
-### Common Patterns
-- Form components use controlled inputs with useState
-- Loading states handled locally in components
-- Error messages support bilingual (Spanish/English)
-- Image components use Next.js Image optimization
+### Component Patterns
+- **Forms**: Controlled inputs with `useState`, client-side validation, bilingual error messages (Spanish/English)
+- **Loading states**: Handled locally in components with conditional rendering
+- **Images**: Use Next.js `Image` component, external domains whitelisted in `next.config.mjs`
+- **Context usage**: `useAuth()` for auth state, `useAddTherapist()` for add therapist modal state
+
+## WordPress Integration
+
+### Backend Structure
+- **Custom Post Type**: `therapists` (custom post type in WordPress)
+- **ACF Fields**: All therapist data stored as ACF fields (Address, city, state_address, zip_code, Website, credentials, Rating, category, ai_review_summary, etc.)
+- **Comments**: WordPress native comments used for therapist reviews
+- **Media**: WordPress media library for therapist profile photos
+- **Authentication**: Simple JWT Login plugin handles token generation and validation
+
+### Data Flow Pattern
+1. **WordPress stores**: Posts (therapists), Comments (reviews), ACF fields (metadata), Media (images)
+2. **API routes fetch**: Data from WordPress REST API using Basic Auth (system credentials)
+3. **Transformers convert**: WordPress format → App format (e.g., `transformTherapistData()`)
+4. **Components render**: Transformed data
+
+### Key ACF Fields
+- `Rating`: Numeric rating (managed by WordPress, not calculated client-side)
+- `category`: Therapist specialization
+- `credentials`: Stored as string, also available in `class_list` array
+- `ai_review_summary`: AI-generated summary of reviews
+- `ai_review_summary_useful`: Comma-separated user IDs who marked summary as useful
+- `created_by`: "Therapist" or "User" (who added the therapist)
 
 ## Important Considerations
 
-1. **No Testing Framework**: The project currently has no testing setup. Test manually during development.
-
-2. **No Linting/Formatting**: No ESLint or Prettier configuration. Follow existing code style.
-
-3. **Client-Side Route Protection**: Authentication checks happen client-side. Protected pages should verify auth status.
-
-4. **WordPress Integration**:
-   - Uses ACF (Advanced Custom Fields) for therapist data
-   - Simple JWT Login plugin for authentication
-   - Custom post types for therapists and reviews
-
-5. **Local Storage Usage**:
-   - Auth tokens: `authToken`
-   - Therapist drafts: `therapistDraft`
-   - Clear on logout
-
-6. **Image Handling**: External images from Google require whitelisting in `next.config.mjs`.
-
-## Common Development Tasks
-
-### Working with Forms
-Forms typically follow this pattern:
-- Controlled components with useState
-- Client-side validation
-- Service layer for API calls
-- Error handling with bilingual messages
-- Loading states during submission
-
-### API Error Handling
-- Server routes return appropriate HTTP status codes
-- Client services check response.ok
-- Errors are logged to console and re-thrown
-- UI components handle errors with try-catch
+### Development Workflow
+- **No testing framework**: Test manually during development
+- **No linting/formatting**: Follow existing code style (no ESLint/Prettier)
+- **Client-side route protection**: Auth checks happen client-side via `useAuth()` hook
+- **Local storage keys**: `authToken` (JWT), `therapistDraft` (form draft data)
+- **Image whitelisting**: External images require `next.config.mjs` configuration
 
 ### State Management
-- Global state: React Context (Auth, AddTherapist)
-- Local state: useState for component-specific data
-- No Redux or other state management libraries
+- **Global state**: React Context only (`AuthContext`, `AddTherapistContext`)
+- **Local state**: `useState` for component-specific data
+- **No Redux**: Simple Context API sufficient for this app
+
+### API Error Handling
+- **Server routes**: Return proper HTTP status codes, log errors to console
+- **Client services**: Check `response.ok`, throw errors with descriptive messages
+- **UI components**: Wrap service calls in try-catch, display bilingual error messages
+- **Special case**: 409 Conflict (duplicate review) returns data instead of throwing
+
+### WordPress REST API Gotchas
+- Embedded data (`_embed` param): Use for featured media and replies
+- Pagination headers: `x-wp-total`, `x-wp-totalpages` passed through API proxy
+- Comments approval: Only approved comments returned by default
+- ACF data: Available in `acf` property of post objects

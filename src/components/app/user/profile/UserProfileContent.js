@@ -74,8 +74,15 @@ export default function UserProfileContent({
     loginMethod = null,
   } = data;
 
-  // Determine if user logged in with Google (infer from email or loginMethod field)
-  const isGoogleLogin = loginMethod === 'google' || (user?.avatar && user.avatar.includes('googleusercontent.com'));
+  // Determine if user logged in with OAuth (Google or Facebook)
+  // OAuth users have avatars from external sources or loginMethod field
+  const isOAuthLogin = loginMethod === 'google' ||
+                       loginMethod === 'facebook' ||
+                       (user?.avatar && (
+                         user.avatar.includes('googleusercontent.com') ||
+                         user.avatar.includes('facebook.com') ||
+                         user.avatar.includes('fbcdn.net')
+                       ));
 
   // Handle name edit
   const handleStartEditName = () => {
@@ -231,7 +238,7 @@ export default function UserProfileContent({
   };
 
   return (
-    <div className="min-h-screen pb-16 md:pb-12 lg:pb-16 pt-20 md:pt-28 ">
+    <div className="min-h-screen pb-16 md:pb-12 lg:pb-16 pt-20 md:pt-28 bg-gradient-to-b from-amethyst-50">
       <div className="max-w-[1140px] mx-auto px-6 md:px-6 lg:px-8 mt-6 md:mt-0">
         <div className="flex flex-col lg:flex-row gap-6 md:gap-8 lg:gap-16">
           {/* Left Column - User Info */}
@@ -294,36 +301,36 @@ export default function UserProfileContent({
               <div className="flex  flex-col items-center justify-center">
                 {/* Header Info */}
                 <div className="flex flex-col items-center gap-2 ">
-                  <div className="relative flex justify-center w-fit max-w-[78vw]">
+                  <div className="relative flex justify-center items-center w-fit max-w-[78vw] gap-2">
                     {isEditingName ? (
-                      <div className="flex items-center gap-2">
+                      <>
                         <input
                           type="text"
                           value={editedName}
                           onChange={(e) => setEditedName(e.target.value)}
-                          className="text-2xl font-medium text-font font-['Outfit'] text-center border-b-2 border-[#7466f2] focus:outline-none bg-transparent px-2"
+                          className="text-2xl font-medium text-font font-['Outfit'] text-center border-b-2 border-amethyst-500 focus:outline-none bg-transparent px-2"
                           autoFocus
                           disabled={isSavingName}
                         />
                         <button
                           onClick={handleSaveName}
                           disabled={isSavingName}
-                          className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors"
+                          className="w-5 h-5 bg-fern-500 rounded-full flex items-center justify-center hover:bg-fern-600 transition-colors"
                         >
                           {isSavingName ? (
-                            <div className="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent"></div>
+                            <div className="animate-spin rounded-full h-2.5 w-2.5 border-2 border-white border-t-transparent"></div>
                           ) : (
-                            <FaCheck className="w-3 h-3 text-white" />
+                            <FaCheck className="w-2.5 h-2.5 text-white" />
                           )}
                         </button>
                         <button
                           onClick={handleCancelEditName}
                           disabled={isSavingName}
-                          className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                          className="w-5 h-5 bg-amethyst-500 rounded-full flex items-center justify-center hover:bg-amethyst-600 transition-colors"
                         >
-                          <FaTimes className="w-3 h-3 text-white" />
+                          <FaTimes className="w-2.5 h-2.5 text-white" />
                         </button>
-                      </div>
+                      </>
                     ) : (
                       <>
                         <h1 className="text-2xl font-medium text-font font-['Outfit'] text-center ">
@@ -331,10 +338,10 @@ export default function UserProfileContent({
                         </h1>
                         {/* Edit Button */}
                         <button
-                          className="w-6 h-6  bg-amethyst-200 rounded-full flex items-center justify-center hover:bg-amethyst-300 transition-colors flex-shrink-0 absolute left-[104%] top-1"
+                          className="w-5 h-5 bg-amethyst-200 rounded-full flex items-center justify-center hover:bg-amethyst-300 transition-colors flex-shrink-0"
                           onClick={handleStartEditName}
                         >
-                          <FaEdit className="w-3 h-3 text-white" />
+                          <FaEdit className="w-2.5 h-2.5 text-white" />
                         </button>
                       </>
                     )}
@@ -402,40 +409,51 @@ export default function UserProfileContent({
                   {/* Header Info */}
                   <div className="relative">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-8">
-                      {isEditingName ? (
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={editedName}
-                            onChange={(e) => setEditedName(e.target.value)}
-                            className="text-xl sm:text-2xl font-medium text-black font-['Outfit'] tracking-tight border-b-2 border-[#7466f2] focus:outline-none bg-transparent px-2"
-                            autoFocus
-                            disabled={isSavingName}
-                          />
-                          <button
-                            onClick={handleSaveName}
-                            disabled={isSavingName}
-                            className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors"
-                          >
-                            {isSavingName ? (
-                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                            ) : (
-                              <FaCheck className="w-4 h-4 text-white" />
-                            )}
-                          </button>
-                          <button
-                            onClick={handleCancelEditName}
-                            disabled={isSavingName}
-                            className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
-                          >
-                            <FaTimes className="w-4 h-4 text-white" />
-                          </button>
-                        </div>
-                      ) : (
-                        <h1 className="text-xl sm:text-2xl font-medium text-black font-['Outfit'] tracking-tight">
-                          {name}
-                        </h1>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {isEditingName ? (
+                          <>
+                            <input
+                              type="text"
+                              value={editedName}
+                              onChange={(e) => setEditedName(e.target.value)}
+                              className="text-xl sm:text-2xl font-medium text-black font-['Outfit'] tracking-tight border-b-2 border-amethyst-500 focus:outline-none bg-transparent px-2"
+                              autoFocus
+                              disabled={isSavingName}
+                            />
+                            <button
+                              onClick={handleSaveName}
+                              disabled={isSavingName}
+                              className="w-6 h-6 bg-fern-500 rounded-full flex items-center justify-center hover:bg-fern-600 transition-colors"
+                            >
+                              {isSavingName ? (
+                                <div className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent"></div>
+                              ) : (
+                                <FaCheck className="w-3.5 h-3.5 text-white" />
+                              )}
+                            </button>
+                            <button
+                              onClick={handleCancelEditName}
+                              disabled={isSavingName}
+                              className="w-6 h-6 bg-amethyst-500 rounded-full flex items-center justify-center hover:bg-amethyst-600 transition-colors"
+                            >
+                              <FaTimes className="w-3.5 h-3.5 text-white" />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <h1 className="text-xl sm:text-2xl font-medium text-black font-['Outfit'] tracking-tight">
+                              {name}
+                            </h1>
+                            {/* Edit Button */}
+                            <button
+                              onClick={handleStartEditName}
+                              className="w-[24px] h-[24px] sm:w-[28px] sm:h-[28px] bg-[#cbc5ff] rounded-full flex items-center justify-center hover:bg-[#b6aeff] transition-colors flex-shrink-0"
+                            >
+                              <FaEdit className="w-[11px] h-[11px] sm:w-[13px] sm:h-[13px] text-white" />
+                            </button>
+                          </>
+                        )}
+                      </div>
 
                       {/* Log Out Button - Mobile Position */}
                       <div className="sm:hidden">
@@ -463,7 +481,8 @@ export default function UserProfileContent({
                   </div>
 
                   {/* Log Out Button - Desktop Position */}
-                  <div className="hidden sm:block flex gap-3">
+                  <div className="hidden sm:block md:flex gap-3">
+
                     <button
                       onClick={handleLogout}
                       className="inline-block px-6 py-1 bg-amethyst-500 rounded-full text-white text-base font-['Outfit'] hover:bg-[#6153e0] transition-colors"
@@ -472,7 +491,7 @@ export default function UserProfileContent({
                     </button>
 
                     {/* Change Password Button - Only for traditional login */}
-                    {!isGoogleLogin && (
+                    {!isOAuthLogin && (
                       <button
                         onClick={() => setShowPasswordForm(!showPasswordForm)}
                         className="inline-block px-6 py-1 bg-gray-200 rounded-full text-gray-800 text-base font-['Outfit'] hover:bg-gray-300 transition-colors"
@@ -483,7 +502,7 @@ export default function UserProfileContent({
                   </div>
 
                   {/* Change Password Form */}
-                  {!isGoogleLogin && showPasswordForm && (
+                  {!isOAuthLogin && showPasswordForm && (
                     <div className="mt-6">
                       {passwordSuccess && (
                         <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -501,21 +520,12 @@ export default function UserProfileContent({
                       )}
                       <ChangePasswordForm
                         onSubmit={handlePasswordChange}
+                        onCancel={() => setShowPasswordForm(false)}
                         isLoading={isChangingPassword}
                       />
                     </div>
                   )}
                 </div>
-
-                {/* Edit Name Button */}
-                {!isEditingName && (
-                  <button
-                    onClick={handleStartEditName}
-                    className="w-[30px] h-[30px] sm:w-[35px] sm:h-[35px] bg-[#cbc5ff] rounded-full flex items-center justify-center hover:bg-[#b6aeff] transition-colors flex-shrink-0"
-                  >
-                    <FaEdit className="w-[13px] h-[13px] sm:w-[15px] sm:h-[15px] text-white" />
-                  </button>
-                )}
               </div>
             </div>
 
