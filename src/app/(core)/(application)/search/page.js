@@ -7,12 +7,13 @@ import { getAuthToken } from '@/utils/auth';
 
 export default async function SearchPage({ searchParams }) {
   const params = await searchParams;
-  
+
   const searchTerm = params.q || "";
   const rating = params.rating ? parseInt(params.rating) : null;
   const location = params.location || "";
   const categories = params.categories ? params.categories.split(',') : [];
-  
+  const sort = params.sort || "recommended";
+
   let therapistsData = [];
   let availableCategories = [];
   let availableLocations = [];
@@ -54,7 +55,8 @@ export default async function SearchPage({ searchParams }) {
       q: searchTerm,
       rating,
       location,
-      categories
+      categories,
+      sort
     });
 
     // Extraer IDs de los resultados

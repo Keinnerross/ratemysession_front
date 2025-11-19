@@ -13,7 +13,8 @@ export async function loadMoreTherapists(page, searchParams = {}) {
       q: searchParams.q,
       rating: searchParams.rating,
       location: searchParams.location,
-      categories: searchParams.categories
+      categories: searchParams.categories,
+      sort: searchParams.sort
     });
     
     // Extraer IDs de los resultados

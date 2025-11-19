@@ -3,20 +3,32 @@ import { BACKEND_URL } from '@/services/api/endpoints';
 // Transforms WordPress API data to match the app's expected format
 export function transformTherapistData(apiData, commentCounts = null, currentUserId = null) {
   return apiData.map(therapist => {
-    // Get featured image URL from embedded data
+    // Get featured image URL - supports both new and old formats
     let imageUrl = null;
     let thumbnailUrl = null;
-    
-    if (therapist._embedded && therapist._embedded['wp:featuredmedia'] && therapist._embedded['wp:featuredmedia'][0]) {
+
+    // Nuevo formato: featured_media como objeto con URLs directas (custom endpoint)
+    if (therapist.featured_media && typeof therapist.featured_media === 'object' && therapist.featured_media.url) {
+      // Usar thumbnail (150x150) para tarjetas - más ligero y rápido
+      thumbnailUrl = therapist.featured_media.thumbnail ||
+                     therapist.featured_media.medium ||
+                     therapist.featured_media.url;
+
+      // Usar large para imágenes completas en perfiles
+      imageUrl = therapist.featured_media.large ||
+                 therapist.featured_media.url;
+    }
+    // Formato antiguo: _embedded (WordPress estándar) - fallback
+    else if (therapist._embedded && therapist._embedded['wp:featuredmedia'] && therapist._embedded['wp:featuredmedia'][0]) {
       const media = therapist._embedded['wp:featuredmedia'][0];
-      
+
       // Obtener thumbnail para las tarjetas (150x150 o medium)
       if (media.media_details?.sizes) {
-        thumbnailUrl = media.media_details.sizes.thumbnail?.source_url || 
+        thumbnailUrl = media.media_details.sizes.thumbnail?.source_url ||
                       media.media_details.sizes.medium?.source_url ||
                       media.source_url;
       }
-      
+
       // Imagen completa para el perfil
       imageUrl = media.source_url || media.media_details?.sizes?.large?.source_url;
     }
@@ -37,7 +49,15 @@ export function transformTherapistData(apiData, commentCounts = null, currentUse
     const location = acf.city || "New York";
     
     // Use ACF rating directly (WordPress manages this)
-    const rating = acf.Rating || 0;
+    // Handle both ACF format (standard endpoint) and direct rating (custom endpoint)
+    const rating = (() => {
+      const value = acf.Rating || therapist.rating || 0;
+      if (typeof value === 'string') {
+        const parsed = parseFloat(value);
+        return isNaN(parsed) ? 0 : parsed;
+      }
+      return typeof value === 'number' ? value : 0;
+    })();
     
     // Count approved comments for review count
     const reviewCount = countApprovedComments(therapist, commentCounts);

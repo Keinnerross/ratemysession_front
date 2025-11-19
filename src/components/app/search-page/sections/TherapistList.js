@@ -4,9 +4,7 @@ import React, { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import TherapistCard from '@/components/app/therapists/cards/therapistCard';
 import TherapistCardSkeleton from '@/components/app/therapists/cards/TherapistCardSkeleton';
-import { ButtonCustom } from '@/components/global/buttons/buttons';
 import AddTherapistBanner from './AddTherapistBanner';
-import { FaSpinner } from 'react-icons/fa';
 import { sortTherapists } from '@/utils/sortTherapists';
 import favoritesService from '@/services/users/favoritesService';
 import { useAuth } from '@/context/AuthContext';
@@ -112,23 +110,23 @@ const TherapistList = ({ initialTherapists, onLoadMore, initialHasMore, sortBy =
       </div>
       
       {/* Show More Button */}
-      {hasMore && (
+      {hasMore && !isPending && (
         <div className="flex justify-center mt-8">
-          <ButtonCustom 
-            variant={2} 
+          <button
             onClick={handleLoadMore}
-            disabled={isPending}
-            className="min-w-[200px]"
+            className="px-6 sm:px-8 py-2 bg-white rounded-[100px] border border-solid border-[#e8e8e8] hover:border-[#7466f2] transition-all"
           >
-            {isPending ? (
-              <>
-                <FaSpinner className="animate-spin mr-2" />
-                Loading...
-              </>
-            ) : (
-              'Show More'
-            )}
-          </ButtonCustom>
+            <span className="font-medium text-gray-800 text-xs sm:text-sm font-['poppins'] tracking-[0] leading-4">
+              Show More
+            </span>
+          </button>
+        </div>
+      )}
+
+      {/* Loading Spinner */}
+      {isPending && (
+        <div className="flex justify-center items-center py-6 md:py-8 mt-2">
+          <div className="animate-spin rounded-full h-8 w-8 md:h-10 md:w-10 border-4 border-gray-200 border-t-[#7466f2]"></div>
         </div>
       )}
 

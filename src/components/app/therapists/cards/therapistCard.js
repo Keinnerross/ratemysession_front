@@ -10,6 +10,7 @@ import {
   FaHeart,
 } from "react-icons/fa";
 import NotificationToast from "@/components/global/notifications/NotificationToast";
+import ConfirmationModal from "@/components/global/modals/ConfirmationModal";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import favoritesService from "@/services/users/favoritesService";
@@ -146,7 +147,7 @@ export default function TherapistCard({ dataTherapist = {} }) {
                     <div className="flex items-center gap-1">
                       <FaStar className="text-yellow-400 text-sm" />
                       <span className="text-sm font-medium text-gray-700 font-outfit">
-                        {rating.toFixed(1)}
+                        {(typeof rating === 'number' ? rating : parseFloat(rating) || 0).toFixed(1)}
                       </span>
                     </div>
                   </div>
@@ -219,40 +220,16 @@ export default function TherapistCard({ dataTherapist = {} }) {
       />
 
       {/* Confirmation Dialog */}
-      {showConfirmDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold font-outfit mb-4">
-              Remove from favorites?
-            </h3>
-            <p className="text-gray-600 font-poppins mb-6">
-              Are you sure you want to remove {name} from your favorites list?
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowConfirmDialog(false);
-                }}
-                className="px-4 py-2 text-gray-600 font-poppins hover:text-gray-800 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  await performSaveToggle();
-                }}
-                className="px-4 py-2 bg-amethyst-500 text-white rounded-lg hover:bg-amethyst-600 transition-colors font-poppins"
-              >
-                Yes, remove
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmationModal
+        isOpen={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        onConfirm={performSaveToggle}
+        title="Remove from favorites?"
+        message={`Are you sure you want to remove ${name} from your favorites list?`}
+        confirmText="Yes, remove"
+        cancelText="Cancel"
+        isLoading={isLoading}
+      />
     </>
   );
 }

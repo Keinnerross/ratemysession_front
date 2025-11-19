@@ -13,7 +13,7 @@ export function ButtonCustom({
     switch (variant) {
       case 1:
         // Primary - Purple filled
-        return "bg-amethyst-500 text-white hover:bg-amethyst-600";
+        return "bg-amethyst-400 text-white hover:bg-amethyst-500";
       case 2:
         // Secondary - White with purple border
         return "bg-white text-amethyst-950 font-medium border-2 border-amethyst-500 hover:bg-amethyst-50";
@@ -24,7 +24,7 @@ export function ButtonCustom({
         // Ghost - Transparent with green text
         return "bg-transparent text-fern-600 hover:bg-fern-50";
       default:
-        return "bg-amethyst-500 text-white hover:bg-amethyst-600";
+        return "bg-amethyst-400 text-white hover:bg-amethyst-500";
     }
   };
 

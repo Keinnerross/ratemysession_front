@@ -36,8 +36,8 @@ const SearchHeader = ({ resultCount, filters, onFilterChange, onClearAll, onOpen
               onChange={onSortChange}
               options={[
                 { value: "recommended", label: "Recommended" },
-                { value: "alphabetical-asc", label: "Alphabetical A-Z" },
-                { value: "alphabetical-desc", label: "Alphabetical Z-A" },
+                { value: "name-asc", label: "Alphabetical A-Z" },
+                { value: "name-desc", label: "Alphabetical Z-A" },
               ]}
               rounded="rounded-full"
               className="min-w-[160px] lg:min-w-[180px] flex-nowrap whitespace-nowrap"

@@ -26,19 +26,20 @@ export const therapistService = {
   // Search therapists with filters
   async searchTherapists(params = {}) {
     try {
-      const { page = 1, perPage = 12, q, rating, location, categories } = params;
+      const { page = 1, perPage = 12, q, rating, location, categories, sort } = params;
       const queryParams = new URLSearchParams();
-      
+
       queryParams.append('page', page);
       queryParams.append('per_page', perPage);
-      
+
       if (q) queryParams.append('q', q);
       if (rating) queryParams.append('rating', rating);
       if (location) queryParams.append('location', location);
       if (categories && categories.length > 0) {
         queryParams.append('categories', categories.join(','));
       }
-      
+      if (sort) queryParams.append('sort', sort);
+
       const url = `${ENDPOINTS.THERAPISTS.SEARCH}?${queryParams.toString()}`;
       const data = await apiClient.get(url);
       return data;

@@ -13,7 +13,7 @@ import { sortTherapists } from "@/utils/sortTherapists";
 export default function SearchLayout({ data, searchParams = {}, availableCategories = [], availableLocations = [], hasMore = true, totalResults = 0, initialFavoriteIds = [] }) {
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [sortBy, setSortBy] = useState("recommended");
+  const [sortBy, setSortBy] = useState(searchParams.sort || "recommended");
   const [currentPage, setCurrentPage] = useState(1);
 
   // Parse filters from URL params
@@ -25,6 +25,7 @@ export default function SearchLayout({ data, searchParams = {}, availableCategor
     location: searchParams.location || "",
     searchTerm: searchParams.q || "",
     showFavorites: searchParams.favorites === "true",
+    sort: searchParams.sort || "recommended",
   };
 
   // Update URL when filters change
@@ -40,16 +41,40 @@ export default function SearchLayout({ data, searchParams = {}, availableCategor
     }
     if (newFilters.showFavorites) params.set("favorites", "true");
 
+    // Include current sort in URL
+    const currentSort = newFilters.sort || sortBy;
+    if (currentSort && currentSort !== "recommended") {
+      params.set("sort", currentSort);
+    }
+
     const queryString = params.toString();
-    
+
     // Mark that we're applying filters in sessionStorage
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('search-filter-applied', 'true');
     }
-    
+
     router.push(`/search${queryString ? `?${queryString}` : ""}`);
     setCurrentPage(1); // Reset pagination when filters change
   };
+
+  // Handle sort change
+  const handleSortChange = useCallback((newSort) => {
+    setSortBy(newSort);
+
+    // Update URL with new sort
+    const params = new URLSearchParams();
+    if (filters.searchTerm) params.set("q", filters.searchTerm);
+    if (filters.rating) params.set("rating", filters.rating.toString());
+    if (filters.location) params.set("location", filters.location);
+    if (filters.categories.length > 0) params.set("categories", filters.categories.join(","));
+    if (filters.showFavorites) params.set("favorites", "true");
+    if (newSort && newSort !== "recommended") params.set("sort", newSort);
+
+    const queryString = params.toString();
+    router.push(`/search${queryString ? `?${queryString}` : ""}`);
+    setCurrentPage(1);
+  }, [filters, router]);
 
   // Data is already filtered on the server
   const initialTherapists = data || [];
@@ -64,11 +89,12 @@ export default function SearchLayout({ data, searchParams = {}, availableCategor
       q: filters.searchTerm,
       rating: filters.rating,
       location: filters.location,
-      categories: filters.categories
+      categories: filters.categories,
+      sort: sortBy
     });
     setCurrentPage(nextPage);
     return result;
-  }, [currentPage, filters]);
+  }, [currentPage, filters, sortBy]);
 
   const clearAllFilters = () => {
     router.push("/search");
@@ -132,7 +158,7 @@ export default function SearchLayout({ data, searchParams = {}, availableCategor
                 onClearAll={clearAllFilters}
                 onOpenFilters={() => setIsSidebarOpen(true)}
                 sortBy={sortBy}
-                onSortChange={setSortBy}
+                onSortChange={handleSortChange}
               />
               <TherapistList
                 key={`${filters.searchTerm}-${filters.rating}-${filters.location}-${filters.categories.join(',')}`}

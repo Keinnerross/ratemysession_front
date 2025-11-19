@@ -35,7 +35,7 @@ export function InfoSection({ data }) {
 
   return (
     <div
-      id={historyData.id}
+      id={data.id}
       ref={sectionRef}
       className={`px-6 md:px-0 flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-30 transition-all duration-700 ${
         !isImageLeft ? "lg:flex-row-reverse" : ""
