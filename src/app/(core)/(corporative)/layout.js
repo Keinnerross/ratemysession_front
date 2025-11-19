@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/header/header";
 import { Footer } from "@/components/layout/footer/footer";
@@ -55,7 +55,9 @@ function LayoutContent({ children }) {
 export default function LayoutCore({ children }) {
   return (
     <AddTherapistProvider>
-      <LayoutContent>{children}</LayoutContent>
+      <Suspense fallback={null}>
+        <LayoutContent>{children}</LayoutContent>
+      </Suspense>
     </AddTherapistProvider>
   );
 }

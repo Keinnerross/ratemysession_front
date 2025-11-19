@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import SocialAuthButtons from "@/components/app/auth/SocialAuthButtons";
 import PageTransition from "@/components/app/auth/PageTransition";
 
-export default function RegisterPage() {
+function RegisterPageContent() {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -239,5 +239,17 @@ export default function RegisterPage() {
         </div>
       </div>
     </PageTransition>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amethyst-500"></div>
+      </div>
+    }>
+      <RegisterPageContent />
+    </Suspense>
   );
 }
